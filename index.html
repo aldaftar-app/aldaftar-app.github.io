@@ -8,6 +8,15 @@
 <meta property="og:title" content="تطبيق الدفتر — دفترك ودفتر زبونك في مكان واحد" />
 <meta property="og:description" content="التاجر يسجّل الديون، والزبون يرى ما عليه بنفسه، لحظياً وبدقّة." />
 <meta property="og:type" content="website" />
+<meta property="og:image" content="https://aldaftar-app.github.io/images/icon-192.png" />
+
+<!-- ─── الأيقونة ──────────────────────────────────────────────────
+     كانت الكرة الرمادية الافتراضية. وهي تُقرأ «موقعٌ لا صاحب له».
+     والتاجر يفتح عشرة تبويبات، فالأيقونة هي ما يجده بها.           -->
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<meta name="theme-color" content="#2563EB">
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
@@ -139,7 +148,7 @@
   <section id="about" style="background:#fff">
     <div style="max-width:900px;margin:0 auto;padding:64px 24px 8px;text-align:center">
       <h2 style="margin:0 0 16px;font-size:clamp(26px,3.4vw,38px);font-weight:800;letter-spacing:-.5px">ما هو تطبيق الدفتر؟</h2>
-      <p style="margin:0 auto;font-size:17px;color:#475569;max-width:760px">الدفتر تطبيق محاسبة عربي بسيط بميزة فريدة: <strong style="color:#1E293B">الطرفان يريان الحساب</strong>. التاجر يسجّل ديون زبائنه ودفعاتهم، والزبون يفتح التطبيق فيرى ما عليه لكل محل — فلا نسيان ولا خلاف. والأرصدة تُحسب تلقائياً بدقّة. وللأفراد محفظة لمتابعة المصاريف. كل ذلك بواجهة سهلة تناسب الجميع.</p>
+      <p style="margin:0 auto;font-size:17px;color:#475569;max-width:760px">الدفتر تطبيق محاسبة عربي بسيط بميزة فريدة: <strong style="color:#1E293B">الطرفان يريان الحساب</strong>. التاجر يسجّل ديون زبائنه ودفعاتهم، والزبون يفتح التطبيق فيرى ما عليه لكل محل — فلا نسيان ولا خلاف. والأرصدة تُحسب تلقائياً بدقّة، ويعمل بدون إنترنت. كل ذلك بواجهة سهلة تناسب الجميع.</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-top:32px;text-align:right" data-reveal-group="up">
         <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:18px;padding:18px">
           <span style="display:block;font-weight:700;color:#0F172A;margin-bottom:2px">أرصدة دقيقة</span>
@@ -280,13 +289,9 @@
           <p style="margin:0;color:#64748B;font-size:15px">تصفّح بياناتك حتى عند ضعف الشبكة، مع مزامنة تلقائية.</p>
         </div>
 
-        <div style="background:#fff;border:1px solid #E2E8F0;border-radius:20px;padding:24px;box-shadow:0 1px 3px rgba(15,23,42,.05)">
-          <div style="width:44px;height:44px;border-radius:14px;background:#ECFDF5;color:#059669;display:flex;align-items:center;justify-content:center;margin-bottom:14px">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2" /><path d="M16 12h3M2 10h20" /></svg>
-          </div>
-          <h3 style="margin:0 0 6px;font-size:18px;font-weight:700;color:#0F172A">محفظة المصاريف الشخصية</h3>
-          <p style="margin:0;color:#64748B;font-size:15px">تابع مصاريفك الشهرية بأرشيف منظّم.</p>
-        </div>
+<!-- أُزيلت بطاقة «محفظة المصاريف الشخصية»: الشاشة مُخفاة في التطبيق
+     بقرارٍ من صاحب المنتج. وميزةٌ تُعلَن ولا تُوجد أسوأ من ميزةٍ
+     ناقصة — التاجر يبحث عنها، لا يجدها، فيشكّ في بقيّة القائمة. -->
 
         <div style="background:#fff;border:1px solid #E2E8F0;border-radius:20px;padding:24px;box-shadow:0 1px 3px rgba(15,23,42,.05)">
           <div style="width:44px;height:44px;border-radius:14px;background:#1E293B;color:#93C5FD;display:flex;align-items:center;justify-content:center;margin-bottom:14px">
@@ -375,7 +380,7 @@
         </div>
         <div style="border:1px solid #A7F3D0;border-radius:24px;padding:28px;background:linear-gradient(135deg,#ECFDF5,#fff)">
           <h3 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#059669">للزبون</h3>
-          <p style="margin:0;color:#475569;font-size:16px">افتح التطبيق فترى ما عليك من ديون لدى كل المحلات في مكان واحد، محدّثاً لحظياً — وتابع مصاريفك الشخصية أيضاً.</p>
+          <p style="margin:0;color:#475569;font-size:16px">افتح التطبيق فترى ما عليك من ديون لدى كل المحلات في مكان واحد، محدّثاً لحظياً — ويصلك إشعار فور تسجيل أي دين أو دفعة.</p>
         </div>
       </div>
     </div>
@@ -411,12 +416,6 @@
             <div style="position:relative;width:100%;height:100%;border-radius:24px;overflow:hidden;background:#F8FAFC"><img class="slot" src="images/shot-reports.png" alt="التقارير" data-ph="التقارير" onerror="this.classList.add('missing')" style="border-radius:18px;"></div>
           </div>
           <span style="display:block;margin-top:10px;font-size:13px;color:#94A3B8">التقارير</span>
-        </div>
-        <div style="flex:0 0 auto;text-align:center">
-          <div style="width:196px;aspect-ratio:9/19;border-radius:30px;background:#000;padding:7px;border:1px solid #1E293B">
-            <div style="position:relative;width:100%;height:100%;border-radius:24px;overflow:hidden;background:#F8FAFC"><img class="slot" src="images/shot-wallet.png" alt="المحفظة" data-ph="المحفظة" onerror="this.classList.add('missing')" style="border-radius:18px;"></div>
-          </div>
-          <span style="display:block;margin-top:10px;font-size:13px;color:#94A3B8">المحفظة</span>
         </div>
         <div style="flex:0 0 auto;text-align:center">
           <div style="width:196px;aspect-ratio:9/19;border-radius:30px;background:#000;padding:7px;border:1px solid #1E293B">
@@ -682,7 +681,7 @@
     // ⚠️ الـ APK في GitHub Releases لا في المستودع — أربعون ميغابايت لا
     //    تُدفن في تاريخ Git. و`latest` تُشير دائماً إلى آخر إصدار، فلا
     //    يُعدَّل هذا السطر مع كلّ نسخة.
-    apk:      "https://github.com/Desighner/Desighner.github.io/releases/latest/download/daftar-latest.apk",
+    apk:      "https://github.com/aldaftar-app/aldaftar-app.github.io/releases/latest/download/daftar-latest.apk",
     telegram: "https://t.me/aldaftarapp",           // ← ضع رابط قناتك
     whatsapp: "https://wa.me/963994398849",       // ← رقم الدعم (بصيغة دولية بلا +)
     email:    "support@aldaftar.app"              // ← بريد الدعم
