@@ -444,11 +444,12 @@
           <p style="margin:0 0 16px;color:#64748B;font-size:14px">للبداية ولتجربة كل الأساسيات.</p>
           <div style="font-size:38px;font-weight:800;color:#0F172A;margin-bottom:20px">$0</div>
           <div style="display:flex;flex-direction:column;gap:10px;font-size:15px;color:#475569">
-            <span>✓ حتى 15 زبون</span>
+            <span>✓ زبائن بلا حدّ</span>
             <span>✓ سجل ديون ودفعات غير محدود</span>
+            <span>✓ يعمل بدون إنترنت</span>
             <span>✓ نظام الدولرة وتعدد العملات</span>
+            <span>✓ حساب للزبون وإشعارات فورية</span>
             <span>✓ نسخ احتياطي يدوي</span>
-            <span>✓ إشعارات أساسية</span>
           </div>
           <a href="downloads/daftar-latest.apk" style="display:block;margin-top:22px;text-align:center;padding:13px;border-radius:14px;border:1.5px solid #2563EB;color:#2563EB;font-weight:700;text-decoration:none">ابدأ مجاناً</a>
         </div>
@@ -458,14 +459,15 @@
           <h3 style="margin:0 0 4px;font-size:19px;font-weight:800;color:#0F172A">Pro</h3>
           <p style="margin:0 0 16px;color:#64748B;font-size:14px">للمحل الذي ينمو ويحتاج تقارير.</p>
           <div style="margin-bottom:20px">
-            <span style="font-size:38px;font-weight:800;color:#1D4ED8"><span id="proPrice">$7.99</span></span>
+            <span style="font-size:38px;font-weight:800;color:#1D4ED8"><span id="proPrice">$5</span></span>
             <span style="color:#64748B;font-weight:600"><span class="perLabel">/شهر</span></span>
           </div>
           <div style="display:flex;flex-direction:column;gap:10px;font-size:15px;color:#475569">
-            <span>✓ زبائن غير محدودين</span>
-            <span>✓ تقارير PDF احترافية</span>
+            <span>✓ كل مزايا المجاني</span>
+            <span>✓ كشف حساب PDF احترافي للزبون</span>
+            <span>✓ شعار متجرك على التقارير</span>
+            <span>✓ إحصاءات ومقارنات شهرية</span>
             <span>✓ نسخ احتياطي تلقائي أسبوعي</span>
-            <span>✓ محفظة ومصروفات كاملة</span>
             <span>✓ دعم بأولوية</span>
           </div>
           <a href="WHATSAPP_URL" style="display:block;margin-top:22px;text-align:center;padding:13px;border-radius:14px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);color:#fff;font-weight:700;text-decoration:none">اشترك في Pro</a>
@@ -475,14 +477,13 @@
           <h3 style="margin:0 0 4px;font-size:19px;font-weight:800;color:#7C3AED">Business</h3>
           <p style="margin:0 0 16px;color:#64748B;font-size:14px">للمحلات والفروع الأكبر.</p>
           <div style="margin-bottom:20px">
-            <span style="font-size:38px;font-weight:800;color:#0F172A"><span id="bizPrice">$14.99</span></span>
+            <span style="font-size:38px;font-weight:800;color:#0F172A"><span id="bizPrice">$10</span></span>
             <span style="color:#64748B;font-weight:600"><span class="perLabel">/شهر</span></span>
           </div>
           <div style="display:flex;flex-direction:column;gap:10px;font-size:15px;color:#475569">
             <span>✓ كل مزايا Pro</span>
-            <span>✓ نسخ احتياطي تلقائي يومي</span>
-            <span>✓ شعار متجرك على التقارير</span>
             <span>✓ تصدير Excel</span>
+            <span>✓ نسخ احتياطي تلقائي يومي</span>
             <span>✓ تعدد المستخدمين/الفروع (قريباً)</span>
             <span>✓ دعم مخصّص</span>
           </div>
@@ -682,14 +683,22 @@
     //    تُدفن في تاريخ Git. و`latest` تُشير دائماً إلى آخر إصدار، فلا
     //    يُعدَّل هذا السطر مع كلّ نسخة.
     apk:      "https://github.com/Desighner/Desighner.github.io/releases/latest/download/daftar-latest.apk",
-    telegram: "https://t.me/CHANGE_ME",           // ← ضع رابط قناتك
+    telegram: "https://t.me/aldaftarapp",           // ← ضع رابط قناتك
     whatsapp: "https://wa.me/963994398849",       // ← رقم الدعم (بصيغة دولية بلا +)
     email:    "support@aldaftar.app"              // ← بريد الدعم
   };
 
   // تطبيق الإعدادات على كل الروابط
   document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('a[href="TELEGRAM_URL"]').forEach(function(a){ a.href = CONFIG.telegram; a.target="_blank"; a.rel="noopener"; });
+    // ─── حارس القوالب ───────────────────────────────────────────
+    // زرٌّ يقود إلى t.me/CHANGE_ME أسوأ من غياب الزرّ: التاجر يضغطه
+    // فيرى صفحة خطأ، فيظنّ المشروع مهجوراً — والحكم يقع في ثانيتين
+    // ولا يُراجَع. فما لم يُضبط، يُخفى.
+    var tgReady = CONFIG.telegram && CONFIG.telegram.indexOf('CHANGE_ME') === -1;
+    document.querySelectorAll('a[href="TELEGRAM_URL"]').forEach(function(a){
+      if (!tgReady) { a.style.display = 'none'; return; }
+      a.href = CONFIG.telegram; a.target="_blank"; a.rel="noopener";
+    });
     document.querySelectorAll('a[href="WHATSAPP_URL"]').forEach(function(a){ a.href = CONFIG.whatsapp; a.target="_blank"; a.rel="noopener"; });
     document.querySelectorAll('a[href^="downloads/"]').forEach(function(a){ a.href = CONFIG.apk; a.setAttribute('download',''); });
     document.querySelectorAll('a[href^="mailto:"]').forEach(function(a){ a.href = "mailto:" + CONFIG.email; });
@@ -720,9 +729,12 @@
   }
 
   // ── مبدّل الأسعار (شهري / سنوي) ───────────────────────────────
+  // ⚠️ هذه الأرقام يجب أن تُطابق `PlanService.pricing` في التطبيق.
+  //    تاجرٌ يقرأ سعراً هنا ويجد غيره في التطبيق يشكّ في الاثنين.
+  //    والسنويّ عشرة أضعاف الشهريّ: «ادفع عشر شهور وخذ سنة».
   function setBilling(yearly) {
-    document.getElementById('proPrice').textContent = yearly ? '$79.99' : '$7.99';
-    document.getElementById('bizPrice').textContent = yearly ? '$149.99' : '$14.99';
+    document.getElementById('proPrice').textContent = yearly ? '$50' : '$5';
+    document.getElementById('bizPrice').textContent = yearly ? '$100' : '$10';
     document.querySelectorAll('.perLabel').forEach(function (e) { e.textContent = yearly ? '/سنة' : '/شهر'; });
     var m = document.getElementById('btnMonthly'), y = document.getElementById('btnYearly');
     if (m && y) {
