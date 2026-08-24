@@ -143,23 +143,89 @@
   }
 
   // ─── قراءة الرمز من الرابط ───────────────────────────────────────
-  // Supabase تضعه بعد # لا بعد ? — وهذا مقصود منها: ما بعد # لا
-  // يُرسَل إلى الخادم في طلب الصفحة، فلا يظهر الرمز في سجلّات
-  // الاستضافة ولا في سجلّ المتصفّح المُرسَل.
-  const hash   = new URLSearchParams(window.location.hash.substring(1));
-  const token  = hash.get('access_token');
-  const refresh= hash.get('refresh_token');
-  const errDesc= hash.get('error_description');
+  // ثلاثة أشكال، لأنّ Supabase غيّرت شكلها ولا نملك أن نفرض على
+  // التاجر أيّها يصله:
+  //
+  //   ① #access_token=…      الشكل القديم (implicit)
+  //   ② ?token_hash=…&type=  الشكل الحاليّ الموصى به
+  //   ③ ?code=…              مسار PKCE
+  //
+  // وكان يقرأ ① وحده، فيفتح التاجر رابطاً سليماً فتقول له الصفحة
+  // «غير صالح». والخطأ هنا صامت: لا سجلّ ولا إشعار — بل تاجرٌ
+  // مقفولٌ خارج حسابه يتّصل بك ولا تعرف لماذا.
+  //
+  // وما بعد # لا يُرسَل إلى الخادم أصلاً، فلا يظهر في سجلّات
+  // الاستضافة — وهذا هو سبب اختيار Supabase له أوّلاً.
+  const hash  = new URLSearchParams(window.location.hash.substring(1));
+  const query = new URLSearchParams(window.location.search);
+  const pick  = (k) => hash.get(k) || query.get(k);
+
+  const token     = hash.get('access_token');
+  const refresh   = hash.get('refresh_token');
+  const tokenHash = query.get('token_hash') || query.get('token');
+  const code      = query.get('code');
+  // والأخطاء تصل بعد # أو بعد ? حسب الشكل، فنقرأ الاثنين.
+  const errDesc   = pick('error_description') || pick('error');
+
+  const hasCredential = !!(token || tokenHash || code);
+
+  /// تُنشئ الجلسة من أيّ شكلٍ وصل. تُستدعى عند الفتح لا عند الحفظ،
+  /// حتّى يعرف التاجر فوراً أنّ الرابط منتهٍ — لا بعد أن يكتب كلمةً
+  /// ويضغط حفظ.
+  async function establishSession() {
+    if (token) {
+      const { error } = await client.auth.setSession({
+        access_token: token, refresh_token: refresh || '',
+      });
+      if (error) throw error;
+      return;
+    }
+    if (tokenHash) {
+      const { error } = await client.auth.verifyOtp({
+        token_hash: tokenHash, type: 'recovery',
+      });
+      if (error) throw error;
+      return;
+    }
+    const { error } = await client.auth.exchangeCodeForSession(code);
+    if (error) throw error;
+  }
+
+  let sessionReady = false;
+
+  function fail(err) {
+    const m = (err && err.message) ? String(err.message) : String(err || '');
+    const low = m.toLowerCase();
+    say(
+      (low.includes('expired') || low.includes('invalid') || low.includes('used'))
+        ? 'انتهت صلاحية الرابط أو استُعمل من قبل. اطلب رابطاً جديداً '
+          + 'من التطبيق: «نسيت كلمة المرور؟»'
+        : 'تعذّر التحقّق من الرابط: ' + m,
+      'error'
+    );
+    btn.disabled = true;
+  }
 
   if (errDesc) {
     say(decodeURIComponent(errDesc.replace(/\+/g, ' ')), 'error');
     btn.disabled = true;
-  } else if (!token) {
-    // فُتحت الصفحة مباشرةً بلا رابط بريد — أو انتهت صلاحيّته فحذف
-    // المتصفّح ما بعد #.
+  } else if (!hasCredential) {
+    // فُتحت الصفحة مباشرةً بلا رابط بريد.
     say('هذا الرابط غير صالح أو انتهت صلاحيّته. اطلب رابطاً جديداً '
       + 'من التطبيق: «نسيت كلمة المرور؟»', 'error');
     btn.disabled = true;
+  } else {
+    btn.disabled = true;
+    btn.textContent = 'جارٍ التحقّق…';
+    establishSession()
+      .then(() => {
+        sessionReady = true;
+        btn.disabled = false;
+        btn.textContent = 'حفظ كلمة السر';
+        // ونمسح الرمز من شريط العنوان فور استعماله.
+        history.replaceState(null, '', window.location.pathname);
+      })
+      .catch((err) => { btn.textContent = 'حفظ كلمة السر'; fail(err); });
   }
 
   form.addEventListener('submit', async (e) => {
@@ -169,19 +235,15 @@
 
     if (pw.length < 6)  return say('كلمة السر قصيرة — ٦ أحرف على الأقل', 'error');
     if (pw !== pw2)     return say('الكلمتان غير متطابقتين', 'error');
+    if (!sessionReady)  return say('الرابط غير مُتحقَّق منه — أعد فتحه من '
+                                 + 'رسالة البريد', 'error');
 
     btn.disabled = true;
     btn.textContent = 'جارٍ الحفظ…';
     msgEl.className = 'msg';
 
     try {
-      // نُنشئ الجلسة من رمز الرابط، ثمّ نُغيّر كلمة السر بها.
-      const { error: sErr } = await client.auth.setSession({
-        access_token:  token,
-        refresh_token: refresh || '',
-      });
-      if (sErr) throw sErr;
-
+      // الجلسة أُنشئت عند فتح الصفحة، فلا يبقى إلا تغيير الكلمة.
       const { error: uErr } = await client.auth.updateUser({ password: pw });
       if (uErr) throw uErr;
 
