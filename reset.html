@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<!--
+  ═══════════════════════════════════════════════════════════════════
+  🔑 صفحة إعادة تعيين كلمة السر — تطبيق الدفتر
+  ═══════════════════════════════════════════════════════════════════
+  لماذا صفحة ويب لا شاشة في التطبيق؟
+
+  لأنّ رابط البريد يفتح متصفّحاً لا تطبيقاً. ولجعله يفتح التطبيق
+  نحتاج رابطاً عميقاً: تعديلاً في AndroidManifest، وشاشةً جديدة،
+  وبناءً ونشراً ينتظرهما العشرون تاجراً.
+
+  وهذه الصفحة تعمل **اليوم** لكلّ من عنده التطبيق مهما كانت نسخته —
+  ولا تحتاج منه أن يُحدّث شيئاً.
+
+  ─── ما تفعله بالضبط ───────────────────────────────────────────────
+  ① Supabase تضع رمز الاسترجاع في **جزء العنوان** بعد #
+     (مثال: reset.html#access_token=xyz&type=recovery)
+  ② نقرأه من الصفحة ونُنشئ به جلسة مؤقّتة
+  ③ التاجر يكتب كلمة السرّ الجديدة، فنُحدّثها
+  ④ ونُنهي الجلسة فوراً — الصفحة أدّت غرضها ولا تبقى مفتوحة
+
+  ─── وأمانٌ يجب أن يُقال ────────────────────────────────────────────
+  المفتاح المكتوب أدناه هو `anon` العامّ، وهو منشور في كلّ نسخة من
+  التطبيق أصلاً. ولا يفعل شيئاً وحده — الرمز في الرابط هو الذي يأذن،
+  وهو صالح لساعة واحدة ولمرّة واحدة.
+
+  📌 النشر: ارفع هذا الملفّ إلى موقعك، ثمّ في Supabase:
+     Authentication → URL Configuration
+       Site URL:      https://موقعك
+       Redirect URLs: https://موقعك/reset.html
+  ═══════════════════════════════════════════════════════════════════
+-->
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>إعادة تعيين كلمة السر — الدفتر</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --blue:#2563EB; --blue-dark:#1D4ED8;
+      --ink:#1E293B; --muted:#64748B; --line:#E2E8F0;
+      --red:#DC2626; --green:#059669;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Cairo',system-ui,sans-serif;
+      background:linear-gradient(160deg,#2563EB 0%,#1D4ED8 100%);
+      min-height:100vh;display:flex;align-items:center;justify-content:center;
+      padding:20px;color:var(--ink);
+    }
+    .card{
+      background:#fff;border-radius:22px;padding:32px 26px;
+      width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.25);
+    }
+    .logo{text-align:center;margin-bottom:6px;font-size:34px}
+    h1{font-size:21px;text-align:center;margin-bottom:6px}
+    .sub{text-align:center;color:var(--muted);font-size:13.5px;
+         margin-bottom:24px;line-height:1.7}
+    label{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+    .field{position:relative;margin-bottom:16px}
+    input{
+      width:100%;padding:14px 16px;font-family:inherit;font-size:15px;
+      border:2px solid var(--line);border-radius:13px;background:#F8FAFC;
+      transition:border-color .15s;
+    }
+    input:focus{outline:none;border-color:var(--blue);background:#fff}
+    .hint{font-size:11.5px;color:var(--muted);margin-top:6px}
+    button{
+      width:100%;padding:15px;font-family:inherit;font-size:16px;
+      font-weight:700;color:#fff;background:var(--blue);
+      border:none;border-radius:13px;cursor:pointer;transition:background .15s;
+    }
+    button:hover:not(:disabled){background:var(--blue-dark)}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .msg{
+      padding:13px 15px;border-radius:12px;font-size:13.5px;
+      line-height:1.7;margin-bottom:18px;display:none;
+    }
+    .msg.show{display:block}
+    .msg.error{background:#FEF2F2;color:var(--red);border:1px solid #FECACA}
+    .msg.ok{background:#ECFDF5;color:var(--green);border:1px solid #A7F3D0}
+    .done{text-align:center;display:none}
+    .done.show{display:block}
+    .done .tick{font-size:52px;margin-bottom:12px}
+    .done p{color:var(--muted);font-size:14px;line-height:1.8}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">📒</div>
+    <h1>إعادة تعيين كلمة السر</h1>
+    <p class="sub">اكتب كلمة سرّ جديدة لحسابك في تطبيق الدفتر</p>
+
+    <div id="msg" class="msg"></div>
+
+    <form id="form">
+      <div class="field">
+        <label for="pw">كلمة السر الجديدة</label>
+        <input type="password" id="pw" autocomplete="new-password"
+               placeholder="٦ أحرف على الأقل">
+        <div class="hint">اختر شيئاً تتذكّره — ولا تكتبه في ورقة عند الصندوق</div>
+      </div>
+
+      <div class="field">
+        <label for="pw2">أعِدها مرّة أخرى</label>
+        <input type="password" id="pw2" autocomplete="new-password"
+               placeholder="نفس كلمة السر">
+      </div>
+
+      <button type="submit" id="btn">حفظ كلمة السر</button>
+    </form>
+
+    <div id="done" class="done">
+      <div class="tick">✅</div>
+      <p>
+        تم تغيير كلمة السر بنجاح.<br>
+        افتح تطبيق الدفتر وسجّل الدخول بها.
+      </p>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL  = 'https://rpubguebobjdtudwyoky.supabase.co';
+  // مفتاح anon العامّ — منشور في التطبيق أصلاً، ولا يأذن بشيء وحده.
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwdWJndWVib2JqZHR1ZHd5b2t5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwNTQyMDEsImV4cCI6MjA5MjYzMDIwMX0.N2tAcvB7IejOpCF8h1szM92mMvRErBMJ6oRXzvNxuAQ';
+
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+    auth: { detectSessionInUrl: false, persistSession: false },
+  });
+
+  const form = document.getElementById('form');
+  const btn  = document.getElementById('btn');
+  const msgEl= document.getElementById('msg');
+  const done = document.getElementById('done');
+
+  function say(text, kind) {
+    msgEl.textContent = text;
+    msgEl.className = 'msg show ' + kind;
+  }
+
+  // ─── قراءة الرمز من الرابط ───────────────────────────────────────
+  // Supabase تضعه بعد # لا بعد ? — وهذا مقصود منها: ما بعد # لا
+  // يُرسَل إلى الخادم في طلب الصفحة، فلا يظهر الرمز في سجلّات
+  // الاستضافة ولا في سجلّ المتصفّح المُرسَل.
+  const hash   = new URLSearchParams(window.location.hash.substring(1));
+  const token  = hash.get('access_token');
+  const refresh= hash.get('refresh_token');
+  const errDesc= hash.get('error_description');
+
+  if (errDesc) {
+    say(decodeURIComponent(errDesc.replace(/\+/g, ' ')), 'error');
+    btn.disabled = true;
+  } else if (!token) {
+    // فُتحت الصفحة مباشرةً بلا رابط بريد — أو انتهت صلاحيّته فحذف
+    // المتصفّح ما بعد #.
+    say('هذا الرابط غير صالح أو انتهت صلاحيّته. اطلب رابطاً جديداً '
+      + 'من التطبيق: «نسيت كلمة المرور؟»', 'error');
+    btn.disabled = true;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pw  = document.getElementById('pw').value;
+    const pw2 = document.getElementById('pw2').value;
+
+    if (pw.length < 6)  return say('كلمة السر قصيرة — ٦ أحرف على الأقل', 'error');
+    if (pw !== pw2)     return say('الكلمتان غير متطابقتين', 'error');
+
+    btn.disabled = true;
+    btn.textContent = 'جارٍ الحفظ…';
+    msgEl.className = 'msg';
+
+    try {
+      // نُنشئ الجلسة من رمز الرابط، ثمّ نُغيّر كلمة السر بها.
+      const { error: sErr } = await client.auth.setSession({
+        access_token:  token,
+        refresh_token: refresh || '',
+      });
+      if (sErr) throw sErr;
+
+      const { error: uErr } = await client.auth.updateUser({ password: pw });
+      if (uErr) throw uErr;
+
+      // ننهي الجلسة فوراً: الصفحة أدّت غرضها، ولا نترك جلسةً مفتوحة
+      // في متصفّحٍ قد يكون مشتركاً.
+      await client.auth.signOut();
+
+      form.style.display = 'none';
+      msgEl.className = 'msg';
+      done.className = 'done show';
+
+      // ونمسح الرمز من شريط العنوان حتى لا يبقى في سجلّ التصفّح.
+      history.replaceState(null, '', window.location.pathname);
+
+    } catch (err) {
+      const m = (err && err.message) ? err.message : String(err);
+      say(
+        m.includes('expired') || m.includes('invalid')
+          ? 'انتهت صلاحية الرابط — اطلب رابطاً جديداً من التطبيق'
+          : 'تعذّر الحفظ: ' + m,
+        'error'
+      );
+      btn.disabled = false;
+      btn.textContent = 'حفظ كلمة السر';
+    }
+  });
+</script>
+</body>
+</html>

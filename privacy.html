@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>سياسة الخصوصية — تطبيق الدفتر</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1e293b 0%, #2563eb 100%);
+      color: #fff;
+      padding: 48px 24px 36px;
+      text-align: center;
+    }
+
+    header .logo {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      font-size: 14px;
+      opacity: 0.75;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    main {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    .intro-card {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 36px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .intro-card .icon { font-size: 28px; flex-shrink: 0; }
+
+    .intro-card p { color: #1e40af; font-size: 14px; }
+
+    section {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      padding: 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid #f1f5f9;
+    }
+
+    .section-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .section-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    p, li { color: #475569; margin-bottom: 8px; }
+
+    ul {
+      padding-right: 20px;
+      margin-top: 8px;
+    }
+
+    ul li {
+      margin-bottom: 6px;
+      position: relative;
+    }
+
+    ul li::marker { color: #2563eb; }
+
+    .highlight {
+      background: #f0fdf4;
+      border-right: 4px solid #10b981;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      margin: 12px 0;
+      color: #065f46;
+      font-size: 14px;
+    }
+
+    .warning {
+      background: #fefce8;
+      border-right: 4px solid #f59e0b;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      margin: 12px 0;
+      color: #78350f;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #1e293b;
+      font-weight: 700;
+      padding: 10px 14px;
+      text-align: right;
+    }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+
+    .contact-box {
+      background: linear-gradient(135deg, #1e293b, #334155);
+      border-radius: 16px;
+      padding: 28px;
+      color: #fff;
+      text-align: center;
+      margin-top: 32px;
+    }
+
+    .contact-box h3 { font-size: 20px; margin-bottom: 8px; }
+    .contact-box p  { color: rgba(255,255,255,0.7); margin-bottom: 16px; }
+
+    .contact-box a {
+      display: inline-block;
+      background: #2563eb;
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 28px;
+      border-radius: 25px;
+      font-weight: 700;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .contact-box a:hover { background: #1d4ed8; }
+
+    footer {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 12px;
+      padding: 24px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 22px; }
+      section { padding: 20px; }
+      table { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── رأس الصفحة ──────────────────────────────────────────────────────── -->
+<header>
+  <div class="logo">📒</div>
+  <h1>سياسة الخصوصية</h1>
+  <p>تطبيق الدفتر — إدارة الديون والحسابات</p>
+  <span class="badge">آخر تحديث: مايو 2025</span>
+</header>
+
+<!-- ── المحتوى الرئيسي ─────────────────────────────────────────────────── -->
+<main>
+
+  <!-- تمهيد -->
+  <div class="intro-card">
+    <div class="icon">🔒</div>
+    <p>
+      نحن في تطبيق <strong>الدفتر</strong> نُولي خصوصيتك أهمية قصوى.
+      تشرح هذه الوثيقة بشكل شفاف ما البيانات التي نجمعها، كيف نستخدمها،
+      ومن يمكنه الوصول إليها. باستخدامك للتطبيق فأنت توافق على هذه السياسة.
+    </p>
+  </div>
+
+  <!-- 1. من نحن -->
+  <section>
+    <div class="section-header">
+      <div class="section-icon" style="background:#eff6ff;">🏢</div>
+      <h2>١. من نحن</h2>
+    </div>
+    <p>
+      <strong>تطبيق الدفتر</strong> هو تطبيق جوال يساعد أصحاب المحلات التجارية
+      على تسجيل الديون ومتابعة حسابات الزبائن، كما يتيح للزبائن متابعة ديونهم
+      لدى المتاجر. التطبيق مطوَّر ومُدار بشكل مستقل.
+    </p>
+    <p style="margin-top:10px;">
+      للتواصل: <strong>alobaidnourah@gmail.com</strong>
+    </p>
+  </section>
+
+  <!-- 2. البيانات التي نجمعها -->
+  <section>
+    <div class="section-header">
+      <div class="section-icon" style="background:#f0fdf4;">📋</div>
+      <h2>٢. البيانات التي نجمعها</h2>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>نوع البيانات</th>
+          <th>المصدر</th>
+          <th>الغرض</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>الاسم الشخصي</td>
+          <td>المستخدم</td>
+          <td>تعريف الحساب وعرضه</td>
+        </tr>
+        <tr>
+          <td>عنوان البريد الإلكتروني</td>
+          <td>المستخدم / Google</td>
+          <td>تسجيل الدخول والمصادقة</td>
+        </tr>
+        <tr>
+          <td>رقم الهاتف</td>
+          <td>المستخدم</td>
+          <td>التعرف على الزبون وربطه بالتاجر</td>
+        </tr>
+        <tr>
+          <td>بيانات الزبائن (أسماء، أرقام)</td>
+          <td>التاجر</td>
+          <td>إدارة قائمة الزبائن</td>
+        </tr>
+        <tr>
+          <td>المعاملات المالية (مبالغ الديون والدفعات)</td>
+          <td>التاجر</td>
+          <td>تسجيل الحسابات وعرض الأرصدة</td>
+        </tr>
+        <tr>
+          <td>جهات الاتصال (اختياري)</td>
+          <td>هاتف المستخدم</td>
+          <td>استيراد أسماء الزبائن بسهولة</td>
+        </tr>
+        <tr>
+          <td>رمز FCM للإشعارات</td>
+          <td>جهاز المستخدم</td>
+          <td>إرسال الإشعارات الفورية</td>
+        </tr>
+        <tr>
+          <td>بيانات الاستخدام والأعطال</td>
+          <td>التطبيق تلقائياً</td>
+          <td>تحسين الأداء وإصلاح الأخطاء</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="warning" style="margin-top:16px;">
+      ⚠️ <strong>جهات الاتصال:</strong> لا نقرأ جهات اتصالك إلا عند ضغطك على زر
+      "استيراد من جهات الاتصال" وبإذنك الصريح. لا نرفع قائمة جهات اتصالك إلى أي خادم.
+    </div>
+  </section>
+
+  <!-- 3. كيف نستخدم البيانات -->
+  <section>
+    <div class="section-header">
+      <div class="section-icon" style="background:#fef9c3;">⚙️</div>
+      <h2>٣. كيف نستخدم بياناتك</h2>
+    </div>
+    <ul>
+      <li>تشغيل خدمة الحسابات والديون بين التاجر وزبائنه.</li>
+      <li>إرسال إشعارات فورية عند تسجيل دين أو دفعة أو تعليق جديد.</li>
+      <li>السماح للزبون برؤية رصيده لدى المتاجر التي يتعامل معها.</li>
+      <li>تحسين أداء التطبيق وإصلاح الأخطاء التقنية.</li>
+      <li>إرسال تحديثات المنتج عند توفر نسخة جديدة.</li>
+    </ul>
+    <div class="highlight">
+      ✅ <strong>لا نستخدم بياناتك للإعلانات.</strong>
+      لا يحتوي التطبيق على أي إعلانات ولا نبيع بياناتك لأي طرف ثالث.
+    </div>
+  </section>
+
+  <!-- 4. مشاركة البيانات -->
+  <section>
+    <div class="section-header">
+      <div class="section-icon" style="background:#fdf4ff;">🤝</div>
+      <h2>٤. مشاركة البيانات مع أطراف ثالثة</h2>
+    </div>
+    <p>نستخدم مزودي خدمات موثوقين لتشغيل التطبيق:</p>
+
+    <table style="margin-top:12px;">
+      <thead>
+        <tr><th>المزود</th><th>الغرض</th><th>سياسة الخصوصية</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Supabase</strong></td>
+          <td>قاعدة البيانات والمصادقة</td>
+          <td><a href="https://supabase.com/privacy" target="_blank" style="color:#2563eb;">supabase.com/privacy</a></td>
+        </tr>
+        <tr>
+          <td><strong>Firebase (Google)</strong></td>
+          <td>الإشعارات الفورية فقط</td>
+          <td><a href="https://firebase.google.com/support/privacy" target="_blank" style="color:#2563eb;">firebase.google.com/support/privacy</a></td>
+        </tr>
+        <tr>
+          <td><strong>Google Sign-In</strong></td>
+          <td>تسجيل الدخول بـ Google (اختياري)</td>
+          <td><a href="https://policies.google.com/privacy" target="_blank" style="color:#2563eb;">policies.google.com/privacy</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top:14px;">
+      لا نشارك بياناتك مع أي جهة أخرى خارج هؤلاء المزودين الضروريين لتشغيل التطبيق.
+    </p>
+  </section>
+
+  <!-- 5. تخزين البيانات وحمايتها -->
+  <section>
+    <div class="section-header">
+      <div class="section-icon" style="background:#ecfdf5;">🛡️</div>
+      <h2>٥. تخزين البيانات وحمايتها</h2>
+    </div>
+    <ul>
+      <li>تُخزَّن بياناتك على خوادم <strong>Supabase</strong> المشفرة في مراكز بيانات آمنة.</li>
+      <li>جميع الاتصالات بين التطبيق والخادم مشفرة بـ <strong>HTTPS/TLS</strong>.</li>
+      <li>البيانات الحساسة (معرّف المستخدم، الجلسة) مخزّنة في <strong>Secure Storage</strong>
+          المشفر على جهازك.</li>
+      <li>نُطبّق <strong>Row Level Security (RLS)</strong> في قاعدة البيانات:
+          كل مستخدم لا يستطيع رؤية بيانات المستخدمين الآخرين.</li>
+      <li>لا يمكن للتاجر رؤية حسابات تاجر آخر، ولا للزبون رؤية بيانات زبون آخر.</li>
+    </ul>
+    <div class="highlight">
+      🔐 رغم جهودنا في الحماية، لا توجد طريقة آمنة 100% على الإنترنت.
+      نوصي باستخدام كلمة مرور قوية وعدم مشاركتها مع أحد.
+    </div>
+  </section>
+
+  <!-- 6. حقوق المستخدم -->
+  <section>
+    <div class="section-header">
+      <div class="section-icon" style="background:#fff7ed;">⚖️</div>
+      <h2>٦. حقوقك كمستخدم</h2>
+    </div>
+    <p>لديك الحق في:</p>
+    <ul>
+      <li><strong>الاطلاع:</strong> معرفة البيانات التي نملكها عنك.</li>
+      <li><strong>التصحيح:</strong> تعديل بياناتك من داخل التطبيق (الإعدادات ← تحديث الملف الشخصي).</li>
+      <li><strong>الحذف:</strong> طلب حذف حسابك وبياناتك كاملةً بالتواصل معنا عبر البريد الإلكتروني.</li>
+      <li><strong>التصدير:</strong> تصدير بياناتك كـ PDF أو Excel من داخل التطبيق.</li>
+      <li><strong>إلغاء الإشعارات:</strong> يمكنك إيقاف الإشعارات من إعدادات هاتفك في أي وقت.</li>
+    </ul>
+  </section>
+
+  <!-- 7. الأطفال -->
+  <section>
+    <div class="section-header">
+      <div class="section-icon" style="background:#fdf4ff;">👶</div>
+      <h2>٧. خصوصية الأطفال</h2>
+    </div>
+    <p>
+      تطبيق الدفتر مخصص للاستخدام التجاري والشخصي للبالغين فوق <strong>13 سنة</strong>.
+      لا نجمع بيانات من الأطفال عن قصد. إذا اكتشفنا أن طفلاً دون السن القانونية
+      أنشأ حساباً، سنحذفه فوراً.
+    </p>
+  </section>
+
+  <!-- 8. التغييرات على السياسة -->
+  <section>
+    <div class="section-header">
+      <div class="section-icon" style="background:#f1f5f9;">🔄</div>
+      <h2>٨. التغييرات على هذه السياسة</h2>
+    </div>
+    <p>
+      قد نُحدّث هذه السياسة من وقت لآخر. عند إجراء تغييرات جوهرية،
+      سنُبلّغك عبر إشعار داخل التطبيق أو بريد إلكتروني. تاريخ "آخر تحديث"
+      في أعلى الصفحة يعكس دائماً آخر مراجعة.
+    </p>
+    <p style="margin-top:8px;">
+      استمرارك في استخدام التطبيق بعد التغييرات يُعني موافقتك على السياسة المحدّثة.
+    </p>
+  </section>
+
+  <!-- 9. القانون المطبّق -->
+  <section>
+    <div class="section-header">
+      <div class="section-icon" style="background:#fef2f2;">🌍</div>
+      <h2>٩. القانون المطبّق</h2>
+    </div>
+    <p>
+      تخضع هذه السياسة وأي نزاعات تتعلق بالخصوصية للقوانين المعمول بها.
+      يلتزم التطبيق بمتطلبات <strong>Google Play</strong> لسياسة البيانات والخصوصية.
+    </p>
+  </section>
+
+  <!-- تواصل -->
+  <div class="contact-box">
+    <h3>📬 تواصل معنا</h3>
+    <p>أي سؤال عن خصوصيتك؟ نحن هنا للمساعدة.</p>
+    <a href="mailto:alobaidnourah@gmail.com">alobaidnourah@gmail.com</a>
+  </div>
+
+</main>
+
+<footer>
+  © 2025 تطبيق الدفتر — جميع الحقوق محفوظة
+  &nbsp;|&nbsp;
+  سياسة الخصوصية — الإصدار 1.0
+</footer>
+
+</body>
+</html>
