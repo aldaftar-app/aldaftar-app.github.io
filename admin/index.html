@@ -630,7 +630,7 @@ async function openUser(id){
 
       <div class="section-t">🧾 سجل الاشتراكات</div>
       ${subs.length?`<div class="table-wrap"><table><thead><tr><th>الخطّة</th><th>المبلغ</th><th>من</th><th>إلى</th><th>الحالة</th><th></th></tr></thead><tbody>
-        ${subs.map((s,i)=>`<tr><td>${esc(s.plan)}</td><td class="num"><b>${usd(s.amount_usd)}</b></td><td>${fdate(s.started_at)}</td><td>${fdate(s.expires_at)}</td><td>${s.status==='active'?'<span class="badge b-ok">فعّال</span>':'<span class="badge b-free">'+esc(s.status==='cancelled'?'ملغى':s.status==='refunded'?'مُسترَد':s.status)+'</span>'}</td><td>${s.id?`<button class="btn ghost sm" data-sub="${i}">تعديل</button>`:''}</td></tr>`).join('')}
+        ${subs.map((s,i)=>`<tr><td>${esc(s.plan)}</td><td class="num"><b>${usd(s.amount_usd)}</b></td><td>${fdate(s.started_at)}</td><td>${fdate(s.expires_at)}</td><td>${s.status==='active'?'<span class="badge b-ok">فعّال</span>':'<span class="badge b-free">'+esc(['cancelled','canceled'].includes(s.status)?'ملغى':s.status==='refunded'?'مُسترَد':s.status==='expired'?'منتهٍ':s.status)+'</span>'}</td><td>${s.id?`<button class="btn ghost sm" data-sub="${i}">تعديل</button>`:''}</td></tr>`).join('')}
       </tbody></table></div>`:'<div class="empty" style="padding:16px">لا اشتراكات مدفوعة بعد</div>'}
 
       <div class="section-t">🪪 معلومات</div>
@@ -686,7 +686,7 @@ function editSub(sub, uid){
     <p>${esc(sub.plan)} · ${fdate(sub.started_at)} ← ${fdate(sub.expires_at)}<br><span style="font-size:12.5px">يغيّر سجلّ المال وحده — الخطّة وتاريخ انتهائها كما هما.</span></p>
     <label class="f">المبلغ المدفوع فعلاً ($)</label><input id="esAmt" type="number" min="0" step="0.5" class="num" value="${Number(sub.amount_usd||0)}">
     <div style="height:10px"></div><label class="f">الحالة</label>
-    <select id="esSt"><option value="active" ${sub.status==='active'?'selected':''}>فعّال</option><option value="cancelled" ${sub.status==='cancelled'?'selected':''}>ملغى — لا يُحسب دخلاً</option><option value="refunded" ${sub.status==='refunded'?'selected':''}>مُسترَد</option></select>
+    <select id="esSt"><option value="active" ${sub.status==='active'?'selected':''}>فعّال</option><option value="cancelled" ${['cancelled','canceled'].includes(sub.status)?'selected':''}>ملغى — لا يُحسب دخلاً</option><option value="refunded" ${sub.status==='refunded'?'selected':''}>مُسترَد</option></select>
     <div class="form-actions"><button class="btn primary" id="esOk">حفظ</button><button class="btn ghost" id="esNo">إلغاء</button></div>`;
   $('#modal').classList.add('on');
   $('#esNo').onclick = () => $('#modal').classList.remove('on');
