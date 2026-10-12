@@ -480,11 +480,11 @@ RENDER.home = async () => {
   <div class="grid g4">
     ${kpi(n0(k.users),'إجمالي المستخدمين','users','#3b82f6', `<span class="d b-ok badge">+${n0(k.new_7d)} هذا الأسبوع</span>`)}
     ${kpi(n0(k.merchants),'التجّار','store','#8b5cf6', `<span class="d badge b-next">${n0(k.active_merchants_7d)} نشط</span>`)}
-    ${kpi(n0(k.paid),'مشتركون يدفعون','star','#10b981', `<span class="d badge b-trial">${n0(k.trial)} في التجربة</span>`)}
+    ${kpi(n0(k.paid),'مشتركون يدفعون','star','#10b981', `<span class="d badge b-trial">${n0(k.trial)} تجربة${k.gift?` · ${n0(k.gift)} منحة`:''}</span>`)}
     ${kpi(usd(k.mrr_usd),'الدخل الشهري المتكرر','money','#f59e0b', `<span class="d badge b-ok">${usd(k.revenue_month)} هذا الشهر</span>`)}
   </div>
   <div class="grid g4" style="margin-top:16px">
-    ${kpi(n0(k.clients),'الزبائن (حسابات)','person','#06b6d4')}
+    ${kpi(n0(k.clients),'زبائن لهم حساب في التطبيق','person','#06b6d4')}
     ${kpi(n0(k.customers),'زبائن مسجّلون في الدفاتر','users','#ec4899')}
     ${kpi(n0(k.transactions),'العمليّات الكلّيّة','tx','#6366f1', `<span class="d badge b-pro">+${n0(k.transactions_7d)} أسبوعياً</span>`)}
     ${kpi(dbPct+'%','من سعة القاعدة (500 ميغا)','db', dbPct>70?'#ef4444':'#10b981', `<span class="d badge ${dbPct>70?'b-expired':'b-ok'}"><span class="num">${bytes(k.db_bytes)}</span></span>`)}
@@ -683,7 +683,7 @@ RENDER.money = async () => {
       ${kpi(usd(k.mrr_usd),'الدخل الشهري المتكرر (MRR)','#f59e0b')}
       ${kpi(usd(k.revenue_month),'إيرادات هذا الشهر','#10b981')}
       ${kpi(usd(k.revenue_total),'الإيرادات الكلّيّة','#3b82f6')}
-      ${kpi(n0(k.paid)+' <span style="font-size:15px;color:var(--muted)">/ '+n0(k.trial)+' تجربة</span>','مشتركون يدفعون','#8b5cf6')}
+      ${kpi(n0(k.paid)+' <span style="font-size:15px;color:var(--muted)">· '+n0(k.gift||0)+' منحة · '+n0(k.trial)+' تجربة</span>','مشتركون يدفعون','#8b5cf6')}
     </div>
     <div class="grid g21" style="margin-top:16px">
       <div class="card"><h3>الإيرادات الشهريّة</h3><div class="hint">مجموع ما سُجّل في كل شهر</div><div class="chart-box"><canvas id="cRev2"></canvas></div></div>
