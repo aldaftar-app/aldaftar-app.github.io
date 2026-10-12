@@ -157,6 +157,8 @@ td{padding:13px 16px;border-top:1px solid var(--line);vertical-align:middle;text
 th:first-child,td:first-child,th.t,td.t{text-align:right}
 td{white-space:nowrap} td.t:not(:first-child){white-space:normal}
 .table-wrap>table{min-width:760px}
+.drawer .table-wrap>table{min-width:0}
+.drawer td,.drawer th{padding:11px 10px}
 .who b,.who span{white-space:nowrap}
 td.num,th.num{direction:rtl;unicode-bidi:normal}
 td .who{display:inline-block;text-align:inherit}
@@ -367,7 +369,7 @@ const ERR = {
   NOT_ADMIN:'هذا الحساب ليس مشرفاً', INVALID_URL:'رابط التنزيل غير صالح', BUILD_WENT_BACKWARDS:'رقم البناء أقلّ من المنشور — لا يجوز النزول',
   INVALID_MONTHS:'عدد الأشهر بين 1 و60', INVALID_AMOUNT:'المبلغ غير صالح', INVALID_PLAN:'خطّة غير صالحة', USER_NOT_FOUND:'المستخدم غير موجود',
   INVALID_DAYS:'عدد الأيام بين 1 و365', EMPTY_MESSAGE:'العنوان والنصّ مطلوبان', MESSAGE_TOO_LONG:'العنوان حتى 80 حرفاً والنصّ حتى 500',
-  INVALID_TRIAL_DAYS:'مدّة التجربة بين 0 و365 يوماً', UNKNOWN_KEY:'إعداد غير معروف',
+  INVALID_TRIAL_DAYS:'مدّة التجربة بين 0 و365 يوماً', UNKNOWN_KEY:'إعداد غير معروف', INVALID_STATUS:'حالة غير صالحة', NOT_FOUND:'غير موجود',
 };
 function errText(e){ const m = e?.message || String(e); for (const k in ERR) if (m.includes(k)) return ERR[k];
   if (/function .* does not exist|Could not find the function/i.test(m)) return 'دالّة غير موجودة في القاعدة — شغّل ملف SQL الخاصّ باللوحة';
@@ -572,6 +574,10 @@ async function openUser(id){
   const status = row.status || (p.plan && p.plan!=='free' ? (new Date(p.plan_expires_at) > new Date() ? p.plan : 'expired') : 'free');
   const chk = (ok, t, warn) => `<li><span class="ci ${ok?'ok':(warn?'wa':'no')}">${ok?'✓':(warn?'!':'✕')}</span>${t}</li>`;
   const h = hl || {};
+  const debtVal = st.total_debt != null ? st.total_debt : st.total_debt_usd;
+  const cur = st.currency || 'USD';
+  const debtText = cur === 'USD' ? usd(debtVal) : `${n0(Math.round(debtVal))} ${esc(cur)}`;
+  const email = p.email || row.email || '';
   $('#drawer').innerHTML = `
     <div class="drawer-head">
       <div class="avatar">${esc(initial(p.store_name||p.name))}</div>
@@ -585,7 +591,7 @@ async function openUser(id){
         <div><b class="num">${n0(st.customers)}</b><span>زبون في دفتره</span></div>
         <div><b class="num">${n0(st.transactions)}</b><span>عمليّة</span></div>
         <div><b class="num">${n0(st.active_debtors)}</b><span>زبون عليه دين</span></div>
-        <div><b class="num">${usd(st.total_debt_usd)}</b><span>إجمالي له عند الناس</span></div>
+        <div><b class="num">${debtText}</b><span>إجمالي له عند الناس${st.dollar_mode?' · بالدولرة':''}</span></div>
       </div>
 
       <div class="section-t">🩺 فحص الحساب</div>
@@ -623,13 +629,14 @@ async function openUser(id){
       </div>
 
       <div class="section-t">🧾 سجل الاشتراكات</div>
-      ${subs.length?`<div class="table-wrap"><table><thead><tr><th>الخطّة</th><th>المبلغ</th><th>من</th><th>إلى</th><th>الحالة</th></tr></thead><tbody>
-        ${subs.map(s=>`<tr><td>${esc(s.plan)}</td><td class="num">${usd(s.amount_usd)}</td><td>${fdate(s.started_at)}</td><td>${fdate(s.expires_at)}</td><td>${s.status==='active'?'<span class="badge b-ok">فعّال</span>':'<span class="badge b-free">'+esc(s.status)+'</span>'}</td></tr>`).join('')}
+      ${subs.length?`<div class="table-wrap"><table><thead><tr><th>الخطّة</th><th>المبلغ</th><th>من</th><th>إلى</th><th>الحالة</th><th></th></tr></thead><tbody>
+        ${subs.map((s,i)=>`<tr><td>${esc(s.plan)}</td><td class="num"><b>${usd(s.amount_usd)}</b></td><td>${fdate(s.started_at)}</td><td>${fdate(s.expires_at)}</td><td>${s.status==='active'?'<span class="badge b-ok">فعّال</span>':'<span class="badge b-free">'+esc(s.status==='cancelled'?'ملغى':s.status==='refunded'?'مُسترَد':s.status)+'</span>'}</td><td>${s.id?`<button class="btn ghost sm" data-sub="${i}">تعديل</button>`:''}</td></tr>`).join('')}
       </tbody></table></div>`:'<div class="empty" style="padding:16px">لا اشتراكات مدفوعة بعد</div>'}
 
       <div class="section-t">🪪 معلومات</div>
       <ul class="checks">
-        <li>البريد: <b class="num" style="margin-right:auto">${esc(row.email||'—')}</b></li>
+        <li>البريد: <b class="num" style="margin-right:auto">${esc(email||'—')}</b>${email?'<button class="btn ghost sm" id="cpMail">نسخ</button>':''}</li>
+        <li>آخر دخول: <b style="margin-right:auto">${p.last_sign_in_at?ago(p.last_sign_in_at):'—'}</b></li>
         <li>الهاتف: <b class="num" style="margin-right:auto">${esc(p.phone||'—')}</b></li>
         <li>انضمّ: <b style="margin-right:auto">${fdate(p.created_at)}</b></li>
         <li>نهاية التجربة: <b style="margin-right:auto">${fdate(h.trial_ends_at)}</b></li>
@@ -638,6 +645,8 @@ async function openUser(id){
     </div>`;
   $('#dClose').onclick = closeDrawer;
   $('#cpId').onclick = () => { navigator.clipboard.writeText(p.id); toast('نُسخ المعرّف'); };
+  if ($('#cpMail')) $('#cpMail').onclick = () => { navigator.clipboard.writeText(email); toast('نُسخ البريد'); };
+  $$('[data-sub]').forEach(b => b.onclick = () => editSub(subs[+b.dataset.sub], id));
 
   let plan = 'business', months = 3, amtEdited = false;
   const curExp = p.plan_expires_at ? new Date(p.plan_expires_at) : null;
@@ -669,6 +678,22 @@ async function openUser(id){
       const push = await pushTo(r.user_ids||[], t, b);
       toast(`✅ وصلت لمركز إشعاراته${push.sent?` · وإلى جواله`:''}`); $('#mT').value=''; $('#mB').value='';
     } catch(e){ toast(errText(e), true); } };
+}
+
+/* تصحيح مبلغ اشتراك أو إلغاؤه من الإيرادات — لا يمسّ الخطّة نفسها */
+function editSub(sub, uid){
+  $('#modalBox').innerHTML = `<h4>تعديل سجل الاشتراك</h4>
+    <p>${esc(sub.plan)} · ${fdate(sub.started_at)} ← ${fdate(sub.expires_at)}<br><span style="font-size:12.5px">يغيّر سجلّ المال وحده — الخطّة وتاريخ انتهائها كما هما.</span></p>
+    <label class="f">المبلغ المدفوع فعلاً ($)</label><input id="esAmt" type="number" min="0" step="0.5" class="num" value="${Number(sub.amount_usd||0)}">
+    <div style="height:10px"></div><label class="f">الحالة</label>
+    <select id="esSt"><option value="active" ${sub.status==='active'?'selected':''}>فعّال</option><option value="cancelled" ${sub.status==='cancelled'?'selected':''}>ملغى — لا يُحسب دخلاً</option><option value="refunded" ${sub.status==='refunded'?'selected':''}>مُسترَد</option></select>
+    <div class="form-actions"><button class="btn primary" id="esOk">حفظ</button><button class="btn ghost" id="esNo">إلغاء</button></div>`;
+  $('#modal').classList.add('on');
+  $('#esNo').onclick = () => $('#modal').classList.remove('on');
+  $('#esOk').onclick = async () => {
+    try { await rpc('admin_update_subscription', {p_id:sub.id, p_amount:Number($('#esAmt').value), p_status:$('#esSt').value});
+      $('#modal').classList.remove('on'); toast('✅ عُدّل سجل الاشتراك'); openUser(uid); }
+    catch(e){ toast(errText(e), true); } };
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -912,13 +937,14 @@ RENDER.health = async () => {
    📜 سجل الأفعال
    ═══════════════════════════════════════════════════════════════════ */
 const ACT = {grant_plan:['منح خطّة','b-ok'],revoke_plan:['سحب خطّة','b-expired'],grant_plan_bulk:['منح جماعي','b-ok'],set_release:['نشر إصدار','b-pro'],
-  set_config:['تغيير إعداد','b-next'],extend_trial:['تمديد تجربة','b-trial'],broadcast:['رسالة','b-business']};
+  set_config:['تغيير إعداد','b-next'],extend_trial:['تمديد تجربة','b-trial'],broadcast:['رسالة','b-business'],update_subscription:['تعديل اشتراك','b-warn']};
 function actDetails(a){ const d = a.details || {};
   switch(a.action){
     case 'grant_plan': return `${esc(d.from||'—')} ← <b>${esc(d.to)}</b> · ${esc(d.months)} شهر${d.amount!=null?' · '+usd(d.amount):''}${d.expires?' · حتى '+fdate(d.expires):''}`;
     case 'set_release': return `البناء #${esc(d.from_build)} ← <b>#${esc(d.to_build)}</b> · ${esc(d.version)}${d.mandatory?' · إلزامي':''}`;
     case 'set_config': return `<b>${esc(d.key)}</b>`;
     case 'extend_trial': return `+${esc(d.days)} يوم · حتى ${fdate(d.to)}`;
+    case 'update_subscription': return `${usd(d.amount_from)} ← <b>${usd(d.amount_to)}</b>${d.status_to!==d.status_from?' · '+esc(d.status_to):''}`;
     case 'broadcast': return `«${esc(d.title)}» · ${esc(d.segment)} · ${n0(d.count)} مستخدم`;
     case 'grant_plan_bulk': return `${esc(d.plan||'')} · ${n0(d.count||d.applied||0)} مستخدم`;
     default: return esc(JSON.stringify(d)).slice(0,120);
