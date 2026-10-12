@@ -852,7 +852,34 @@ RENDER.msg = async () => {
         <div class="notif"><div class="ap"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M2 5h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"/><path d="M22 5h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"/></svg></div>
           <div style="min-width:0"><small>الدفتر · الآن</small><b id="pvT">العنوان</b><p id="pvB">نصّ الرسالة يظهر هنا</p></div></div></div></div>
     </div>
+  </div>
+  <div class="card" style="margin-top:18px"><h3>آخر الرسائل</h3>
+    <div class="hint">«📲 للجوالات فقط» يرسل الإشعار الفوري لنفس من استلم الرسالة، <b>دون تكرارها في الجرس</b>.</div>
+    <div id="bHist" style="margin-top:12px"><div class="hint">⏳ …</div></div>
   </div>`;
+  const loadHist = async () => {
+    let list;
+    try { list = await rpc('admin_recent_broadcasts') || []; }
+    catch(e){ $('#bHist').innerHTML = `<div class="hint">لتفعيل هذا القسم شغّل ملف <b>إعادة_إرسال_للجوالات.sql</b> في Supabase.</div>`; return; }
+    if (!list.length) { $('#bHist').innerHTML = '<div class="hint">لا رسائل في آخر 30 يوماً.</div>'; return; }
+    $('#bHist').innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>الرسالة</th><th>المستلمون</th><th>قرأها</th><th>أُرسلت</th><th></th></tr></thead><tbody>${
+      list.map(m => `<tr><td class="t" style="white-space:normal;max-width:420px"><b>${esc(m.title)}</b><div style="font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:420px">${esc(m.body)}</div></td>
+        <td class="num">${n0(m.count)}</td><td class="num">${n0(m.read)}</td><td class="num">${esc(new Date(m.sent_at).toLocaleString('ar-SY-u-nu-latn',{dateStyle:'medium',timeStyle:'short'}))}</td>
+        <td><button class="btn" data-b="${esc(m.batch)}">📲 للجوالات فقط</button></td></tr>`).join('')}</tbody></table></div>`;
+    $$('#bHist [data-b]').forEach(btn => btn.onclick = async () => {
+      const m = list.find(x => x.batch === btn.dataset.b);
+      if (!await confirmBox('إرسال إلى الجوالات فقط', `«${esc(m.title)}» إلى ${n0(m.count)} مستخدم.<br>لن تُضاف نسخة ثانية في مركز الإشعارات.`, 'إرسال')) return;
+      btn.disabled = true; btn.textContent = '⏳ جارٍ الإرسال…';
+      try {
+        const r = await rpc('admin_broadcast_targets', {p_batch: m.batch});
+        const p = await pushTo(r.user_ids||[], r.title, r.body);
+        if (p.blocked) toast('الإشعار الفوري متوقّف: دالّة send-notification لم تُحدَّث بعد', true);
+        else toast(`📲 وصلت إلى جوالات ${n0(p.sent)} مستخدم${p.failed?` · تعذّر ${n0(p.failed)} (بلا جهاز مسجّل غالباً)`:''}`);
+        btn.textContent = '✓ أُرسلت';
+      } catch(e){ toast(errText(e), true); btn.disabled = false; btn.textContent = '📲 للجوالات فقط'; }
+    });
+  };
+  loadHist();
   let seg = 'all';
   const counts = { all:null };
   try { const all = await rpc('admin_users_v2', {p_search:'', p_filter:'all'}) || [];
@@ -878,7 +905,7 @@ RENDER.msg = async () => {
                           : `<br>📲 وصلت إلى جوالات ${n0(p.sent)} مستخدم${p.failed?` · تعذّر ${n0(p.failed)} (بلا جهاز مسجّل غالباً)`:''}.`;
       }
       $('#bRes').innerHTML = `<div class="banner info" style="margin-top:14px;color:#a7f3d0;border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.08)"><div>${line}</div></div>`;
-      $('#bT').value=''; $('#bB').value=''; sync();
+      $('#bT').value=''; $('#bB').value=''; sync(); loadHist();
     } catch(e){ $('#bRes').innerHTML = `<div class="banner red" style="margin-top:14px">${esc(errText(e))}</div>`; }
     $('#bGo').disabled = false;
   };
@@ -1164,6 +1191,8 @@ const MOCK = (() => {
         {action:'set_release',actor_name:'أحمد',details:{from_build:1,to_build:2,version:'1.1.0',mandatory:false},created_at:new Date(now-2*day).toISOString()},
         {action:'set_config',actor_name:'أحمد',details:{key:'trial_days'},created_at:new Date(now-day).toISOString()},
         {action:'broadcast',actor_name:'أحمد',details:{title:'تحديث جديد متوفّر 🎉',segment:'all',count:43},created_at:new Date(now-5e6).toISOString()}];
+      case 'admin_recent_broadcasts': return [{batch:'00000000-0000-0000-0000-000000000001',title:'تحديث جديد للدفتر 🎉',body:'أضفنا ميزات طلبتموها أنتم: كشف الحساب يبدأ من آخر تسديد كامل…',count:6,read:4,sent_at:new Date(now-3600e3).toISOString()}];
+      case 'admin_broadcast_targets': return {title:'تحديث جديد للدفتر 🎉',body:'…',user_ids:['u1','u2']};
       case 'admin_broadcast': return {count: p.p_segment==='single'?1:23, user_ids:['u1']};
       case 'admin_grant_plan_custom': { const d=new Date(); d.setMonth(d.getMonth()+p.p_months); return d.toISOString(); }
       case 'admin_extend_trial': return new Date(now+p.p_days*day).toISOString();
