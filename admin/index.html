@@ -873,8 +873,9 @@ RENDER.msg = async () => {
       try {
         const r = await rpc('admin_broadcast_targets', {p_batch: m.batch});
         const p = await pushTo(r.user_ids||[], r.title, r.body);
-        if (p.blocked) toast('الإشعار الفوري متوقّف: دالّة send-notification لم تُحدَّث بعد', true);
-        else toast(`📲 وصلت إلى جوالات ${n0(p.sent)} مستخدم${p.failed?` · تعذّر ${n0(p.failed)} (بلا جهاز مسجّل غالباً)`:''}`);
+        if (p.blocked) { toast('الإشعار الفوري متوقّف: النسخة المنشورة من send-notification قديمة', true);
+          btn.disabled = false; btn.textContent = '📲 للجوالات فقط'; return; }
+        toast(`📲 وصلت إلى جوالات ${n0(p.sent)} مستخدم${p.failed?` · تعذّر ${n0(p.failed)} (بلا جهاز مسجّل غالباً)`:''}`);
         btn.textContent = '✓ أُرسلت';
       } catch(e){ toast(errText(e), true); btn.disabled = false; btn.textContent = '📲 للجوالات فقط'; }
     });
