@@ -258,6 +258,16 @@ tr.click:hover td{background:var(--rowhover)}
 .gauge .c{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
 .gauge .c b{font-size:30px;font-weight:800;display:block;line-height:1}
 .gauge .c span{font-size:12px;color:var(--muted)}
+.heat{display:grid;grid-template-columns:62px repeat(24,1fr);gap:3px;font-size:10.5px;color:var(--muted);direction:rtl}
+.heat .c{aspect-ratio:1;border-radius:4px;background:var(--card2)}
+.heat .lb{display:flex;align-items:center;font-weight:600}
+.heat .hh{text-align:center}
+.funnel-row{display:grid;grid-template-columns:150px 1fr 120px;align-items:center;gap:12px;padding:8px 0}
+.funnel-row .track{height:30px;background:var(--card2);border-radius:8px;overflow:hidden}
+.funnel-row .fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--indigo),var(--blue));display:flex;align-items:center;padding:0 10px;color:#fff;font-weight:800;font-size:13px;min-width:34px}
+.funnel-row .pc{font-size:12px;color:var(--muted);text-align:left}
+.coh td{font-weight:700}
+.trend-up{color:var(--green);font-weight:800}.trend-down{color:var(--red);font-weight:800}
 .demo-flag{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:70;background:var(--amber);color:#1c1300;
   font-weight:800;font-size:12px;padding:5px 14px;border-radius:20px;box-shadow:var(--shadow)}
 
@@ -397,6 +407,7 @@ const I = {
   rel:'<path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 19h16"/>',
   cfg:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   health:'<path d="M3 12h4l2.5-6 5 12L17 12h4"/>',
+  chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   log:'<path d="M5 4h11l3 3v13H5z"/><path d="M9 10h7M9 14h7M9 18h4"/>',
   store:'<path d="M3 9 4.5 4h15L21 9"/><path d="M3 9h18v2a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/><path d="M5 13v7h14v-7"/>',
   bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
@@ -410,6 +421,7 @@ const ico = (k, c='currentColor') => `<svg viewBox="0 0 24 24" fill="none" strok
 
 const VIEWS = [
   {id:'home',   t:'الرئيسية',             ic:'home',   sec:'عام'},
+  {id:'ana',    t:'التحليلات',             ic:'chart'},
   {id:'users',  t:'المستخدمون',            ic:'users'},
   {id:'money',  t:'الاشتراكات والإيرادات', ic:'money'},
   {id:'msg',    t:'الرسائل',               ic:'msg',    sec:'التواصل والتحكم'},
@@ -525,6 +537,79 @@ RENDER.home = async () => {
   $('#lEnd').innerHTML = (d.ending_soon||[]).length ? d.ending_soon.map(u => li(u)+`<div style="text-align:left">${statusBadge(u.status)}<span style="display:block;margin-top:4px">${ago(u.ends_at)} · ${n0(u.customers)} زبون</span></div></div>`).join('')
     : '<div class="empty">لا أحد تنتهي مدّته هذا الأسبوع 🎉</div>';
   $('#lRecent').innerHTML = (d.recent||[]).map(u => li(u)+`<div style="text-align:left">${u.is_merchant?'<span class="badge b-business">تاجر</span>':'<span class="badge b-free">زبون</span>'}<span style="display:block;margin-top:4px">${ago(u.created_at)}</span></div></div>`).join('') || '<div class="empty">—</div>';
+  $$('[data-u]').forEach(el => el.onclick = () => openUser(el.dataset.u));
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   📈 التحليلات
+   ═══════════════════════════════════════════════════════════════════ */
+const DAYS = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+RENDER.ana = async () => {
+  const a = await rpc('admin_analytics');
+  $('#crumb').textContent = 'النشاط = عمليّة حقيقيّة في الدفتر · بتوقيت دمشق';
+  const pct = (x, y) => y ? Math.round(100 * x / y) : 0;
+  const stick = pct(a.dau, a.mau);
+  const ah = Number(a.activation_hours || 0);
+  const actTxt = !a.activation_hours ? '—' : ah < 1 ? Math.round(ah*60)+' دقيقة' : ah < 48 ? Math.round(ah)+' ساعة' : Math.round(ah/24)+' يوم';
+  const cu = a.customers || {};
+  const kpi = (v,l,c,sub='') => `<div class="card kpi" style="color:${c}"><div class="v num" style="color:var(--text)">${v}</div><div class="l">${l}</div>${sub?`<div style="font-size:11.5px;color:var(--dim);margin-top:4px">${sub}</div>`:''}</div>`;
+  const f = a.funnel || []; const top = f[0]?.n || 1;
+  // heatmap
+  const H = {}; let hmax = 1; (a.heatmap||[]).forEach(([d,h,n]) => { H[d+'_'+h] = n; hmax = Math.max(hmax, n); });
+  const heat = `<div class="heat"><div></div>${Array.from({length:24},(_,h)=>`<div class="hh">${h%3===0?h:''}</div>`).join('')}
+    ${[6,0,1,2,3,4,5].map(d => `<div class="lb">${DAYS[d]}</div>${Array.from({length:24},(_,h)=>{ const n = H[d+'_'+h]||0;
+      return `<div class="c" title="${DAYS[d]} ${h}:00 — ${n} عمليّة" style="${n?`background:rgba(59,130,246,${(.15+.85*n/hmax).toFixed(2)})`:''}"></div>`; }).join('')}`).join('')}</div>`;
+  // cohorts
+  const coh = (a.cohorts||[]).map(c => `<tr><td>${fdate(c.week)}</td><td class="num">${n0(c.size)}</td>${c.w.map((v,i) => {
+      if (i > c.weeks_elapsed) return '<td style="color:var(--dim)">—</td>';
+      const p = pct(v, c.size); return `<td style="background:rgba(16,185,129,${(p/100*.55+.04).toFixed(2)})"><span class="num">${p}%</span><div style="font-size:11px;color:var(--muted);font-weight:500">${v}</div></td>`; }).join('')}</tr>`).join('');
+  const lead = (a.leaders||[]).map((u,i) => { const d = u.tx_7d - u.tx_prev_7d;
+    return `<tr class="click" data-u="${u.id}"><td><div class="who" style="display:flex;gap:10px;align-items:center"><span style="color:var(--dim);font-weight:800;width:18px">${i+1}</span><div><b>${esc(u.store_name||u.name||'—')}</b><span>${esc(u.store_name?u.name:'')}${u.paid?' · يدفع':''}</span></div></div></td>
+      <td class="num">${n0(u.customers)}</td><td class="num"><b>${n0(u.tx_30d)}</b></td><td class="num">${n0(u.tx_7d)} <span class="${d>=0?'trend-up':'trend-down'}">${d>0?'▲':d<0?'▼':'•'}${d?Math.abs(d):''}</span></td>
+      <td><div class="bar" style="width:110px;margin:auto"><i style="width:${Math.round(100*u.active_days_30/30)}%;background:var(--green)"></i></div><span style="font-size:11.5px;color:var(--muted)">${u.active_days_30} يوم من 30</span></td><td>${ago(u.last_tx)}</td></tr>`; }).join('');
+  $('#view').innerHTML = `
+  <div class="grid g4">
+    ${kpi(n0(a.dau),'تجّار عملوا اليوم','#3b82f6')}
+    ${kpi(n0(a.wau),'نشطون هذا الأسبوع','#8b5cf6', `${n0(a.tx_per_active_7d)} عمليّة لكلّ تاجر نشط`)}
+    ${kpi(n0(a.mau),'نشطون هذا الشهر','#06b6d4', `الالتصاق اليومي ${stick}% (يومي ÷ شهري)`)}
+    ${kpi(actTxt,'من التسجيل إلى أول عمليّة','#f59e0b','الوسيط بين التجّار')}
+  </div>
+  <div class="grid g21" style="margin-top:16px">
+    <div class="card"><h3>قمع التفعيل</h3><div class="hint">من سجّل كتاجر حتى صار يعتمد على التطبيق — أين يتوقّف الناس؟</div>
+      ${f.map((s,i) => `<div class="funnel-row"><b style="font-size:13.5px">${s.k}</b><div class="track"><div class="fill" style="width:${Math.max(4, pct(s.n, top))}%">${n0(s.n)}</div></div>
+        <div class="pc">${pct(s.n, top)}% من الكلّ${i?` · <b style="color:var(--text)">${pct(s.n, f[i-1].n)}%</b> من السابق`:''}</div></div>`).join('')}</div>
+    <div class="card"><h3>الزبائن والتطبيق</h3><div class="hint">بلا رقمٍ لا ربط، وبلا ربطٍ لا إشعارات</div>
+      <div class="chart-box sm"><canvas id="cLink"></canvas></div>
+      <div class="legend" style="justify-content:center"><span>${n0(cu.total)} زبون</span><span>${pct(cu.phone,cu.total)}% لهم رقم</span><span>${pct(cu.linked,cu.total)}% مرتبطون</span></div></div>
+  </div>
+  <div class="grid g21" style="margin-top:16px">
+    <div class="card"><h3>النشاط اليومي — 30 يوماً</h3><div class="hint">عدد التجّار الذين عملوا كلّ يوم، وعدد العمليّات</div><div class="chart-box"><canvas id="cAct"></canvas></div></div>
+    <div class="card"><h3>ديون ودفعات</h3><div class="hint">آخر 30 يوماً — هل يُسجَّل السداد أيضاً؟</div><div class="chart-box"><canvas id="cMix"></canvas></div></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>🕐 أوقات الذروة</h3><div class="hint">متى يعمل التجّار؟ — أفضل وقتٍ لإرسال رسالة أو نشر تحديث</div>${heat}</div>
+  <div class="card" style="margin-top:16px;padding:0"><div style="padding:18px 20px 6px"><h3>🔁 الاحتفاظ الأسبوعي</h3><div class="hint">من سجّل في أسبوعٍ ما: كم منهم عمل في أسبوع تسجيله، والأسابيع التي تلته — أهمّ مقياس لأيّ تطبيق</div></div>
+    <div class="table-wrap coh" style="border:0;border-top:1px solid var(--line)"><table><thead><tr><th>أسبوع التسجيل</th><th>التجّار</th><th>أسبوعه</th><th>+1</th><th>+2</th><th>+3</th><th>+4</th></tr></thead>
+    <tbody>${coh || '<tr><td colspan="7" class="empty">لا بيانات بعد</td></tr>'}</tbody></table></div></div>
+  <div class="grid g21" style="margin-top:16px">
+    <div class="card" style="padding:0"><div style="padding:18px 20px 6px"><h3>🏆 الأكثر نشاطاً</h3><div class="hint">آخر 30 يوماً · السهم مقارنةً بالأسبوع السابق</div></div>
+      <div class="table-wrap" style="border:0;border-top:1px solid var(--line)"><table><thead><tr><th>التاجر</th><th>الزبائن</th><th>عمليّات 30 يوماً</th><th>هذا الأسبوع</th><th>الانتظام</th><th>آخر عمليّة</th></tr></thead>
+      <tbody>${lead || '<tr><td colspan="6" class="empty">—</td></tr>'}</tbody></table></div></div>
+    <div class="card"><h3>⚠️ في خطر الترك</h3><div class="hint">عملوا كثيراً ثم توقّفوا هذا الأسبوع — راسلهم الآن</div>
+      ${(a.at_risk||[]).map(u => `<div class="list-item" data-u="${u.id}" style="cursor:pointer"><div class="avatar" style="background:linear-gradient(135deg,#ef4444,#f59e0b)">${esc(initial(u.store_name||u.name))}</div>
+        <div class="grow"><b>${esc(u.store_name||u.name||'—')}</b><span>${n0(u.tx)} عمليّة · ${n0(u.customers)} زبون</span></div><span style="font-size:12px;color:var(--muted)">آخر عمل ${ago(u.last_tx)}</span></div>`).join('') || '<div class="empty">لا أحد — كل التجّار النشطين ما زالوا يعملون 👌</div>'}</div>
+  </div>`;
+
+  const s = a.active_30d || [];
+  chart('cAct', {data:{labels:s.map(x=>shortDay(x.d)), datasets:[
+    {type:'line', label:'تجّار نشطون', data:s.map(x=>x.n), borderColor:'#8b5cf6', backgroundColor:'#8b5cf6', tension:.35, pointRadius:2, borderWidth:2.5, yAxisID:'y'},
+    {type:'bar', label:'عمليّات', data:s.map(x=>x.tx), backgroundColor:'rgba(59,130,246,.28)', borderRadius:5, yAxisID:'y1'}]},
+    options:{maintainAspectRatio:false, scales:{x:{grid:{display:false}}, y:{beginAtZero:true,ticks:{precision:0},position:'right',title:{display:true,text:'تجّار'}},
+      y1:{beginAtZero:true,position:'left',grid:{display:false},title:{display:true,text:'عمليّات'}}}}});
+  const mx = a.mix_30d || {};
+  chart('cMix', {type:'doughnut', data:{labels:['ديون','دفعات'], datasets:[{data:[mx.debt||0, mx.payment||0], backgroundColor:['#ef4444','#10b981'], borderWidth:0}]},
+    options:{maintainAspectRatio:false, cutout:'64%', plugins:{legend:{position:'bottom'}}}});
+  chart('cLink', {type:'bar', data:{labels:['كل الزبائن','لهم رقم','مرتبطون'], datasets:[{data:[cu.total||0, cu.phone||0, cu.linked||0],
+    backgroundColor:['#475569','#3b82f6','#10b981'], borderRadius:8}]}, options:{maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false}}, scales:{y:{grid:{display:false}}}}});
   $$('[data-u]').forEach(el => el.onclick = () => openUser(el.dataset.u));
 };
 
@@ -1042,6 +1127,17 @@ const MOCK = (() => {
           expired:u=>u.status==='expired', expiring:u=>u.status!=='free'&&new Date(u.plan_expires_at)-now<7*day&&new Date(u.plan_expires_at)>now, inactive:u=>u.is_merchant&&u.customers>0&&now-new Date(u.last_tx)>14*day,
           empty:u=>u.is_merchant&&!u.customers, admins:u=>u.is_admin};
         return m[f] ? r.filter(m[f]) : r; }
+      case 'admin_analytics': return {
+        funnel:[{k:'سجّل كتاجر',n:23},{k:'أضاف أول زبون',n:17},{k:'سجّل أول عمليّة',n:15},{k:'10 عمليّات فأكثر',n:9},{k:'50 عمليّة فأكثر',n:4},{k:'اشترك ودفع',n:3}],
+        dau:4, wau:6, mau:9, activation_hours:3.4, tx_per_active_7d:118,
+        active_30d:series(30,i=>({d:new Date(now-(29-i)*day).toISOString(), n:i<10?1+(i%2):3+(i%4), tx:i<10?4+i*2:30+((i*13)%40)})),
+        cohorts:[{week:new Date(now-28*day).toISOString(),size:3,w:[3,2,2,2,1],weeks_elapsed:4},{week:new Date(now-21*day).toISOString(),size:2,w:[2,2,1,1,0],weeks_elapsed:3},
+                 {week:new Date(now-14*day).toISOString(),size:5,w:[4,3,2,0,0],weeks_elapsed:2},{week:new Date(now-7*day).toISOString(),size:8,w:[6,4,0,0,0],weeks_elapsed:1},{week:new Date(now).toISOString(),size:5,w:[3,0,0,0,0],weeks_elapsed:0}],
+        heatmap:Array.from({length:7*24},(_,k)=>{const d=k%7,h=Math.floor(k/7); const n=(h>=8&&h<=22)?Math.round((h>=17&&h<=21?14:6)*(d===5?.4:1)+((k*7)%5)):0; return [d,h,n];}),
+        mix_30d:{debt:612,payment:281}, customers:{total:453,phone:188,linked:9},
+        at_risk:[users[3]].map(u=>({...u,last_tx:new Date(now-9*day).toISOString(),tx:61})),
+        leaders:users.filter(u=>u.is_merchant&&u.transactions).map((u,i)=>({...u,tx:u.transactions,tx_30d:Math.round(u.transactions*.7),tx_7d:[96,30,12,0,5,7,1][i]||2,tx_prev_7d:[80,34,9,14,5,2,0][i]||1,active_days_30:[27,18,11,8,6,9,2][i]||3,paid:i<2}))
+      };
       case 'admin_get_user_detail': { const u = users.find(x=>x.id===p.p_user)||users[0];
         return { profile:{...u, currency_code:'USD', created_at:u.created_at}, stats:{customers:u.customers, transactions:u.transactions, total_debt_usd:u.customers*97.5, active_debtors:Math.round(u.customers*.6)},
           subscriptions: u.status==='business'||u.status==='pro'?[{plan:u.plan,status:'active',amount_usd:30,started_at:new Date(now-20*day).toISOString(),expires_at:u.plan_expires_at}]:[] }; }
