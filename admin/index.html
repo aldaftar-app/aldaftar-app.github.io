@@ -1486,6 +1486,15 @@ function setPeriod(d){ PERIOD = d; try { localStorage.setItem('daftar-admin-peri
 $$('#period button').forEach(b => b.onclick = () => setPeriod(+b.dataset.d)); paintPeriod();
 
 /* ═══ أدوات مشتركة ═══ */
+const CUR_SYM = {SAR:'ر.س', USD:'$', AED:'د.إ', IQD:'ع.د', TRY:'₺', SYP:'ل.س', EGP:'ج.م', JOD:'د.أ', LBP:'ل.ل', QAR:'ر.ق', KWD:'د.ك', EUR:'€', GBP:'£', YER:'ر.ي'};
+/* «له عند الناس» كما يراه التاجر في تطبيقه: بالدولار إن كانت الدولرة مفعّلة،
+   وإلا بعملته هو — فالتطبيق لا يحسب المبلغ بالدولار أصلاً حين تكون الدولرة موقوفة. */
+function owedTile(p, m){
+  if (p.dollar_mode) return `<div><b class="num">${usd(m.owed_usd)}</b><span>له عند الناس · بالدولرة</span></div>`;
+  const code = String(p.currency_code || '').trim() || 'SAR';
+  const sum = Object.values(m.owed_local || {}).reduce((a, v) => a + (+v || 0), 0);
+  return `<div><b><span class="num">${Number(sum).toLocaleString('en-US', {maximumFractionDigits: 2})}</span> <small>${esc(CUR_SYM[code] || code)}</small></b><span>له عند الناس</span></div>`;
+}
 const SEGS = { champion:['أبطال','#34C759'], healthy:['بخير','#0A84FF'], attention:['يحتاج انتباهاً','#FF9F0A'], dormant:['خامد','#FF3B30'], never:['لم يبدأ','#8E8E93'] };
 const segBadge = s => s && SEGS[s] ? `<span class="badge" style="--c:${SEGS[s][1]}">${SEGS[s][0]}</span>` : '';
 const hcol = v => v >= 75 ? '#34C759' : v >= 50 ? '#0A84FF' : v >= 25 ? '#FF9F0A' : '#FF3B30';
@@ -1965,7 +1974,7 @@ function drawTab(id, t){
       ${p.is_merchant ? `<div class="kv k3">
         <div><b class="num">${n0(m.customers)}</b><span>زبون في دفتره</span></div>
         <div><b class="num">${n0(m.debtors)}</b><span>زبون عليه دين</span></div>
-        <div><b class="num">${usd(m.owed_usd)}</b><span>له عند الناس بالدولار</span></div>
+        ${owedTile(p, m)}
         <div><b class="num">${n0(m.tx_total)}</b><span>عمليّة · ${n0(m.tx_30d)} خلال 30 يوماً</span></div>
         <div><b class="num">${n0(m.active_days_30)}<small>/30</small></b><span>أيام العمل</span></div>
         <div><b class="num">${n0(m.linked)}</b><span>زبون مرتبط بالتطبيق</span></div></div>
