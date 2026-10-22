@@ -33,7 +33,7 @@
   --sh-lg:0 30px 80px rgba(0,0,0,.18),0 6px 18px rgba(0,0,0,.06);
   --seg-on:#FFFFFF; --seg-sh:0 1px 3px rgba(0,0,0,.12),0 1px 1px rgba(0,0,0,.04);
   --sk1:rgba(120,120,128,.07); --sk2:rgba(120,120,128,.15);
-  --ovl:rgba(0,0,0,.16);
+  --ovl:rgba(0,0,0,.12);
   --glow1:rgba(0,122,255,.10); --glow2:rgba(175,82,222,.075); --glow3:rgba(48,176,199,.055);
   --r:20px; --side-w:248px;
   color-scheme:light;
@@ -54,7 +54,7 @@
   --sh-lg:0 30px 90px rgba(0,0,0,.65);
   --seg-on:#636366; --seg-sh:0 1px 3px rgba(0,0,0,.4);
   --sk1:rgba(255,255,255,.04); --sk2:rgba(255,255,255,.09);
-  --ovl:rgba(0,0,0,.5);
+  --ovl:rgba(0,0,0,.38);
   --glow1:rgba(10,132,255,.15); --glow2:rgba(191,90,242,.11); --glow3:rgba(64,200,224,.05);
   color-scheme:dark;
 }
@@ -228,8 +228,9 @@ tr.click:hover td{background:var(--rowhover)}
 .chip .c{margin-right:6px;opacity:.6;font-size:11.5px;font-variant-numeric:tabular-nums}
 
 /* ═══ درج المستخدم: لوح زجاجي عائم ═══ */
-.overlay{position:fixed;inset:0;background:var(--ovl);z-index:40;opacity:0;pointer-events:none;transition:opacity .4s var(--ease)}
-.overlay.on{opacity:1;pointer-events:auto}
+.overlay{position:fixed;inset:0;z-index:40;background:var(--ovl);-webkit-backdrop-filter:blur(14px) saturate(160%);backdrop-filter:blur(14px) saturate(160%);
+  opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s var(--ease),visibility 0s linear .45s}
+.overlay.on{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .45s var(--ease),visibility 0s}
 .drawer{position:fixed;top:12px;bottom:12px;left:12px;width:min(560px,calc(100% - 24px));z-index:41;display:flex;flex-direction:column;overflow:hidden;
   background:var(--glass2);-webkit-backdrop-filter:saturate(180%) blur(40px);backdrop-filter:saturate(180%) blur(40px);
   border:1px solid var(--gedge);border-radius:26px;box-shadow:var(--sh-lg),inset 0 1px 0 var(--ghi);
@@ -323,9 +324,11 @@ tr.click:hover td{background:var(--rowhover)}
   max-width:min(560px,92vw);animation:drop .55s var(--spring) both;transition:opacity .3s,transform .3s}
 .toast.err{border-color:color-mix(in srgb,var(--red) 35%,transparent);color:color-mix(in srgb,var(--red) 80%,var(--text))}
 .toast.out{opacity:0;transform:translateY(-10px) scale(.97)}
-.modal{position:fixed;inset:0;display:none;place-items:center;z-index:55;background:var(--ovl);padding:20px}
-.modal.on{display:grid;animation:fade .25s ease both}
-.modal .box{background:var(--glass2);-webkit-backdrop-filter:saturate(180%) blur(40px);backdrop-filter:saturate(180%) blur(40px);border:1px solid var(--gedge);
+.modal{position:fixed;inset:0;display:none;place-items:center;z-index:55;padding:20px}
+.modal::before{content:"";position:absolute;inset:0;background:var(--ovl);-webkit-backdrop-filter:blur(14px) saturate(160%);backdrop-filter:blur(14px) saturate(160%)}
+.modal.on{display:grid}
+.modal.on::before{animation:fade .35s ease both}
+.modal .box{position:relative;background:var(--glass2);-webkit-backdrop-filter:saturate(180%) blur(40px);backdrop-filter:saturate(180%) blur(40px);border:1px solid var(--gedge);
   border-radius:24px;padding:24px;max-width:430px;width:100%;box-shadow:var(--sh-lg),inset 0 1px 0 var(--ghi);animation:pop .45s var(--spring) both}
 .modal h4{font-size:17px;font-weight:700;margin-bottom:6px}
 .modal p{color:var(--muted);margin-bottom:18px;font-size:13.5px}
