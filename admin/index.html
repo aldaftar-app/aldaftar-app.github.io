@@ -271,6 +271,41 @@ tr.click:hover td{background:var(--rowhover)}
 .demo-flag{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:70;background:var(--amber);color:#1c1300;
   font-weight:800;font-size:12px;padding:5px 14px;border-radius:20px;box-shadow:var(--shadow)}
 
+/* ═══ اللوحة الاحترافية ═══ */
+nav{overflow:auto;flex:1;min-height:0;margin-bottom:8px}
+.period{width:auto;flex:none} .period button{padding:6px 12px;font-size:12.5px;flex:none}
+.kd{margin-top:8px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap} .kd span{color:var(--dim)}
+.dl{font-weight:800;font-size:11.5px;padding:2px 8px;border-radius:20px;background:var(--card2);color:var(--muted)}
+.dl.up{background:rgba(16,185,129,.14);color:#34d399} .dl.down{background:rgba(239,68,68,.13);color:#f87171}
+[data-theme=light] .dl.up{color:#047857} [data-theme=light] .dl.down{color:#b91c1c}
+.alerts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.al{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;color:var(--text);transition:.15s}
+.al:hover{border-color:var(--line2);transform:translateY(-1px)}
+.al b{font-size:22px;font-weight:800;min-width:46px;text-align:center}
+.al span{font-size:12.5px;color:var(--muted);line-height:1.45}
+.al.zero{opacity:.5}
+.hb{display:flex;align-items:center;gap:8px;justify-content:center}
+.hb-t{width:64px;height:7px;background:var(--card2);border-radius:6px;overflow:hidden} .hb-t i{display:block;height:100%;border-radius:6px}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);padding:0 20px;overflow:auto;flex:none}
+.tabs button{border:0;background:none;color:var(--muted);font-weight:700;padding:12px 12px;border-bottom:2px solid transparent;white-space:nowrap;font-size:13.5px}
+.tabs button:hover{color:var(--text)} .tabs button.on{color:var(--text);border-bottom-color:var(--blue)}
+.drawer.wide{width:min(980px,100%)}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px} .toolbar input{max-width:300px;background:var(--card)} .toolbar .grow{flex:1}
+th[data-k]{cursor:pointer;user-select:none} th[data-k]:hover{color:var(--text)} th .ar{margin-right:4px;color:var(--blue)}
+.abar{display:grid;grid-template-columns:minmax(150px,210px) 1fr 96px;gap:12px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line)}
+.abar:last-child{border:0} .abar .tr{height:11px;background:var(--card2);border-radius:8px;overflow:hidden} .abar .tr i{display:block;height:100%;border-radius:8px}
+.abar b{font-size:13px} .abar .v{font-size:12.5px;color:var(--muted);text-align:left}
+.ring{border-radius:50%;display:grid;place-items:center;flex:none}
+.ring>div{border-radius:50%;background:var(--bg2);display:grid;place-items:center;text-align:center}
+.note{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.note p{white-space:pre-wrap;font-size:13.5px;word-break:break-word} .note small{color:var(--muted);font-size:11.5px}
+.soon{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pill{display:inline-block;padding:1px 8px;border-radius:20px;background:var(--card2);color:var(--muted);font-size:11px;font-weight:700}
+.chip .c{margin-right:6px;opacity:.75;font-size:11.5px}
+@media (max-width:1200px){.alerts{grid-template-columns:repeat(2,1fr)}.soon{grid-template-columns:1fr 1fr}}
+@media (max-width:900px){.period{display:none}}
+@media (max-width:560px){.alerts{grid-template-columns:1fr}.abar{grid-template-columns:110px 1fr 74px}.soon{grid-template-columns:1fr}.drawer .kv{grid-template-columns:1fr 1fr!important}}
+
 @media (max-width:1200px){.g4{grid-template-columns:repeat(2,1fr)}.g21{grid-template-columns:1fr}}
 @media (max-width:900px){
   aside{transform:translateX(100%);transition:.25s}
@@ -335,6 +370,7 @@ tr.click:hover td{background:var(--rowhover)}
       <div class="grow"></div>
       <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input id="gSearch" placeholder="ابحث عن مستخدم: اسم، متجر، بريد، رقم…"></div>
+      <div class="seg period" id="period" title="الفترة الزمنيّة للتحليلات"><button data-d="7">7 أيام</button><button data-d="30">30 يوماً</button><button data-d="90">90 يوماً</button></div>
       <button class="btn sm theme-btn" id="btnTheme"></button>
       <button class="btn sm" id="btnRefresh" title="تحديث">⟳ تحديث</button>
     </div>
@@ -420,9 +456,14 @@ const I = {
 const ico = (k, c='currentColor') => `<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[k]}</svg>`;
 
 const VIEWS = [
-  {id:'home',   t:'الرئيسية',             ic:'home',   sec:'عام'},
-  {id:'ana',    t:'التحليلات',             ic:'chart'},
-  {id:'users',  t:'المستخدمون',            ic:'users'},
+  {id:'home',   t:'نظرة عامة',             ic:'home',   sec:'عام'},
+  {id:'eng',    t:'التفاعل',               ic:'bolt',   sec:'التحليلات'},
+  {id:'ana',    t:'التفعيل والاحتفاظ',      ic:'chart'},
+  {id:'feat',   t:'استخدام الميزات',        ic:'star'},
+  {id:'cli',    t:'الزبائن والتطبيق',       ic:'person'},
+  {id:'time',   t:'وقت الاستخدام',          ic:'clock'},
+  {id:'users',  t:'المستخدمون',            ic:'users',  sec:'الأعمال'},
+  {id:'hs',     t:'صحة التجّار',            ic:'heart'},
   {id:'money',  t:'الاشتراكات والإيرادات', ic:'money'},
   {id:'msg',    t:'الرسائل',               ic:'msg',    sec:'التواصل والتحكم'},
   {id:'rel',    t:'الإصدارات',             ic:'rel'},
@@ -1200,6 +1241,719 @@ const MOCK = (() => {
       default: return null;
     } } };
 })();
+
+/* ═══ بيانات المعاينة للدوالّ الجديدة (?demo=1) — بالشكل نفسه الذي تُرجعه القاعدة ═══ */
+const MOCK_PRO = (() => {
+  const day = 864e5, now = Date.now(), iso = t => new Date(t).toISOString();
+  const S = (k, f) => Array.from({length:k}, (_, i) => f(i));
+  const base = MOCK.rpc('admin_users_v2', {p_filter:'all', p_search:''});
+  const H = [92, 78, 55, 61, 33, 0, 47, 0, 12, 0, 0, 0];
+  const segOf = h => h >= 75 ? 'champion' : h >= 50 ? 'healthy' : h >= 25 ? 'attention' : 'dormant';
+  const users = base.map((u, i) => {
+    const h = u.is_merchant ? (u.transactions ? H[i] : 0) : null;
+    return { ...u, tx_total: u.transactions, linked: Math.round(u.customers * .08), tx_30d: Math.round(u.transactions * .35),
+      active_days_30: u.is_merchant ? [27, 19, 9, 12, 4, 0, 8, 0, 2, 0, 0, 0][i] : 0, devices: i % 5 === 4 ? 0 : (i % 3 ? 1 : 2),
+      stores_linked: u.is_client ? (i % 3) + 1 : 0, paid: ['business', 'pro'].includes(u.status),
+      ltv: ['business', 'pro'].includes(u.status) ? ([70, 0, 0, 0, 25][i] || 10) : 0, phone_verified: i % 2 === 0,
+      last_sign_in_at: u.last_seen, health: h, segment: u.is_merchant ? (u.transactions ? segOf(h) : 'never') : null };
+  });
+  // تاجران إضافيّان «لم يبدآ» ليظهرا في التنبيهات كما في لوحتك الحقيقيّة
+  users.push({...users[8], id:'u12', name:'عمر مسقلاني', store_name:'متجر القلب الادلبي', customers:0, transactions:0, tx_total:0, tx_30d:0, active_days_30:0, linked:0,
+    status:'trial', health:0, segment:'never', last_tx:null, created_at:iso(now - 25 * day), trial_ends_at:iso(now + 5 * day), plan_expires_at:iso(now + 5 * day), paid:false, ltv:0, devices:1});
+  const notes = { u0: [{id:1, body:'اتصلت به — مرتاح جداً، طلب ميزة التقسيط.', author:'أحمد', created_at:iso(now - 3 * day)}] };
+  let noteId = 10;
+  const series = d => S(d, i => { const t = now - (d - 1 - i) * day, w = new Date(t).getDay();
+    const act = Math.max(1, Math.round((i < d / 3 ? 3 : 5) + Math.sin(i / 3) * 2 - (w === 5 ? 2 : 0)));
+    return { d: iso(t).slice(0, 10), merchants: i % 6 === 0 ? 1 : (i % 9 === 0 ? 2 : 0), clients: i % 4 === 0 ? 1 : (i % 7 === 0 ? 2 : 0), active: act, tx: act * (7 + (i % 5)) }; });
+  return (name, p) => { switch (name) {
+    case 'admin_users_pro': return users;
+    case 'admin_overview_pro': { const d = p.p_days || 30, k = d / 30;
+      return { days: d,
+        cur: {new_users:Math.round(14 * k), new_merchants:Math.round(5 * k), active_merchants:9, transactions:Math.round(612 * k), debts:Math.round(398 * k), payments:Math.round(214 * k),
+              new_customers:Math.round(71 * k), new_links:Math.round(6 * k), new_paid:Math.round(2 * k), revenue:Math.round(55 * k), disputes:3},
+        prev:{new_users:Math.round(11 * k), new_merchants:Math.round(4 * k), active_merchants:7, transactions:Math.round(455 * k), debts:Math.round(300 * k), payments:Math.round(155 * k),
+              new_customers:Math.round(52 * k), new_links:Math.round(4 * k), new_paid:Math.round(1 * k), revenue:Math.round(30 * k), disputes:2},
+        totals:{users:44, merchants:15, clients:31, customers:453, linked:19, transactions:1104, paying:3, trial:23, mrr_usd:25, db_bytes:58.2 * 1024 * 1024},
+        series: series(d),
+        alerts:{trials_ending_7d:2, renewals_due_7d:1, never_started:3, at_risk:1, no_device:7, outdated_devices:9, devices:44, open_disputes:2} }; }
+    case 'admin_engagement_pro': { const d = p.p_days || 90;
+      return { days: d,
+        series: S(d, i => { const dau = Math.max(1, Math.round(2 + i / d * 3 + Math.sin(i / 2.5) * 1.6)); return { d: iso(now - (d - 1 - i) * day).slice(0, 10), dau, wau: Math.min(14, dau + 3 + Math.round(i / d * 2)), mau: Math.min(15, 6 + Math.round(i / d * 4)) }; }),
+        frequency:{none:4, light:3, mid:4, high:2, daily:2}, last_seen:{today:9, week:13, month:8, older:7, never:7},
+        weekday: S(7, w => ({dow:w, n:w === 5 ? 52 : 140 + ((w * 37) % 60)})), hours: S(24, h => ({h, n:h < 8 ? 0 : h < 12 ? 20 + h * 3 : h < 17 ? 45 : h < 22 ? 70 + (h % 3) * 9 : 12})),
+        weekly: S(12, i => ({w: iso(now - (11 - i) * 7 * day).slice(0, 10), tx: 120 + i * 18 + (i % 3) * 15, active: 4 + Math.round(i / 2)})) }; }
+    case 'admin_adoption': return { merchants:15, clients:31,
+      merchant_features:[{k:'active30', n:9}, {k:'dollar', n:8}, {k:'linked', n:4}, {k:'note', n:5}, {k:'logo', n:3}, {k:'backup', n:4}, {k:'replies', n:2}, {k:'multidev', n:3}, {k:'quiet', n:2}, {k:'notif_off', n:1}],
+      client_features:[{k:'verified', n:22}, {k:'linked', n:13}, {k:'disputed', n:3}, {k:'quiet', n:4}, {k:'notif_off', n:2}] };
+    case 'admin_clients_pro': return { clients:34, pure:31, dual:3, verified:22, linked:13, avg_stores:1.4, max_stores:4,
+      notif_30d:{total:188, read:121}, disputes:{total:7, replied:4}, stores_dist:{'1':9, '2':2, '3':1, '4+':1},
+      top_stores: users.filter(u => u.is_merchant && u.customers).slice(0, 6).map((u, i) => ({id:u.id, store_name:u.store_name, clients:[6, 4, 2, 2, 1, 1][i], customers:u.customers})),
+      signups_90d: S(13, i => ({w: iso(now - (12 - i) * 7 * day).slice(0, 10), n: [0, 1, 0, 2, 1, 3, 2, 4, 3, 5, 6, 4, 7][i]})) };
+    case 'admin_revenue_pro': return { mrr:25, arr:300, paying:3, arpu:8.33, revenue_total:70, ltv_avg:23.33,
+      conversion:{ended:9, converted:2},
+      churn_30d:[{id:'u8', store_name:'متجر ابو احمد', expired_at:iso(now - 5 * day)}],
+      renewals_30d:[{id:'u4', store_name:'متجر القلب', plan:'pro', amount_usd:15, expires_at:iso(now + 12 * day)}],
+      monthly_12: S(12, i => ({m: iso(now - (11 - i) * 30 * day).slice(0, 7), usd:[0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 30, 40][i], n:[0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2][i]})),
+      by_plan:{business:{usd:40, n:2}, pro:{usd:30, n:3}},
+      recent:[] };
+    case 'admin_user_360': { const u = users.find(x => x.id === p.p_user) || users[0], i = users.indexOf(u);
+      return {
+        profile:{id:u.id, name:u.name, store_name:u.store_name, phone:u.phone, email:u.email, last_sign_in_at:u.last_seen, created_at:u.created_at,
+          is_merchant:u.is_merchant, is_client:u.is_client, is_admin:u.is_admin, plan:u.plan, plan_expires_at:u.plan_expires_at, trial_ends_at:u.trial_ends_at, status:u.status,
+          currency_code:'SYP', dollar_mode:i % 2 === 0, notif_enabled:i !== 3, quiet_hours:i === 1, muted_kinds:0, has_logo:i < 2, has_note:i < 4, phone_verified:i % 2 === 0, telegram:i % 2 === 0, store_id:'S' + i},
+        merchant:{customers:u.customers, linked:u.linked, with_phone:Math.round(u.customers * .45), archived:i, debtors:Math.round(u.customers * .6),
+          owed_usd:u.customers * 41.5, owed_local:{SYP:u.customers * 512000}, tx_total:u.tx_total, debts:Math.round(u.tx_total * .62), payments:u.tx_total - Math.round(u.tx_total * .62),
+          tx_30d:u.tx_30d, first_tx:u.tx_total ? u.created_at : null, last_tx:u.last_tx, active_days_30:u.active_days_30, disputes:i === 0 ? 2 : 0, replies:i === 0 ? 1 : 0,
+          daily_90: S(90, k => ({d: iso(now - (89 - k) * day).slice(0, 10), n: u.tx_total ? Math.max(0, Math.round((k > 30 ? 5 : 2) + Math.sin(k / 3) * 3 - (i % 4))) : 0})),
+          backups:{count:i < 3 ? 4 : 0, last:i < 3 ? iso(now - 2 * day) : null, bytes:i < 3 ? 420000 : 0},
+          health:u.health || 0, health_parts:{recency:Math.min(40, Math.round((u.health || 0) * .42)), frequency:Math.min(30, Math.round((u.health || 0) * .3)),
+            depth:Math.min(20, Math.round((u.health || 0) * .2)), reach:Math.max(0, (u.health || 0) - Math.min(40, Math.round((u.health || 0) * .42)) - Math.min(30, Math.round((u.health || 0) * .3)) - Math.min(20, Math.round((u.health || 0) * .2)))}},
+        client:{stores: u.is_client ? users.filter(x => x.is_merchant && x.customers).slice(0, u.stores_linked || 1).map(x => ({store_name:x.store_name, merchant_id:x.id, linked_at:iso(now - 20 * day)})) : [], disputes:u.is_client ? 1 : 0},
+        devices: S(u.devices || 0, k => ({platform:'android', app_build:k ? 1 : 2, last_seen:iso(now - (k * 9 + 1) * day), first_seen:u.created_at})),
+        notifications:{total:24, unread:5, last_at:iso(now - day), by_type:{debt:14, payment:7, general:3}},
+        subscriptions: u.paid ? [{id:'s' + i, plan:u.plan, status:'active', amount_usd:30, provider:'manual', started_at:iso(now - 20 * day), expires_at:u.plan_expires_at, created_at:iso(now - 20 * day)}] : [],
+        audit: u.paid ? [{action:'grant_plan', details:{from:'business', to:u.plan, months:3, amount:30, expires:u.plan_expires_at}, actor_name:'أحمد', created_at:iso(now - 20 * day)}] : [],
+        notes: notes[u.id] || [] }; }
+    case 'admin_add_note': (notes[p.p_user] = notes[p.p_user] || []).unshift({id: ++noteId, body:p.p_body, author:'أحمد', created_at:iso(Date.now())}); return noteId;
+    case 'admin_delete_note': for (const k in notes) notes[k] = notes[k].filter(n => n.id !== p.p_id); return null;
+    case 'admin_broadcast_users': return {count:p.p_users.length, user_ids:p.p_users};
+    default: return undefined;
+  } };
+})();
+{ const _old = MOCK.rpc.bind(MOCK); MOCK.rpc = (n, p) => { const r = MOCK_PRO(n, p || {}); return r === undefined ? _old(n, p) : r; }; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   🚀 اللوحة الاحترافية — المرحلة ١
+   ═══════════════════════════════════════════════════════════════════
+   طبقةٌ فوق اللوحة السابقة لا تحذف منها شيئاً. كلّ صفحة جديدة تجرّب
+   دوالّها الجديدة أوّلاً، فإن لم يُشغَّل ملف SQL بعدُ رجعت تلقائياً إلى
+   الصفحة القديمة — فلا تنكسر اللوحة لحظةً واحدة. */
+const LEGACY = { home: RENDER.home, users: RENDER.users, money: RENDER.money, openUser: openUser };
+const missingFn = e => /function .* does not exist|Could not find the function/i.test(e?.message || String(e));
+const sqlBanner = () => `<div class="banner info">🧩 <div><b>هذا القسم يحتاج ملف SQL جديداً.</b><br>شغّل <b>لوحة_احترافية_المرحلة١.sql</b> في Supabase ← SQL Editor، ثم اضغط «تحديث».</div></div>`;
+
+I.clock = '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>';
+I.heart = '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>';
+I.down  = '<path d="M12 4v11M7 11l5 5 5-5"/><path d="M4 20h16"/>';
+
+/* ═══ الفترة الزمنيّة (٧ / ٣٠ / ٩٠ يوماً) ═══ */
+let PERIOD = (() => { try { const v = +localStorage.getItem('daftar-admin-period'); return [7,30,90].includes(v) ? v : 30; } catch(e){ return 30; } })();
+function paintPeriod(){ $$('#period button').forEach(b => b.classList.toggle('on', +b.dataset.d === PERIOD)); }
+function setPeriod(d){ PERIOD = d; try { localStorage.setItem('daftar-admin-period', d); } catch(e){} paintPeriod(); route(); }
+$$('#period button').forEach(b => b.onclick = () => setPeriod(+b.dataset.d)); paintPeriod();
+
+/* ═══ أدوات مشتركة ═══ */
+const SEGS = { champion:['أبطال','#10b981'], healthy:['بخير','#3b82f6'], attention:['يحتاج انتباهاً','#f59e0b'], dormant:['خامد','#ef4444'], never:['لم يبدأ','#64748b'] };
+const segBadge = s => s && SEGS[s] ? `<span class="badge" style="background:${SEGS[s][1]}22;color:${SEGS[s][1]}">${SEGS[s][0]}</span>` : '';
+const hcol = v => v >= 75 ? '#10b981' : v >= 50 ? '#3b82f6' : v >= 25 ? '#f59e0b' : '#ef4444';
+const hbar = v => v == null ? '<span style="color:var(--dim)">—</span>' : `<div class="hb"><div class="hb-t"><i style="width:${v}%;background:${hcol(v)}"></i></div><b class="num">${v}</b></div>`;
+const pc = (x, y) => y ? Math.round(100 * x / y) : 0;
+const daysTxt = d => d >= 3 && d <= 10 ? `${d} أيام` : `${d} يوماً`;
+const lastAct = u => [u.last_tx, u.last_seen].filter(Boolean).sort().pop();
+function delta(cur, prev){
+  cur = +cur || 0; prev = +prev || 0;
+  if (!prev && !cur) return '<span class="dl">—</span>';
+  if (!prev) return '<span class="dl up">جديد</span>';
+  const p = Math.round(100 * (cur - prev) / prev);
+  return `<span class="dl ${p >= 0 ? 'up' : 'down'}">${p >= 0 ? '▲' : '▼'} ${Math.abs(p)}%</span>`;
+}
+function csvDownload(name, header, rows){
+  // خلية تبدأ بـ = + - @ قد ينفّذها Excel كمعادلة (حقن CSV) — نُبطلها بفاصلة علويّة.
+  const q = v => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const blob = new Blob(['﻿' + [header, ...rows].map(r => r.map(q).join(',')).join('\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+}
+const K = (v, l, ic, col, dl = '', sub = '') => `<div class="card kpi" style="color:${col}"><div class="ic" style="background:${col}22">${ico(ic, col)}</div>
+  <div class="v num" style="color:var(--text)">${v}</div><div class="l">${l}</div>${dl || sub ? `<div class="kd">${dl}${sub ? ` <span>${sub}</span>` : ''}</div>` : ''}</div>`;
+const K2 = (v, l, col, sub = '') => `<div class="card kpi" style="color:${col}"><div class="v num" style="color:var(--text)">${v}</div><div class="l">${l}</div>${sub ? `<div class="kd"><span>${sub}</span></div>` : ''}</div>`;
+const abar = (label, n, base, col, note = '') => { const p = pc(n, base);
+  return `<div class="abar"><b>${label}${note ? ` <span class="pill">${note}</span>` : ''}</b><div class="tr"><i style="width:${Math.max(p, n ? 2 : 0)}%;background:${col}"></i></div><div class="v"><b class="num" style="color:var(--text)">${p}%</b> · <span class="num">${n0(n)}</span></div></div>`; };
+const userLi = (u, right) => `<div class="list-item" data-u="${u.id}" style="cursor:pointer"><div class="avatar">${esc(initial(u.store_name || u.name))}</div>
+  <div class="grow"><b>${esc(u.store_name || u.name || 'بلا اسم')}</b><span>${esc(u.store_name ? (u.name || '') : (u.email || ''))}</span></div>${right || ''}</div>`;
+const wireUsers = (root = document) => $$('[data-u]', root).forEach(el => el.onclick = () => openUser(el.dataset.u));
+
+/* ═══ نافذة «راسل هذه القائمة» ═══ */
+function composeTo(ids, label){
+  if (!ids.length) return toast('القائمة فارغة', true);
+  $('#modalBox').innerHTML = `<h4>رسالة إلى ${esc(label)}</h4><p>${n0(ids.length)} مستخدم · تظهر في الجرس داخل التطبيق.</p>
+    <label class="f">العنوان</label><input id="cmT" maxlength="80" placeholder="مثلاً: نفتقدك في الدفتر 👋">
+    <div style="height:10px"></div><label class="f">النصّ</label><textarea id="cmB" maxlength="500" placeholder="اكتب رسالتك…"></textarea>
+    <div class="toggle-row"><b style="font-size:13px">وإشعاراً فورياً على الجوال</b><label class="switch"><input type="checkbox" id="cmP" checked><span></span></label></div>
+    <div class="form-actions"><button class="btn primary" id="cmGo">إرسال</button><button class="btn ghost" id="cmNo">إلغاء</button></div>`;
+  $('#modal').classList.add('on');
+  $('#cmNo').onclick = () => $('#modal').classList.remove('on');
+  $('#cmGo').onclick = async () => {
+    const t = $('#cmT').value.trim(), b = $('#cmB').value.trim();
+    if (!t || !b) return toast('العنوان والنصّ مطلوبان', true);
+    $('#cmGo').disabled = true;
+    try {
+      const r = await rpc('admin_broadcast_users', {p_users: ids, p_title: t, p_body: b});
+      let line = `✅ حُفظت لـ ${n0(r.count)} مستخدم`;
+      if ($('#cmP').checked && r.count) { const p = await pushTo(r.user_ids || [], t, b);
+        line += p.blocked ? ' · ⚠️ الإشعار الفوري متوقّف (send-notification قديمة)' : ` · 📲 وصلت لجوالات ${n0(p.sent)}`; }
+      $('#modal').classList.remove('on'); toast(line);
+    } catch(e){ toast(errText(e), true); $('#cmGo').disabled = false; }
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   🏠 نظرة عامة
+   ═══════════════════════════════════════════════════════════════════ */
+RENDER.home = async () => {
+  let o, d;
+  try { [o, d] = await Promise.all([rpc('admin_overview_pro', {p_days: PERIOD}), rpc('admin_dashboard')]); }
+  catch(e){ if (missingFn(e)) return LEGACY.home(); throw e; }
+  const c = o.cur || {}, p = o.prev || {}, t = o.totals || {}, al = o.alerts || {};
+  $('#crumb').textContent = `آخر ${daysTxt(o.days)} مقارنةً بالفترة نفسها قبلها · ${fdt(new Date())}`;
+  const dbPct = Math.round(100 * (t.db_bytes || 0) / (500 * 1024 * 1024));
+  const ALERTS = [
+    [al.trials_ending_7d, 'تنتهي تجربتهم خلال 7 أيام', '#f59e0b', '#users?f=expiring'],
+    [al.never_started, 'تجّار سجّلوا ولم يبدؤوا', '#64748b', '#users?f=never'],
+    [al.at_risk, 'في خطر الترك — توقّفوا هذا الأسبوع', '#ef4444', '#hs'],
+    [al.open_disputes, 'اعتراضات بلا ردّ من التاجر', '#ec4899', '#cli'],
+    [al.renewals_due_7d, 'اشتراكات مدفوعة تتجدّد خلال أسبوع', '#8b5cf6', '#money'],
+    [al.no_device, 'بلا جهاز مسجّل — لا تصلهم إشعارات', '#06b6d4', '#users?f=nodevice'],
+    [al.outdated_devices, `أجهزة على نسخة قديمة (من ${n0(al.devices)})`, '#3b82f6', '#rel'],
+    [dbPct + '%', 'من سعة القاعدة المجانيّة', dbPct > 70 ? '#ef4444' : '#10b981', '#health'],
+  ];
+  $('#view').innerHTML = `
+  <div class="grid g4">
+    ${K(n0(c.new_users), 'مستخدمون جدد', 'users', '#3b82f6', delta(c.new_users, p.new_users), `${n0(c.new_merchants)} تاجر`)}
+    ${K(n0(c.active_merchants), 'تجّار نشطون', 'store', '#8b5cf6', delta(c.active_merchants, p.active_merchants), 'سجّلوا عمليّة واحدة على الأقل')}
+    ${K(n0(c.transactions), 'عمليّات مسجّلة', 'tx', '#6366f1', delta(c.transactions, p.transactions), `${n0(c.debts)} دين · ${n0(c.payments)} دفعة`)}
+    ${K(usd(c.revenue), 'إيرادات الفترة', 'money', '#10b981', delta(c.revenue, p.revenue), `${n0(c.new_paid)} اشتراك مدفوع جديد`)}
+  </div>
+  <div class="grid g4" style="margin-top:16px">
+    ${K2(n0(t.users), 'إجمالي المستخدمين', '#3b82f6', `${n0(t.merchants)} تاجر · ${n0(t.clients)} زبون`)}
+    ${K2(n0(t.paying), 'مشتركون يدفعون', '#10b981', `${n0(t.trial)} في الشهر المجاني`)}
+    ${K2(usd(t.mrr_usd), 'الدخل الشهري المتكرر', '#f59e0b', `سنوياً ${usd((t.mrr_usd || 0) * 12)}`)}
+    ${K2(pc(t.linked, t.customers) + '%', 'زبائن مرتبطون بالتطبيق', '#06b6d4', `${n0(t.linked)} من ${n0(t.customers)}`)}
+  </div>
+  <div class="section-t" style="margin-top:22px">🔔 يحتاج انتباهك</div>
+  <div class="alerts">${ALERTS.map(([n, l, col, href]) => `<a class="al ${!n || n === '0%' ? 'zero' : ''}" href="${href}"><b class="num" style="color:${col}">${typeof n === 'string' ? n : n0(n)}</b><span>${l}</span></a>`).join('')}</div>
+  <div class="grid g21" style="margin-top:16px">
+    <div class="card"><h3>النشاط اليومي</h3><div class="hint">تجّار نشطون (الخط) وعمليّات (الأعمدة) — آخر ${daysTxt(o.days)}</div><div class="chart-box"><canvas id="oAct"></canvas></div></div>
+    <div class="card"><h3>توزيع الخطط</h3><div class="hint">الحالة الفعليّة الآن</div><div class="chart-box"><canvas id="oPlan"></canvas></div></div>
+  </div>
+  <div class="grid g21" style="margin-top:16px">
+    <div class="card"><h3>التسجيلات</h3><div class="hint">تجّار وزبائن جدد يومياً</div><div class="chart-box sm"><canvas id="oSign"></canvas></div></div>
+    <div class="card"><h3>🆕 آخر من سجّل</h3><div class="hint">انقر لفتح ملفّه الكامل</div><div id="oRecent"></div></div>
+  </div>`;
+  const s = o.series || [];
+  chart('oAct', {data:{labels:s.map(x => shortDay(x.d)), datasets:[
+    {type:'line', label:'تجّار نشطون', data:s.map(x => x.active), borderColor:'#8b5cf6', backgroundColor:'#8b5cf6', tension:.35, pointRadius:s.length > 40 ? 0 : 2, borderWidth:2.5, yAxisID:'y'},
+    {type:'bar', label:'عمليّات', data:s.map(x => x.tx), backgroundColor:'rgba(59,130,246,.28)', borderRadius:4, yAxisID:'y1'}]},
+    options:{maintainAspectRatio:false, interaction:{mode:'index', intersect:false}, scales:{x:{grid:{display:false}},
+      y:{beginAtZero:true, ticks:{precision:0}, position:'right'}, y1:{beginAtZero:true, position:'left', grid:{display:false}}}}});
+  chart('oSign', {type:'bar', data:{labels:s.map(x => shortDay(x.d)), datasets:[
+    {label:'تجّار', data:s.map(x => x.merchants), backgroundColor:'#8b5cf6', borderRadius:4, stack:'a'},
+    {label:'زبائن', data:s.map(x => x.clients), backgroundColor:'#06b6d4', borderRadius:4, stack:'a'}]},
+    options:{maintainAspectRatio:false, scales:{x:{stacked:true, grid:{display:false}}, y:{stacked:true, beginAtZero:true, ticks:{precision:0}}}}});
+  const pd = d.plan_dist || {}, keys = ['business','pro','trial','expired','free'];
+  chart('oPlan', {type:'doughnut', data:{labels:keys.map(x => STATUS[x][0]), datasets:[{data:keys.map(x => pd[x] || 0),
+    backgroundColor:['#8b5cf6','#3b82f6','#f59e0b','#ef4444','#475569'], borderWidth:0, hoverOffset:8}]},
+    options:{maintainAspectRatio:false, cutout:'68%', plugins:{legend:{position:'bottom'}}}});
+  $('#oRecent').innerHTML = (d.recent || []).slice(0, 6).map(u => userLi(u, `<div style="text-align:left">${u.is_merchant ? '<span class="badge b-business">تاجر</span>' : '<span class="badge b-free">زبون</span>'}<span style="display:block;margin-top:4px;font-size:12px;color:var(--muted)">${ago(u.created_at)}</span></div>`)).join('') || '<div class="empty">—</div>';
+  wireUsers($('#view'));
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   ⚡ التفاعل
+   ═══════════════════════════════════════════════════════════════════ */
+RENDER.eng = async () => {
+  let e; try { e = await rpc('admin_engagement_pro', {p_days: Math.max(PERIOD, 30)}); }
+  catch(err){ if (missingFn(err)) { $('#view').innerHTML = sqlBanner(); return; } throw err; }
+  $('#crumb').textContent = `آخر ${daysTxt(e.days)} · النشاط = عمليّة حقيقيّة · آخر ظهور = آخر فتحٍ للتطبيق`;
+  const s = e.series || [], last = s[s.length - 1] || {}, fq = e.frequency || {}, ls = e.last_seen || {};
+  const fqTot = Object.values(fq).reduce((a, b) => a + b, 0), lsTot = Object.values(ls).reduce((a, b) => a + b, 0);
+  $('#view').innerHTML = `
+  <div class="grid g4">
+    ${K2(n0(last.dau), 'تجّار عملوا اليوم', '#3b82f6')}
+    ${K2(n0(last.wau), 'نشطون آخر 7 أيام', '#8b5cf6')}
+    ${K2(n0(last.mau), 'نشطون آخر 30 يوماً', '#06b6d4')}
+    ${K2(pc(last.dau, last.mau) + '%', 'الالتصاق (يومي ÷ شهري)', '#10b981', 'فوق 20% ممتاز لتطبيقات الأعمال')}
+  </div>
+  <div class="grid g21" style="margin-top:16px">
+    <div class="card"><h3>النشطون يومياً وأسبوعياً وشهرياً</h3><div class="hint">كلّ نقطة: كم تاجراً عمل في ذلك اليوم، وفي الأيام 7 و30 قبله</div><div class="chart-box"><canvas id="eAU"></canvas></div></div>
+    <div class="card"><h3>كم يوماً يعمل التاجر؟</h3><div class="hint">أيام العمل في آخر 30 يوماً</div>
+      ${abar('شبه يومي (21+ يوماً)', fq.daily || 0, fqTot, '#10b981')}${abar('منتظم (11–20)', fq.high || 0, fqTot, '#3b82f6')}
+      ${abar('متوسّط (4–10)', fq.mid || 0, fqTot, '#8b5cf6')}${abar('قليل (1–3)', fq.light || 0, fqTot, '#f59e0b')}${abar('لم يعمل', fq.none || 0, fqTot, '#64748b')}</div>
+  </div>
+  <div class="grid g21" style="margin-top:16px">
+    <div class="card"><h3>نسبة الالتصاق عبر الزمن</h3><div class="hint">النشطون اليوم ÷ النشطون في آخر 30 يوماً — هل صار التطبيق عادةً يوميّة؟</div><div class="chart-box sm"><canvas id="eStick"></canvas></div></div>
+    <div class="card"><h3>آخر فتحٍ للتطبيق</h3><div class="hint">كل المستخدمين — تجّار وزبائن</div>
+      ${abar('اليوم', ls.today || 0, lsTot, '#10b981')}${abar('هذا الأسبوع', ls.week || 0, lsTot, '#3b82f6')}
+      ${abar('هذا الشهر', ls.month || 0, lsTot, '#f59e0b')}${abar('أقدم من شهر', ls.older || 0, lsTot, '#ef4444')}${abar('لا جهاز مسجّل', ls.never || 0, lsTot, '#64748b')}</div>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card"><h3>أيّام الأسبوع</h3><div class="hint">توزيع العمليّات</div><div class="chart-box sm"><canvas id="eDow"></canvas></div></div>
+    <div class="card"><h3>ساعات اليوم</h3><div class="hint">بتوقيت دمشق — أفضل وقتٍ لرسالة أو إعلان</div><div class="chart-box sm"><canvas id="eHour"></canvas></div></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>آخر 12 أسبوعاً</h3><div class="hint">عمليّات أسبوعيّة وتجّار نشطون</div><div class="chart-box sm"><canvas id="eWk"></canvas></div></div>
+  <div class="banner info" style="margin-top:16px">⏱️ <div>الوقت الدقيق الذي يقضيه كل مستخدم داخل التطبيق (بالدقائق يومياً) يبدأ مع الإصدار القادم — صفحة <a href="#time"><b>وقت الاستخدام</b></a>.</div></div>`;
+  chart('eAU', {type:'line', data:{labels:s.map(x => shortDay(x.d)), datasets:[
+    {label:'شهري', data:s.map(x => x.mau), borderColor:'#06b6d4', backgroundColor:c => grad(c.chart.ctx, 'rgba(6,182,212,.18)', 'rgba(6,182,212,0)'), fill:true, tension:.3, pointRadius:0, borderWidth:2},
+    {label:'أسبوعي', data:s.map(x => x.wau), borderColor:'#8b5cf6', tension:.3, pointRadius:0, borderWidth:2},
+    {label:'يومي', data:s.map(x => x.dau), borderColor:'#3b82f6', tension:.3, pointRadius:0, borderWidth:2}]},
+    options:{maintainAspectRatio:false, interaction:{mode:'index', intersect:false}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, ticks:{precision:0}}}}});
+  chart('eStick', {type:'line', data:{labels:s.map(x => shortDay(x.d)), datasets:[{label:'%', data:s.map(x => pc(x.dau, x.mau)), borderColor:'#10b981',
+    backgroundColor:c => grad(c.chart.ctx, 'rgba(16,185,129,.25)', 'rgba(16,185,129,0)'), fill:true, tension:.35, pointRadius:0, borderWidth:2.2}]},
+    options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, max:100, ticks:{callback:v => v + '%'}}}}});
+  const wd = e.weekday || [];
+  chart('eDow', {type:'bar', data:{labels:wd.map(x => DAYS[x.dow]), datasets:[{data:wd.map(x => x.n), backgroundColor:wd.map(x => x.dow === 5 ? '#64748b' : '#6366f1'), borderRadius:6}]},
+    options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, ticks:{precision:0}}}}});
+  const hr = e.hours || [], hmax = Math.max(1, ...hr.map(x => x.n));
+  chart('eHour', {type:'bar', data:{labels:hr.map(x => x.h), datasets:[{data:hr.map(x => x.n), backgroundColor:hr.map(x => `rgba(59,130,246,${(.25 + .75 * x.n / hmax).toFixed(2)})`), borderRadius:4}]},
+    options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, ticks:{precision:0}}}}});
+  const wk = e.weekly || [];
+  chart('eWk', {data:{labels:wk.map(x => shortDay(x.w)), datasets:[
+    {type:'bar', label:'عمليّات', data:wk.map(x => x.tx), backgroundColor:'rgba(99,102,241,.35)', borderRadius:6, yAxisID:'y1'},
+    {type:'line', label:'تجّار نشطون', data:wk.map(x => x.active), borderColor:'#f59e0b', backgroundColor:'#f59e0b', tension:.3, borderWidth:2.5, yAxisID:'y'}]},
+    options:{maintainAspectRatio:false, interaction:{mode:'index', intersect:false}, scales:{x:{grid:{display:false}},
+      y:{beginAtZero:true, ticks:{precision:0}, position:'right'}, y1:{beginAtZero:true, position:'left', grid:{display:false}}}}});
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   ⭐ استخدام الميزات
+   ═══════════════════════════════════════════════════════════════════ */
+const FEAT_M = {active30:['عملوا خلال 30 يوماً','#10b981'], dollar:['يستخدمون الدولرة','#f59e0b'], linked:['لهم زبون مرتبط بالتطبيق','#06b6d4'],
+  note:['عبارة خاصة على الكشف','#8b5cf6'], logo:['شعار على الكشف','#6366f1'], backup:['أخذوا نسخة احتياطيّة','#3b82f6'],
+  replies:['ردّوا على اعتراض زبون','#ec4899'], multidev:['أكثر من جهاز','#14b8a6'], quiet:['فعّلوا ساعات الهدوء','#a78bfa'], notif_off:['أوقفوا الإشعارات','#ef4444']};
+const FEAT_C = {verified:['وثّقوا رقمهم','#10b981'], linked:['مرتبطون بمتجر واحد على الأقل','#06b6d4'], disputed:['اعترضوا على عمليّة','#ec4899'],
+  quiet:['فعّلوا ساعات الهدوء','#a78bfa'], notif_off:['أوقفوا الإشعارات','#ef4444']};
+RENDER.feat = async () => {
+  let a; try { a = await rpc('admin_adoption'); }
+  catch(err){ if (missingFn(err)) { $('#view').innerHTML = sqlBanner(); return; } throw err; }
+  const mf = Object.fromEntries((a.merchant_features || []).map(x => [x.k, x.n]));
+  const cf = Object.fromEntries((a.client_features || []).map(x => [x.k, x.n]));
+  $('#crumb').textContent = `${n0(a.merchants)} تاجر · ${n0(a.clients)} زبون`;
+  const linkedPct = pc(mf.linked || 0, a.merchants);
+  const insight = linkedPct < 40
+    ? `<b>أكبر فرصة الآن:</b> ${100 - linkedPct}% من التجّار لا زبون مرتبطاً لهم بالتطبيق — أي أن زبائنهم لا يرون ديونهم ولا تصلهم إشعارات. رابط الكشف بلا تطبيق (في التقرير) يحلّ هذا.`
+    : `<b>جيّد:</b> ${linkedPct}% من التجّار لهم زبائن يرون ديونهم في التطبيق.`;
+  $('#view').innerHTML = `
+  <div class="banner info">💡 <div>${insight}</div></div>
+  <div class="grid g2">
+    <div class="card"><h3>🏪 ميزات التجّار</h3><div class="hint">النسبة من كل التجّار (${n0(a.merchants)})</div>
+      ${Object.entries(FEAT_M).map(([k, [l, col]]) => abar(l, mf[k] || 0, a.merchants, col, k === 'notif_off' ? 'سلبي' : '')).join('')}</div>
+    <div class="card"><h3>👤 ميزات الزبائن</h3><div class="hint">النسبة من كل الزبائن الذين لهم حساب (${n0(a.clients)})</div>
+      ${Object.entries(FEAT_C).map(([k, [l, col]]) => abar(l, cf[k] || 0, a.clients, col, k === 'notif_off' ? 'سلبي' : '')).join('')}
+      <div class="hint" style="margin-top:14px">ما لا يُقاس بعد: فتح كشف PDF، تصدير Excel، والوقت في كل شاشة — يبدأ قياسه مع الإصدار القادم.</div></div>
+  </div>`;
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   👤 الزبائن والتطبيق
+   ═══════════════════════════════════════════════════════════════════ */
+RENDER.cli = async () => {
+  let c; try { c = await rpc('admin_clients_pro'); }
+  catch(err){ if (missingFn(err)) { $('#view').innerHTML = sqlBanner(); return; } throw err; }
+  const nt = c.notif_30d || {}, ds = c.disputes || {}, sd = c.stores_dist || {};
+  $('#crumb').textContent = 'الزبائن الذين نزّلوا التطبيق ليروا ديونهم';
+  $('#view').innerHTML = `
+  <div class="grid g4">
+    ${K2(n0(c.clients), 'زبائن لهم حساب', '#06b6d4', `${n0(c.dual)} منهم صاروا تجّاراً أيضاً`)}
+    ${K2(pc(c.verified, c.clients) + '%', 'وثّقوا رقمهم', '#10b981', `${n0(c.verified)} زبون`)}
+    ${K2(pc(c.linked, c.clients) + '%', 'مرتبطون بمتجر', '#3b82f6', `متوسّط ${c.avg_stores} متجر لكلّ زبون`)}
+    ${K2(pc(nt.read, nt.total) + '%', 'قرؤوا إشعاراتهم (30 يوماً)', '#8b5cf6', `${n0(nt.read)} من ${n0(nt.total)}`)}
+  </div>
+  <div class="grid g21" style="margin-top:16px">
+    <div class="card"><h3>رحلة الزبون</h3><div class="hint">من الحساب إلى رؤية الديون</div>
+      ${[['لهم حساب', c.clients], ['وثّقوا رقمهم', c.verified], ['مرتبطون بمتجر', c.linked]].map(([l, n], i, arr) => `<div class="funnel-row"><b style="font-size:13.5px">${l}</b>
+        <div class="track"><div class="fill" style="width:${Math.max(4, pc(n, c.clients))}%">${n0(n)}</div></div>
+        <div class="pc">${pc(n, c.clients)}%${i ? ` · <b style="color:var(--text)">${pc(n, arr[i - 1][1])}%</b> من السابق` : ''}</div></div>`).join('')}
+      <div class="section-t">⚖️ الاعتراضات</div>
+      <ul class="checks"><li>اعتراضات الزبائن على عمليّات <b class="num" style="margin-right:auto">${n0(ds.total)}</b></li>
+        <li>ردّ عليها التاجر <b style="margin-right:auto"><span class="num">${n0(ds.replied)}</span> (${pc(ds.replied, ds.total)}%)</b></li></ul></div>
+    <div class="card"><h3>كم متجراً يتابع الزبون؟</h3><div class="hint">بين الزبائن المرتبطين</div><div class="chart-box sm"><canvas id="cStores"></canvas></div></div>
+  </div>
+  <div class="grid g21" style="margin-top:16px">
+    <div class="card" style="padding:0"><div style="padding:18px 20px 6px"><h3>🏆 المتاجر الأكثر ربطاً</h3><div class="hint">من يجلب زبائنه إلى التطبيق — سفراؤك</div></div>
+      <div class="table-wrap" style="border:0;border-top:1px solid var(--line)"><table><thead><tr><th>المتجر</th><th>زبائن مرتبطون</th><th>من أصل</th><th>النسبة</th></tr></thead><tbody>
+      ${(c.top_stores || []).map(s => `<tr class="click" data-u="${s.id}"><td><b>${esc(s.store_name || '—')}</b></td><td class="num"><b>${n0(s.clients)}</b></td><td class="num">${n0(s.customers)}</td><td class="num">${pc(s.clients, s.customers)}%</td></tr>`).join('') || '<tr><td colspan="4" class="empty">لا روابط بعد</td></tr>'}
+      </tbody></table></div></div>
+    <div class="card"><h3>زبائن جدد أسبوعياً</h3><div class="hint">آخر 12 أسبوعاً</div><div class="chart-box sm"><canvas id="cSign"></canvas></div></div>
+  </div>`;
+  const sk = ['1','2','3','4+'];
+  chart('cStores', {type:'bar', data:{labels:sk.map(k => k + (k === '1' ? ' متجر' : ' متاجر')), datasets:[{data:sk.map(k => sd[k] || 0), backgroundColor:['#06b6d4','#3b82f6','#6366f1','#8b5cf6'], borderRadius:8}]},
+    options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, ticks:{precision:0}}}}});
+  const sg = c.signups_90d || [];
+  chart('cSign', {type:'bar', data:{labels:sg.map(x => shortDay(x.w)), datasets:[{data:sg.map(x => x.n), backgroundColor:'#06b6d4', borderRadius:6}]},
+    options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, ticks:{precision:0}}}}});
+  wireUsers($('#view'));
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   ⏱️ وقت الاستخدام (يكتمل في المرحلة ٢)
+   ═══════════════════════════════════════════════════════════════════ */
+RENDER.time = async () => {
+  let u = null;
+  try { u = await rpc('admin_usage_time', {p_days: PERIOD}); } catch(e){ if (!missingFn(e)) throw e; }
+  if (u && typeof RENDER_TIME_LIVE === 'function') return RENDER_TIME_LIVE(u);
+  $('#crumb').textContent = 'يبدأ مع الإصدار القادم من التطبيق';
+  const card = (ic, t, d) => `<div class="card"><h3>${ic} ${t}</h3><div class="hint" style="margin:0">${d}</div></div>`;
+  $('#view').innerHTML = `
+  <div class="banner info">⏱️ <div><b>هذه الصفحة جاهزة، وتنتظر البيانات.</b> لا يوجد اليوم في القاعدة ما يقيس الوقت داخل التطبيق — فقط «آخر فتح». الإصدار القادم يُضيف عدّاداً خفيفاً يسجّل مدّة كل جلسة والشاشات التي زارها، فتمتلئ هذه الصفحة تلقائياً.</div></div>
+  <div class="section-t">ما ستراه هنا</div>
+  <div class="soon">
+    ${card('⏳', 'دقائق الاستخدام يومياً', 'لكل تاجر وكل زبون، بدقّة الدقيقة — ومتوسّطها عبر الجميع.')}
+    ${card('📱', 'الجلسات', 'كم مرّة يُفتح التطبيق يومياً، وكم تدوم الجلسة.')}
+    ${card('🧭', 'الوقت في كل شاشة', 'أين يقضي الناس وقتهم: الزبائن، الكشف، الإحصاءات…')}
+    ${card('🕐', 'ساعات الاستخدام', 'متى يفتح التاجر تطبيقه فعلاً، لا متى يسجّل فقط.')}
+    ${card('🏆', 'الأكثر تفاعلاً', 'ترتيب المستخدمين بالوقت — مع ملفّ كلٍّ منهم.')}
+    ${card('👤', 'في ملفّ كل مستخدم', 'رسم دقائقه اليوميّة في تبويب «النشاط».')}
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card"><h3>✅ ما يلزم لتعمل</h3><ul class="checks">
+      <li><span class="ci wa">١</span>ملف SQL المرحلة ٢ (جدول الجلسات بصلاحيّات صارمة)</li>
+      <li><span class="ci wa">٢</span>إصدار التطبيق القادم مع عدّاد الجلسات</li>
+      <li><span class="ci wa">٣</span>سطر في سياسة الخصوصية يذكر قياس وقت الاستخدام</li></ul></div>
+    <div class="card"><h3>🔒 الخصوصيّة</h3><ul class="checks">
+      <li><span class="ci ok">✓</span>يُسجَّل وقت الجلسة واسم الشاشة فقط — لا مبالغ ولا أسماء زبائن</li>
+      <li><span class="ci ok">✓</span>يوقفه المستخدم من إعداد «تحسين التطبيق» الموجود</li>
+      <li><span class="ci ok">✓</span>التفاصيل الخام تُحذف بعد 90 يوماً، ويبقى الملخّص اليومي</li></ul></div>
+  </div>`;
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   👥 المستخدمون — جدول احترافي
+   ═══════════════════════════════════════════════════════════════════ */
+let UP = [], upF = 'all', upSort = {k:'created_at', dir:-1};
+const UPF = [['all','الكل'],['merchants','التجّار'],['clients','الزبائن'],['champion','أبطال'],['healthy','بخير'],['attention','يحتاج انتباهاً'],
+  ['dormant','خامدون'],['never','لم يبدؤوا'],['paid','يدفعون'],['trial','الشهر المجاني'],['expiring','تنتهي خلال أسبوع'],['expired','منتهية'],['nodevice','بلا جهاز'],['admins','المشرفون']];
+function upMatch(u, f){
+  switch (f) {
+    case 'all': return true;
+    case 'merchants': return u.is_merchant;
+    case 'clients': return u.is_client && !u.is_merchant;
+    case 'paid': return u.paid;
+    case 'trial': return u.status === 'trial';
+    case 'expired': return u.status === 'expired';
+    case 'nodevice': return !u.devices;
+    case 'admins': return u.is_admin;
+    case 'expiring': { const e = u.plan_expires_at || u.trial_ends_at; if (u.status === 'free' || !e) return false;
+      const ms = new Date(e) - new Date(); return ms > 0 && ms < 7 * 864e5; }
+    default: return u.segment === f;
+  }
+}
+function upRows(){
+  const q = (uSearch || '').toLowerCase(), k = upSort.k, s = upSort.dir;
+  const val = u => k === 'last' ? (lastAct(u) || '') : k === 'name' ? (u.store_name || u.name || '') : (u[k] ?? -1);
+  return UP.filter(u => upMatch(u, upF) && (!q || [u.name, u.store_name, u.email, u.phone].join(' ').toLowerCase().includes(q)))
+           .sort((a, b) => { const x = val(a), y = val(b); return (x > y ? 1 : x < y ? -1 : 0) * s; });
+}
+RENDER.users = async () => {
+  const qf = new URLSearchParams(location.hash.split('?')[1] || '').get('f'); if (qf) upF = qf;
+  try { UP = await rpc('admin_users_pro') || []; }
+  catch(e){ if (missingFn(e)) return LEGACY.users(); throw e; }
+  drawUsers();
+};
+function drawUsers(){
+  const rows = upRows();
+  const cnt = Object.fromEntries(UPF.map(([k]) => [k, UP.filter(u => upMatch(u, k)).length]));
+  const th = (k, t, cls = '') => `<th data-k="${k}" class="${cls}">${t}${upSort.k === k ? `<span class="ar">${upSort.dir > 0 ? '▲' : '▼'}</span>` : ''}</th>`;
+  $('#crumb').textContent = `${n0(rows.length)} من ${n0(UP.length)} مستخدم`;
+  $('#view').innerHTML = `
+  <div class="chips" id="fChips">${UPF.map(([k, t]) => `<button class="chip ${k === upF ? 'on' : ''}" data-f="${k}">${t}<span class="c num">${n0(cnt[k])}</span></button>`).join('')}</div>
+  <div class="toolbar">
+    <input id="upQ" placeholder="بحث داخل القائمة: اسم، متجر، بريد، رقم…" value="${esc(uSearch || '')}">
+    <div class="grow"></div>
+    <button class="btn sm" id="upMsg">✉️ راسل هذه القائمة</button>
+    <button class="btn sm" id="upCsv">${ico('down')} تصدير CSV</button>
+  </div>
+  <div class="card" style="padding:0"><div class="table-wrap" style="border:0"><table>
+    <thead><tr>${th('name', 'المستخدم')}<th class="t">التواصل</th>${th('status', 'الحالة')}${th('health', 'الصحّة')}${th('customers', 'الزبائن')}${th('tx_30d', 'عمليّات 30 يوماً')}${th('active_days_30', 'أيام العمل')}${th('last', 'آخر نشاط')}${th('ltv', 'دفع إجمالاً')}${th('created_at', 'انضمّ')}</tr></thead>
+    <tbody>${rows.slice(0, 500).map(u => `
+      <tr class="click" data-u="${u.id}">
+        <td><div class="who" style="display:flex;gap:10px;align-items:center"><div class="avatar" style="width:34px;height:34px;font-size:13px;${u.is_merchant ? '' : 'background:linear-gradient(135deg,#0891b2,#0d9488)'}">${esc(initial(u.store_name || u.name))}</div>
+          <div><b>${esc(u.store_name || u.name || 'بلا اسم')}${u.is_admin ? ' <span class="badge b-next">مشرف</span>' : ''}</b><span>${esc(u.store_name ? (u.name || '') : '')} ${u.is_merchant ? '· تاجر' : 'زبون'}${u.is_client && u.is_merchant ? ' + زبون' : ''}</span></div></div></td>
+        <td class="t"><div class="who"><b class="num" style="font-weight:600;font-size:12.5px">${esc(u.email || '—')}</b><span class="num">${esc(u.phone || '')}${u.phone_verified ? ' ✓' : ''}</span></div></td>
+        <td>${statusBadge(u.status)}</td>
+        <td>${u.is_merchant ? hbar(u.health) + `<div style="margin-top:4px">${segBadge(u.segment)}</div>` : `<span class="pill">${n0(u.stores_linked)} متجر</span>`}</td>
+        <td class="num">${u.is_merchant ? `${n0(u.customers)}<div style="font-size:11px;color:var(--muted)">${n0(u.linked)} مرتبط</div>` : '—'}</td>
+        <td class="num">${u.is_merchant ? n0(u.tx_30d) : '—'}</td>
+        <td class="num">${u.is_merchant ? `${n0(u.active_days_30)}<span style="color:var(--dim)">/30</span>` : '—'}</td>
+        <td>${ago(lastAct(u))}<div style="font-size:11px;color:var(--muted)">${u.devices ? `${n0(u.devices)} جهاز · #${esc(u.app_build ?? '?')}` : 'بلا جهاز'}</div></td>
+        <td class="num">${u.ltv ? usd(u.ltv) : '—'}</td>
+        <td>${fdate(u.created_at)}</td>
+      </tr>`).join('') || `<tr><td colspan="10" class="empty">لا نتائج</td></tr>`}</tbody></table></div></div>
+  ${rows.length > 500 ? `<div class="hint" style="margin-top:10px">يُعرض أوّل 500 — صدّر CSV لرؤية الكلّ.</div>` : ''}`;
+  $$('#fChips .chip').forEach(b => b.onclick = () => { upF = b.dataset.f; history.replaceState(null, '', '#users'); drawUsers(); });
+  $$('th[data-k]').forEach(h => h.onclick = () => { const k = h.dataset.k; upSort = {k, dir: upSort.k === k ? -upSort.dir : -1}; drawUsers(); });
+  let t; $('#upQ').oninput = e => { clearTimeout(t); t = setTimeout(() => { uSearch = e.target.value.trim(); $('#gSearch').value = uSearch; drawUsers();
+    const el = $('#upQ'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }, 250); };
+  $('#upCsv').onclick = () => csvDownload(`daftar-users-${new Date().toISOString().slice(0, 10)}.csv`,
+    ['الاسم','المتجر','البريد','الهاتف','تاجر','زبون','الحالة','الصحة','الشريحة','الزبائن','المرتبطون','عمليات 30 يوماً','أيام العمل 30','آخر نشاط','الأجهزة','النسخة','دفع إجمالاً $','انضم'],
+    rows.map(u => [u.name, u.store_name, u.email, u.phone, u.is_merchant ? 'نعم' : '', u.is_client ? 'نعم' : '', u.status, u.health ?? '', u.segment ? SEGS[u.segment][0] : '',
+      u.customers, u.linked, u.tx_30d, u.active_days_30, lastAct(u) || '', u.devices, u.app_build ?? '', u.ltv, (u.created_at || '').slice(0, 10)]));
+  $('#upMsg').onclick = () => composeTo(rows.map(u => u.id), `«${(UPF.find(x => x[0] === upF) || ['', 'القائمة'])[1]}»`);
+  wireUsers($('#view'));
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ❤️ صحة التجّار
+   ═══════════════════════════════════════════════════════════════════ */
+RENDER.hs = async () => {
+  try { UP = await rpc('admin_users_pro') || []; }
+  catch(e){ if (missingFn(e)) { $('#view').innerHTML = sqlBanner(); return; } throw e; }
+  const M = UP.filter(u => u.is_merchant), by = k => M.filter(u => u.segment === k);
+  const scored = M.filter(u => u.segment !== 'never'), avg = scored.length ? Math.round(scored.reduce((a, u) => a + (u.health || 0), 0) / scored.length) : 0;
+  $('#crumb').textContent = `${n0(M.length)} تاجر · متوسّط الصحّة ${avg}`;
+  const SEG_ACT = {champion:'اطلب منهم تقييماً أو دعوة تاجرٍ صديق', healthy:'عرّفهم بميزة لا يستخدمونها', attention:'رسالة تذكير لطيفة أو اتصال',
+    dormant:'اسأل ماذا حدث — وعرض تمديد', never:'ساعدهم يضيفون أوّل زبون'};
+  const seg = k => { const list = by(k).sort((a, b) => (b.health || 0) - (a.health || 0));
+    return `<div class="card"><div class="card-head"><div><h3>${segBadge(k)} <span class="num">${n0(list.length)}</span></h3><div class="hint" style="margin:0">${SEG_ACT[k]}</div></div>
+      ${list.length ? `<button class="btn sm" data-seg="${k}">✉️ راسلهم</button>` : ''}</div>
+      ${list.slice(0, 6).map(u => userLi(u, `<div style="text-align:left">${hbar(u.health)}<span style="display:block;font-size:11.5px;color:var(--muted);margin-top:3px">${ago(lastAct(u))}</span></div>`)).join('') || '<div class="empty" style="padding:16px">لا أحد</div>'}
+      ${list.length > 6 ? `<a class="hint" href="#users?f=${k}" style="display:block;margin:8px 0 0">عرض الكلّ (${n0(list.length)}) ←</a>` : ''}</div>`; };
+  $('#view').innerHTML = `
+  <div class="grid g21">
+    <div class="card"><h3>توزيع التجّار</h3><div class="hint">حسب درجة الصحّة</div><div class="chart-box sm"><canvas id="hsDist"></canvas></div></div>
+    <div class="card"><h3>كيف تُحسب الدرجة؟</h3><div class="hint">من 100، تُحدَّث مع كل عمليّة</div><ul class="checks">
+      <li><span class="ci ok">40</span>حداثة آخر عمليّة — اليوم = 40، قبل شهر = 0</li>
+      <li><span class="ci ok">30</span>الانتظام — أيام العمل في آخر 30 يوماً (15+ = كاملة)</li>
+      <li><span class="ci ok">20</span>عمق الدفتر — عدد الزبائن (50+ = كاملة)</li>
+      <li><span class="ci ok">10</span>الوصول — نسبة الزبائن المرتبطين بالتطبيق</li></ul></div>
+  </div>
+  <div class="grid g3" style="margin-top:16px">${['champion','healthy','attention'].map(seg).join('')}</div>
+  <div class="grid g2" style="margin-top:16px">${['dormant','never'].map(seg).join('')}</div>`;
+  const ks = ['champion','healthy','attention','dormant','never'];
+  chart('hsDist', {type:'bar', data:{labels:ks.map(k => SEGS[k][0]), datasets:[{data:ks.map(k => by(k).length), backgroundColor:ks.map(k => SEGS[k][1]), borderRadius:8}]},
+    options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, ticks:{precision:0}}}}});
+  $$('[data-seg]').forEach(b => b.onclick = () => composeTo(by(b.dataset.seg).map(u => u.id), `«${SEGS[b.dataset.seg][0]}»`));
+  wireUsers($('#view'));
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   💰 الإيرادات
+   ═══════════════════════════════════════════════════════════════════ */
+RENDER.money = async () => {
+  let rv, subs;
+  try { [rv, subs] = await Promise.all([rpc('admin_revenue_pro'), rpc('admin_subscriptions', {p_limit:300})]); }
+  catch(e){ if (missingFn(e)) return LEGACY.money(); throw e; }
+  const cv = rv.conversion || {}, bp = rv.by_plan || {};
+  $('#crumb').textContent = 'من سجل الاشتراكات الفعلي · المِنَح المجانيّة لا تُحسب دخلاً';
+  $('#view').innerHTML = `
+  <div class="grid g4">
+    ${K2(usd(rv.mrr), 'الدخل الشهري المتكرر (MRR)', '#f59e0b', `سنوياً (ARR) ${usd(rv.arr)}`)}
+    ${K2(n0(rv.paying), 'مشتركون يدفعون الآن', '#10b981', `متوسّط ${usd(rv.arpu)} شهرياً لكلّ مشترك`)}
+    ${K2(pc(cv.converted, cv.ended) + '%', 'تحويل التجربة إلى دفع', '#3b82f6', `${n0(cv.converted)} من ${n0(cv.ended)} انتهت تجربتهم (90 يوماً)`)}
+    ${K2(usd(rv.ltv_avg), 'متوسّط ما يدفعه المشترك إجمالاً', '#8b5cf6', `الإيرادات الكلّيّة ${usd(rv.revenue_total)}`)}
+  </div>
+  <div class="grid g21" style="margin-top:16px">
+    <div class="card"><h3>الإيرادات الشهريّة — 12 شهراً</h3><div class="hint">المبالغ (أعمدة) وعدد الاشتراكات (خطّ)</div><div class="chart-box"><canvas id="mRev"></canvas></div></div>
+    <div class="card"><h3>حسب الخطّة</h3><div class="hint">آخر 12 شهراً</div><div class="chart-box"><canvas id="mPlan"></canvas></div></div>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card"><h3>🔄 تتجدّد خلال 30 يوماً</h3><div class="hint">ذكّرهم قبل الانتهاء</div>
+      ${(rv.renewals_30d || []).map(r => userLi(r, `<div style="text-align:left">${statusBadge(r.plan)}<span style="display:block;font-size:12px;color:var(--muted);margin-top:3px">${ago(r.expires_at)} · ${usd(r.amount_usd)}</span></div>`)).join('') || '<div class="empty" style="padding:16px">لا تجديدات قريبة</div>'}</div>
+    <div class="card"><h3>📉 انتهى اشتراكهم آخر 30 يوماً</h3><div class="hint">ولم يجدّدوا — أهمّ من تتواصل معه</div>
+      ${(rv.churn_30d || []).map(r => userLi(r, `<span style="font-size:12px;color:var(--muted)">${ago(r.expired_at)}</span>`)).join('') || '<div class="empty" style="padding:16px">لا أحد 🎉</div>'}</div>
+  </div>
+  <div class="card" style="margin-top:16px;padding:0"><div style="padding:18px 20px 6px;display:flex;align-items:center;gap:10px"><div style="flex:1"><h3>سجل الاشتراكات</h3><div class="hint">كل تفعيل — انقر الصفّ لفتح المستخدم</div></div>
+    <button class="btn sm" id="mCsv">${ico('down')} تصدير CSV</button></div>
+    <div class="table-wrap" style="border:0;border-top:1px solid var(--line)"><table><thead><tr><th>المستخدم</th><th>الخطّة</th><th>المبلغ</th><th>من</th><th>إلى</th><th>الحالة</th><th>سُجّل</th></tr></thead><tbody>
+    ${(subs || []).map(s => `<tr class="click" data-u="${s.user_id}"><td><div class="who"><b>${esc(s.store_name || s.name || '—')}</b><span>${esc(s.store_name ? (s.name || '') : '')}</span></div></td>
+      <td>${statusBadge(s.plan)}</td><td class="num"><b>${usd(s.amount_usd)}</b></td><td>${fdate(s.started_at)}</td><td>${fdate(s.expires_at)}</td>
+      <td>${s.status === 'active' ? (new Date(s.expires_at) > new Date() ? '<span class="badge b-ok">فعّال</span>' : '<span class="badge b-expired">انتهى</span>') : '<span class="badge b-free">' + esc(s.status) + '</span>'}</td><td>${ago(s.created_at)}</td></tr>`).join('')
+      || '<tr><td colspan="7" class="empty">لا اشتراكات بعد</td></tr>'}
+    </tbody></table></div></div>`;
+  const m = rv.monthly_12 || [];
+  chart('mRev', {data:{labels:m.map(x => x.m), datasets:[
+    {type:'bar', label:'$', data:m.map(x => x.usd), backgroundColor:c => grad(c.chart.ctx, '#f59e0b', '#d97706'), borderRadius:8, yAxisID:'y'},
+    {type:'line', label:'اشتراكات', data:m.map(x => x.n), borderColor:'#8b5cf6', backgroundColor:'#8b5cf6', tension:.3, borderWidth:2, yAxisID:'y1'}]},
+    options:{maintainAspectRatio:false, interaction:{mode:'index', intersect:false}, scales:{x:{grid:{display:false}},
+      y:{beginAtZero:true, position:'right'}, y1:{beginAtZero:true, position:'left', grid:{display:false}, ticks:{precision:0}}}}});
+  const pk = Object.keys(bp);
+  chart('mPlan', {type:'doughnut', data:{labels:pk.map(k => STATUS[k] ? STATUS[k][0] : k), datasets:[{data:pk.map(k => bp[k].usd), backgroundColor:pk.map(k => k === 'business' ? '#8b5cf6' : '#3b82f6'), borderWidth:0}]},
+    options:{maintainAspectRatio:false, cutout:'64%', plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{label:c => ` ${usd(c.raw)} · ${bp[pk[c.dataIndex]].n} اشتراك`}}}}});
+  $('#mCsv').onclick = () => csvDownload(`daftar-subscriptions-${new Date().toISOString().slice(0, 10)}.csv`,
+    ['المستخدم','المتجر','الخطة','المبلغ $','من','إلى','الحالة','سُجّل'],
+    (subs || []).map(s => [s.name, s.store_name, s.plan, s.amount_usd, (s.started_at || '').slice(0, 10), (s.expires_at || '').slice(0, 10), s.status, (s.created_at || '').slice(0, 10)]));
+  wireUsers($('#view'));
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   🪪 ملفّ المستخدم الكامل (360°)
+   ═══════════════════════════════════════════════════════════════════ */
+let U360 = null, u360Chart = null;
+const U_TABS = [['ov','نظرة عامة'],['act','النشاط'],['sub','الاشتراك'],['dev','الأجهزة والإشعارات'],['notes','ملاحظات'],['do','إجراءات'],['log','السجلّ']];
+openUser = async function(id, tab = 'ov'){
+  $('#ovl').classList.add('on'); const dr = $('#drawer'); dr.classList.add('on', 'wide');
+  dr.innerHTML = `<div class="drawer-body"><div class="skel" style="min-height:120px"></div><div class="skel" style="min-height:320px;margin-top:14px"></div></div>`;
+  try { U360 = await rpc('admin_user_360', {p_user: id}); }
+  catch(e){ if (missingFn(e)) { dr.classList.remove('wide'); return LEGACY.openUser(id); }
+    dr.innerHTML = `<div class="drawer-body"><div class="banner red">${esc(errText(e))}</div></div>`; return; }
+  const p = U360.profile || {};
+  dr.innerHTML = `
+    <div class="drawer-head">
+      <div class="avatar" style="${p.is_merchant ? '' : 'background:linear-gradient(135deg,#0891b2,#0d9488)'}">${esc(initial(p.store_name || p.name))}</div>
+      <div style="flex:1;min-width:0"><h3 style="font-size:18px;font-weight:800">${esc(p.store_name || p.name || 'بلا اسم')}</h3>
+        <div style="color:var(--muted);font-size:12.5px">${esc(p.name || '')} ${p.is_merchant ? '· تاجر' : ''} ${p.is_client ? '· زبون' : ''} ${p.is_admin ? '· مشرف' : ''}</div>
+        <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">${statusBadge(p.status)}${p.is_merchant ? segBadgeFor(U360) : ''}</div></div>
+      ${p.is_merchant ? `<div class="ring" style="width:76px;height:76px;background:conic-gradient(${hcol(U360.merchant.health)} ${U360.merchant.health}%, var(--card2) 0)"><div style="width:60px;height:60px"><b style="font-size:20px" class="num">${U360.merchant.health}</b></div></div>` : ''}
+      <button class="btn ghost sm" id="dClose">✕</button>
+    </div>
+    <div class="tabs" id="uTabs">${U_TABS.map(([k, t]) => `<button data-t="${k}" class="${k === tab ? 'on' : ''}">${t}${k === 'notes' && (U360.notes || []).length ? ` <span class="pill">${U360.notes.length}</span>` : ''}</button>`).join('')}</div>
+    <div class="drawer-body" id="uBody"></div>`;
+  $('#dClose').onclick = closeDrawer;
+  $$('#uTabs button').forEach(b => b.onclick = () => { $$('#uTabs button').forEach(x => x.classList.toggle('on', x === b)); drawTab(id, b.dataset.t); });
+  drawTab(id, tab);
+};
+function segBadgeFor(x){ const m = x.merchant || {}; if (!m.tx_total) return segBadge('never');
+  const h = m.health; return segBadge(h >= 75 ? 'champion' : h >= 50 ? 'healthy' : h >= 25 ? 'attention' : 'dormant'); }
+function drawTab(id, t){
+  const x = U360, p = x.profile || {}, m = x.merchant || {}, c = x.client || {}, b = $('#uBody');
+  if (u360Chart) { u360Chart.destroy(); u360Chart = null; }
+  const li = (l, v) => `<li>${l}<b style="margin-right:auto">${v}</b></li>`;
+  if (t === 'ov') {
+    const owedLocal = Object.entries(m.owed_local || {}).filter(([, v]) => v > 0).map(([k, v]) => `${n0(Math.round(v))} ${esc(k)}`).join(' · ');
+    const hp = m.health_parts || {};
+    b.innerHTML = `
+      ${p.is_merchant ? `<div class="kv" style="grid-template-columns:repeat(4,1fr)">
+        <div><b class="num">${n0(m.customers)}</b><span>زبون في دفتره</span></div>
+        <div><b class="num">${n0(m.linked)}</b><span>مرتبطون بالتطبيق</span></div>
+        <div><b class="num">${n0(m.tx_total)}</b><span>عمليّة (${n0(m.tx_30d)} آخر 30 يوماً)</span></div>
+        <div><b class="num">${n0(m.active_days_30)}<span style="font-size:13px;color:var(--muted)">/30</span></b><span>أيام عمل</span></div>
+        <div><b class="num">${n0(m.debtors)}</b><span>زبون عليه دين</span></div>
+        <div><b class="num">${usd(m.owed_usd)}</b><span>له عند الناس بالدولار</span></div>
+        <div style="grid-column:span 2"><b class="num" style="font-size:15px">${owedLocal || '—'}</b><span>له عند الناس بالعملة المحليّة</span></div></div>
+      <div class="section-t">❤️ درجة الصحّة ${m.health}/100</div>
+      ${abar('حداثة آخر عمليّة', hp.recency || 0, 40, '#10b981', `${hp.recency || 0}/40`)}${abar('الانتظام', hp.frequency || 0, 30, '#3b82f6', `${hp.frequency || 0}/30`)}
+      ${abar('عمق الدفتر', hp.depth || 0, 20, '#8b5cf6', `${hp.depth || 0}/20`)}${abar('الوصول للزبائن', hp.reach || 0, 10, '#06b6d4', `${hp.reach || 0}/10`)}` : ''}
+      ${p.is_client ? `<div class="section-t">👤 بصفته زبوناً</div><div class="kv"><div><b class="num">${n0((c.stores || []).length)}</b><span>متجر يتابع ديونه فيه</span></div><div><b class="num">${n0(c.disputes)}</b><span>اعتراض أرسله</span></div></div>` : ''}
+      <div class="section-t">🪪 معلومات</div>
+      <ul class="checks">
+        ${li('البريد', `<span class="num">${esc(p.email || '—')}</span>`)}
+        ${li('الهاتف', `<span class="num">${esc(p.phone || '—')}</span> ${p.phone_verified ? '<span class="badge b-ok">موثّق</span>' : '<span class="badge b-free">غير موثّق</span>'}`)}
+        ${li('تيليغرام', p.telegram ? '<span class="badge b-ok">مربوط</span>' : '—')}
+        ${li('انضمّ', fdate(p.created_at))}${li('آخر تسجيل دخول', p.last_sign_in_at ? ago(p.last_sign_in_at) : '—')}
+        ${p.is_merchant ? li('العملة', `${esc(p.currency_code || '—')}${p.dollar_mode ? ' · الدولرة' : ''}`) + li('على الكشف', `${p.has_logo ? 'شعار ✓' : 'بلا شعار'} · ${p.has_note ? 'عبارة ✓' : 'بلا عبارة'}`) : ''}
+        ${li('الإشعارات', `${p.notif_enabled ? 'مفعّلة' : '<span style="color:var(--red)">موقوفة</span>'}${p.quiet_hours ? ' · ساعات هدوء' : ''}${p.muted_kinds ? ` · ${p.muted_kinds} نوع مكتوم` : ''}`)}
+        ${li('المعرّف', `<code class="num" style="font-size:11px;color:var(--muted)">${esc(p.id)}</code> <button class="btn ghost sm" id="cpId">نسخ</button>`)}
+      </ul>`;
+    const cp = $('#cpId'); if (cp) cp.onclick = () => { navigator.clipboard.writeText(p.id); toast('نُسخ المعرّف'); };
+  }
+  if (t === 'act') {
+    const d = m.daily_90 || [];
+    b.innerHTML = `
+      ${p.is_merchant ? `<div class="kv" style="grid-template-columns:repeat(4,1fr)">
+        <div><b class="num">${n0(m.debts)}</b><span>دين</span></div><div><b class="num">${n0(m.payments)}</b><span>دفعة</span></div>
+        <div><b>${m.first_tx ? fdate(m.first_tx) : '—'}</b><span>أوّل عمليّة</span></div><div><b>${ago(m.last_tx)}</b><span>آخر عمليّة</span></div></div>
+      <div class="card"><h3>العمليّات اليوميّة — 90 يوماً</h3><div class="chart-box sm"><canvas id="u360c"></canvas></div></div>
+      <ul class="checks" style="margin-top:12px">${li('اعتراضات زبائنه', n0(m.disputes))}${li('ردّ عليها', n0(m.replies))}
+        ${li('نسخ احتياطيّة', `${n0((m.backups || {}).count)} · ${bytes((m.backups || {}).bytes)}${(m.backups || {}).last ? ' · آخرها ' + ago(m.backups.last) : ''}`)}</ul>` : ''}
+      ${p.is_client ? `<div class="section-t">🏪 المتاجر التي يتابعها</div>${(c.stores || []).map(s => userLi({id: s.merchant_id, store_name: s.store_name}, `<span style="font-size:12px;color:var(--muted)">منذ ${fdate(s.linked_at)}</span>`)).join('') || '<div class="empty" style="padding:16px">غير مرتبط بأي متجر</div>'}` : ''}
+      <div class="banner info" style="margin-top:14px">⏱️ <div>دقائق الاستخدام اليوميّة لهذا المستخدم تظهر هنا مع الإصدار القادم.</div></div>`;
+    if (p.is_merchant) u360Chart = new Chart($('#u360c'), {type:'bar', data:{labels:d.map(x => shortDay(x.d)), datasets:[{data:d.map(x => x.n), backgroundColor:'#6366f1', borderRadius:3}]},
+      options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}, ticks:{maxTicksLimit:10}}, y:{beginAtZero:true, ticks:{precision:0}}}}});
+    wireUsers(b);
+  }
+  if (t === 'sub') {
+    const subs = x.subscriptions || [];
+    b.innerHTML = `<ul class="checks">${li('الحالة الآن', statusBadge(p.status))}${li('الخطّة', esc(p.plan))}${li('تنتهي', p.plan_expires_at ? `${fdate(p.plan_expires_at)} (${ago(p.plan_expires_at)})` : '—')}${li('نهاية التجربة', fdate(p.trial_ends_at))}
+      ${li('دفع إجمالاً', usd(subs.filter(s => !['cancelled','canceled','refunded'].includes(s.status)).reduce((a, s) => a + (+s.amount_usd || 0), 0)))}</ul>
+      <div class="section-t">🧾 سجل الاشتراكات</div>
+      ${subs.length ? `<div class="table-wrap"><table><thead><tr><th>الخطّة</th><th>المبلغ</th><th>من</th><th>إلى</th><th>الحالة</th><th></th></tr></thead><tbody>
+        ${subs.map((s, i) => `<tr><td>${esc(s.plan)}</td><td class="num"><b>${usd(s.amount_usd)}</b></td><td>${fdate(s.started_at)}</td><td>${fdate(s.expires_at)}</td>
+          <td>${s.status === 'active' ? '<span class="badge b-ok">فعّال</span>' : '<span class="badge b-free">' + esc(s.status) + '</span>'}</td><td><button class="btn ghost sm" data-sub="${i}">تعديل</button></td></tr>`).join('')}
+      </tbody></table></div>` : '<div class="empty" style="padding:16px">لا اشتراكات بعد</div>'}`;
+    $$('[data-sub]', b).forEach(btn => btn.onclick = () => editSub(subs[+btn.dataset.sub], id));
+  }
+  if (t === 'dev') {
+    const n = x.notifications || {}, dv = x.devices || [];
+    b.innerHTML = `<div class="section-t">📱 الأجهزة</div>
+      ${dv.length ? `<div class="table-wrap"><table><thead><tr><th>النظام</th><th>النسخة</th><th>آخر فتح</th><th>أوّل ظهور</th></tr></thead><tbody>
+        ${dv.map(d => `<tr><td>${esc(d.platform || '—')}</td><td class="num">#${esc(d.app_build ?? '?')}</td><td>${ago(d.last_seen)}</td><td>${fdate(d.first_seen)}</td></tr>`).join('')}</tbody></table></div>`
+        : '<div class="banner">⚠️ <div>لا جهاز مسجّل — لن تصله إشعارات فوريّة.</div></div>'}
+      <div class="section-t">🔔 الإشعارات</div>
+      <div class="kv"><div><b class="num">${n0(n.total)}</b><span>إشعار وصله</span></div><div><b class="num">${n0(n.unread)}</b><span>غير مقروء (${pc(n.unread, n.total)}%)</span></div></div>
+      <ul class="checks">${Object.entries(n.by_type || {}).map(([k, v]) => li({debt:'ديون', payment:'دفعات', comment:'تعليقات', general:'عامّة'}[k] || esc(k), n0(v))).join('')}
+        ${li('آخر إشعار', ago(n.last_at))}</ul>`;
+  }
+  if (t === 'notes') {
+    const notes = x.notes || [];
+    b.innerHTML = `<div class="card" style="padding:16px"><label class="f">ملاحظة جديدة (لك وحدك — لا يراها المستخدم)</label>
+        <textarea id="nB" maxlength="2000" placeholder="مثلاً: اتصلت به 22/10 — سيدفع بداية الشهر"></textarea>
+        <div class="form-actions"><button class="btn primary" id="nGo">حفظ الملاحظة</button></div></div>
+      <div style="margin-top:14px">${notes.map(nt => `<div class="note"><p>${esc(nt.body)}</p><div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+        <small>${esc(nt.author)} · ${fdt(nt.created_at)}</small><div class="grow" style="flex:1"></div><button class="btn ghost sm" data-del="${nt.id}">حذف</button></div></div>`).join('') || '<div class="empty" style="padding:16px">لا ملاحظات بعد</div>'}</div>`;
+    $('#nGo').onclick = async () => { const v = $('#nB').value.trim(); if (!v) return;
+      try { await rpc('admin_add_note', {p_user: id, p_body: v}); toast('✅ حُفظت'); openUser(id, 'notes'); } catch(e){ toast(errText(e), true); } };
+    $$('[data-del]', b).forEach(btn => btn.onclick = async () => { if (!await confirmBox('حذف الملاحظة', 'لا يمكن التراجع.', 'حذف', true)) return;
+      try { await rpc('admin_delete_note', {p_id: +btn.dataset.del}); openUser(id, 'notes'); } catch(e){ toast(errText(e), true); } });
+  }
+  if (t === 'do') drawActions(id, p, b);
+  if (t === 'log') {
+    const a = x.audit || [];
+    b.innerHTML = a.length ? `<div class="table-wrap"><table><thead><tr><th>الوقت</th><th>الفعل</th><th class="t">التفاصيل</th><th>بواسطة</th></tr></thead><tbody>
+      ${a.map(r => { const [tt, cl] = ACT[r.action] || [r.action, 'b-free']; return `<tr><td>${fdt(r.created_at)}</td><td><span class="badge ${cl}">${esc(tt)}</span></td><td class="t" style="white-space:normal">${actDetails(r)}</td><td style="color:var(--muted)">${esc(r.actor_name || '')}</td></tr>`; }).join('')}
+      </tbody></table></div>` : '<div class="empty">لا أفعال إداريّة على هذا الحساب</div>';
+  }
+}
+function drawActions(id, p, b){
+  b.innerHTML = `
+    <div class="card" style="padding:16px">
+      <label class="f">تفعيل اشتراك</label>
+      <div class="seg" id="gPlan"><button data-v="pro">Pro</button><button data-v="business" class="on">Business</button></div>
+      <div class="chips" id="gMonths" style="margin:12px 0 8px">${[1,3,6,12].map(mm => `<button class="chip ${mm === 3 ? 'on' : ''}" data-m="${mm}">${mm} ${mm === 1 ? 'شهر' : 'أشهر'}</button>`).join('')}</div>
+      <div class="row"><div><label class="f">أو عدد الأشهر</label><input id="gM" type="number" min="1" max="60" value="3" class="num"></div>
+        <div><label class="f">المبلغ المدفوع ($)</label><input id="gAmt" type="number" min="0" step="0.5" value="30" class="num"></div></div>
+      <div class="toggle-row"><div><b style="font-size:13.5px">أضِفها إلى المدّة الحاليّة</b><div style="font-size:12px;color:var(--muted)">لا يخسر ما بقي له من أيام</div></div>
+        <label class="switch"><input type="checkbox" id="gExt" checked><span></span></label></div>
+      <div class="preview-box" id="gPrev"></div>
+      <div class="form-actions"><button class="btn primary" id="gGo">تفعيل الاشتراك</button></div>
+    </div>
+    <div class="grid g2" style="margin-top:12px">
+      <div class="card" style="padding:16px"><label class="f">تمديد التجربة (أيام)</label><div class="row"><input id="tDays" type="number" value="7" min="1" max="365" class="num"><button class="btn" id="tGo">تمديد</button></div></div>
+      <div class="card" style="padding:16px"><label class="f">سحب الخطّة</label><button class="btn danger" id="rGo" style="width:100%;justify-content:center">إرجاعه للمجاني</button></div>
+    </div>
+    <div class="card" style="padding:16px;margin-top:12px">
+      <label class="f">رسالة خاصّة لهذا المستخدم</label>
+      <input id="mT" placeholder="العنوان" maxlength="80" style="margin-bottom:8px">
+      <textarea id="mB" placeholder="النصّ — يظهر في مركز الإشعارات داخل تطبيقه" maxlength="500"></textarea>
+      <div class="form-actions"><button class="btn" id="mGo">إرسال</button></div>
+    </div>`;
+  let plan = 'business', months = 3, amtEdited = false;
+  const curExp = p.plan_expires_at ? new Date(p.plan_expires_at) : null;
+  const prev = () => {
+    if (!amtEdited) $('#gAmt').value = (plan === 'pro' ? 5 : 10) * months;
+    const base = ($('#gExt').checked && curExp && curExp > new Date()) ? new Date(curExp) : new Date();
+    base.setMonth(base.getMonth() + months);
+    $('#gPrev').textContent = `${plan === 'pro' ? 'Pro' : 'Business'} · ${months} ${months === 1 ? 'شهر' : 'أشهر'} · ${usd($('#gAmt').value)} — ينتهي ${fdate(base)}`;
+  };
+  $$('#gPlan button').forEach(x => x.onclick = () => { plan = x.dataset.v; $$('#gPlan button').forEach(y => y.classList.toggle('on', y === x)); prev(); });
+  $$('#gMonths .chip').forEach(x => x.onclick = () => { months = +x.dataset.m; $('#gM').value = months; $$('#gMonths .chip').forEach(y => y.classList.toggle('on', y === x)); prev(); });
+  $('#gM').oninput = e => { const v = +e.target.value; if (v >= 1 && v <= 60) { months = v; $$('#gMonths .chip').forEach(y => y.classList.toggle('on', +y.dataset.m === v)); prev(); } };
+  $('#gAmt').oninput = () => { amtEdited = true; prev(); };
+  $('#gExt').onchange = prev; prev();
+  $('#gGo').onclick = async () => {
+    if (!await confirmBox('تفعيل اشتراك', esc($('#gPrev').textContent))) return;
+    try { const exp = await rpc('admin_grant_plan_custom', {p_user: id, p_plan: plan, p_months: months, p_amount: Number($('#gAmt').value), p_extend: $('#gExt').checked});
+      toast('✅ فُعّل — ينتهي ' + fdate(exp)); openUser(id, 'sub'); } catch(e){ toast(errText(e), true); } };
+  $('#tGo').onclick = async () => { const days = +$('#tDays').value;
+    if (!await confirmBox('تمديد التجربة', `إضافة ${days} يوماً إلى تجربته.`)) return;
+    try { const t2 = await rpc('admin_extend_trial', {p_user: id, p_days: days}); toast('✅ التجربة حتى ' + fdate(t2)); openUser(id, 'sub'); } catch(e){ toast(errText(e), true); } };
+  $('#rGo').onclick = async () => {
+    if (!await confirmBox('سحب الخطّة', 'سيعود الحساب إلى المجاني فوراً، وتُلغى اشتراكاته الفعّالة.', 'سحب الخطّة', true)) return;
+    try { await rpc('admin_revoke_plan', {p_user: id}); toast('أُرجع إلى المجاني'); openUser(id, 'sub'); } catch(e){ toast(errText(e), true); } };
+  $('#mGo').onclick = async () => {
+    const t3 = $('#mT').value.trim(), bb = $('#mB').value.trim();
+    try { const r = await rpc('admin_broadcast', {p_segment: 'single', p_title: t3, p_body: bb, p_user: id});
+      const push = await pushTo(r.user_ids || [], t3, bb);
+      toast(`✅ وصلت لمركز إشعاراته${push.sent ? ' · وإلى جواله' : ''}`); $('#mT').value = ''; $('#mB').value = '';
+    } catch(e){ toast(errText(e), true); } };
+}
+
+/* ═══ أسماء أفعال السجلّ الجديدة ═══ */
+Object.assign(ACT, {add_note:['ملاحظة','b-next'], delete_note:['حذف ملاحظة','b-free'], resend_push:['إعادة إرسال','b-pro']});
+
+/* ═══ اختصار: «/» للبحث ═══ */
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) { e.preventDefault(); $('#gSearch').focus(); }
+});
 
 if (DEMO) { $('#login').style.display='none'; }
 boot();
