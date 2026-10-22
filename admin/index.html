@@ -6,317 +6,436 @@
 <meta name="robots" content="noindex, nofollow">
 <title>لوحة التحكم — الدفتر</title>
 <link rel="icon" href="../favicon.ico">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════════════
-   🎨 نظام التصميم
+   🎨 نظام التصميم — بطابع Apple: زجاج، ظلال ناعمة، حركة هادئة
+   خطّ النظام (SF على الماك)، ألوان Apple الرسميّة، ووضعان فاتح وداكن.
    ═══════════════════════════════════════════════════════════════════ */
 :root{
-  --bg:#0a0f1e; --bg2:#0f172a; --card:#121a2e; --card2:#18223a; --line:#223052;
-  --text:#e6ecff; --muted:#8b98b8; --dim:#5d6a8a;
-  --blue:#3b82f6; --blue2:#2563eb; --indigo:#6366f1; --violet:#8b5cf6;
-  --green:#10b981; --amber:#f59e0b; --red:#ef4444; --cyan:#06b6d4; --pink:#ec4899;
-  --r:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
-  --side:rgba(10,15,30,.92); --hover:#1d2945; --line2:#34446e; --text2:#cbd5e1; --track:#2a3657;
-  --glow1:rgba(99,102,241,.18); --glow2:rgba(6,182,212,.12); --rowhover:rgba(59,130,246,.06);
-  color-scheme:dark;
-}
-/* ☀️ الوضع النهاري */
-[data-theme=light]{
-  --bg:#f3f6fb; --bg2:#ffffff; --card:#ffffff; --card2:#f2f5fb; --line:#e2e8f2;
-  --text:#0f172a; --muted:#5b6785; --dim:#8a96b3;
-  --shadow:0 10px 30px rgba(15,23,42,.08);
-  --side:rgba(255,255,255,.92); --hover:#eef2fa; --line2:#cfd8e8; --text2:#334155; --track:#cbd5e1;
-  --glow1:rgba(99,102,241,.10); --glow2:rgba(6,182,212,.08); --rowhover:rgba(59,130,246,.05);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Arabic","Segoe UI",system-ui,"Noto Sans Arabic",Tahoma,sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1); --spring:cubic-bezier(.32,.72,0,1);
+  --blue:#007AFF; --green:#34C759; --amber:#FF9500; --orange:#FF9500; --red:#FF3B30; --indigo:#5856D6; --violet:#AF52DE;
+  --cyan:#32ADE6; --teal:#30B0C7; --pink:#FF2D55; --mint:#00C7BE; --gray:#8E8E93; --blue2:#0071E3;
+  --accent:#0071E3; --ring:rgba(0,113,227,.24);
+  --bg:#F5F5F7; --bg2:#FFFFFF; --card:#FFFFFF; --card2:#F2F2F7; --tile:rgba(255,255,255,.8);
+  --fill:rgba(120,120,128,.14); --fill2:rgba(120,120,128,.08); --fillh:rgba(120,120,128,.2);
+  --line:rgba(60,60,67,.11); --line2:rgba(60,60,67,.2); --edge:rgba(0,0,0,.05);
+  --text:#1D1D1F; --text2:#3A3A3C; --muted:#6E6E73; --dim:#8E8E93;
+  --hover:rgba(120,120,128,.08); --rowhover:rgba(120,120,128,.055); --track:#E9E9EB;
+  --glass:rgba(255,255,255,.62); --glass2:rgba(250,250,252,.82); --gedge:rgba(255,255,255,.78); --ghi:rgba(255,255,255,.65);
+  --th:rgba(250,250,252,.94);
+  --sh-card:0 1px 2px rgba(0,0,0,.03),0 4px 18px rgba(0,0,0,.045);
+  --sh:0 2px 8px rgba(0,0,0,.05),0 16px 40px rgba(0,0,0,.07);
+  --sh-lg:0 30px 80px rgba(0,0,0,.18),0 6px 18px rgba(0,0,0,.06);
+  --seg-on:#FFFFFF; --seg-sh:0 1px 3px rgba(0,0,0,.12),0 1px 1px rgba(0,0,0,.04);
+  --sk1:rgba(120,120,128,.07); --sk2:rgba(120,120,128,.15);
+  --ovl:rgba(0,0,0,.16);
+  --glow1:rgba(0,122,255,.10); --glow2:rgba(175,82,222,.075); --glow3:rgba(48,176,199,.055);
+  --r:20px; --side-w:248px;
   color-scheme:light;
 }
-[data-theme=light] .card{box-shadow:0 1px 2px rgba(15,23,42,.04)}
-[data-theme=light] .b-trial{color:#b45309}  [data-theme=light] .b-business{color:#6d28d9}
-[data-theme=light] .b-pro{color:#1d4ed8}    [data-theme=light] .b-expired{color:#b91c1c}
-[data-theme=light] .b-free{color:#475569}   [data-theme=light] .b-ok,[data-theme=light] .b-live{color:#047857}
-[data-theme=light] .b-warn{color:#b45309}   [data-theme=light] .b-next{color:#4338ca}
-[data-theme=light] .banner{color:#92400e} [data-theme=light] .banner.info{color:#1e40af} [data-theme=light] .banner.red{color:#991b1b}
-[data-theme=light] .msg.ok{color:#047857} [data-theme=light] .msg.err{color:#b91c1c}
-[data-theme=light] .btn.danger{color:#b91c1c}
-[data-theme=light] .login-card{background:rgba(255,255,255,.9)}
-[data-theme=light] .modal,[data-theme=light] .overlay{background:rgba(15,23,42,.35)}
-.theme-btn{width:38px;height:38px;padding:0;justify-content:center;font-size:17px}
+[data-theme=dark]{
+  --blue:#0A84FF; --green:#30D158; --amber:#FF9F0A; --orange:#FF9F0A; --red:#FF453A; --indigo:#5E5CE6; --violet:#BF5AF2;
+  --cyan:#64D2FF; --teal:#40C8E0; --pink:#FF375F; --mint:#63E6E2; --gray:#98989D; --blue2:#0A84FF;
+  --accent:#0A84FF; --ring:rgba(10,132,255,.38);
+  --bg:#0C0C0E; --bg2:#1C1C1E; --card:#1C1C1E; --card2:#2C2C2E; --tile:rgba(58,58,62,.42);
+  --fill:rgba(118,118,128,.26); --fill2:rgba(118,118,128,.16); --fillh:rgba(118,118,128,.34);
+  --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.16); --edge:rgba(255,255,255,.06);
+  --text:#F5F5F7; --text2:#D1D1D6; --muted:#A1A1A6; --dim:#6E6E73;
+  --hover:rgba(255,255,255,.06); --rowhover:rgba(255,255,255,.04); --track:rgba(120,120,128,.36);
+  --glass:rgba(38,38,42,.56); --glass2:rgba(30,30,33,.84); --gedge:rgba(255,255,255,.09); --ghi:rgba(255,255,255,.07);
+  --th:rgba(28,28,30,.94);
+  --sh-card:0 1px 2px rgba(0,0,0,.4);
+  --sh:0 16px 40px rgba(0,0,0,.45);
+  --sh-lg:0 30px 90px rgba(0,0,0,.65);
+  --seg-on:#636366; --seg-sh:0 1px 3px rgba(0,0,0,.4);
+  --sk1:rgba(255,255,255,.04); --sk2:rgba(255,255,255,.09);
+  --ovl:rgba(0,0,0,.5);
+  --glow1:rgba(10,132,255,.15); --glow2:rgba(191,90,242,.11); --glow3:rgba(64,200,224,.05);
+  color-scheme:dark;
+}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{font-family:'Cairo',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;
-  background:radial-gradient(900px 500px at 85% -10%,var(--glow1),transparent 60%),
-             radial-gradient(700px 400px at 0% 110%,var(--glow2),transparent 60%);z-index:0}
-a{color:var(--blue);text-decoration:none}
-button{font-family:inherit;cursor:pointer}
-input,select,textarea{font-family:inherit;font-size:14px;color:var(--text);background:var(--bg2);
-  border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;outline:none;transition:.15s}
-input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
-textarea{resize:vertical;min-height:90px}
-label.f{display:block;font-size:12.5px;color:var(--muted);margin:0 0 6px;font-weight:600}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(1100px 620px at 108% -10%,var(--glow1),transparent 62%),
+             radial-gradient(900px 560px at -10% 110%,var(--glow2),transparent 60%),
+             radial-gradient(760px 520px at 40% 45%,var(--glow3),transparent 70%)}
+html.theming *{transition:background-color .45s ease,color .45s ease,border-color .45s ease,fill .45s ease!important}
+a{color:var(--accent);text-decoration:none}
+button{font-family:inherit;cursor:pointer;color:inherit}
+::selection{background:color-mix(in srgb,var(--accent) 24%,transparent)}
+:focus-visible{outline:none;box-shadow:0 0 0 4px var(--ring)!important}
+input,select,textarea{font-family:inherit;font-size:14px;color:var(--text);background:var(--fill2);border:1px solid transparent;
+  border-radius:11px;padding:10px 12px;width:100%;outline:none;transition:background .2s,border-color .2s,box-shadow .2s}
+input::placeholder,textarea::placeholder{color:var(--dim)}
+input:hover,select:hover,textarea:hover{background:var(--fill)}
+input:focus,select:focus,textarea:focus{background:var(--card);border-color:var(--accent);box-shadow:0 0 0 4px var(--ring)}
+textarea{resize:vertical;min-height:90px;line-height:1.6}
+label.f{display:block;font-size:12.5px;color:var(--muted);margin:0 2px 6px;font-weight:600}
 .num{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
 
 /* أزرار */
-.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--card2);
-  color:var(--text);padding:9px 16px;border-radius:10px;font-weight:600;font-size:13.5px;transition:.15s;white-space:nowrap}
-.btn:hover{border-color:var(--line2);background:var(--hover)}
-.btn.primary{background:linear-gradient(135deg,var(--blue),var(--indigo));border-color:transparent;color:#fff}
+.btn{display:inline-flex;align-items:center;gap:7px;border:0;background:var(--fill2);color:var(--text);padding:8px 16px;border-radius:999px;
+  font-weight:600;font-size:13.5px;line-height:1.35;white-space:nowrap;transition:background .2s,color .2s,transform .18s var(--ease),box-shadow .2s,filter .2s}
+.btn svg{width:16px;height:16px;flex:none}
+.btn:hover{background:var(--fill)}
+.btn:active{transform:scale(.96)}
+.btn.primary{background:var(--accent);color:#fff;box-shadow:0 1px 2px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.18)}
 .btn.primary:hover{filter:brightness(1.08)}
-.btn.green{background:var(--green);border-color:transparent;color:#04241a}
-.btn.danger{background:transparent;border-color:rgba(239,68,68,.5);color:#fca5a5}
-.btn.danger:hover{background:rgba(239,68,68,.12)}
-.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
-.btn.ghost:hover{color:var(--text);background:var(--card2)}
-.btn.sm{padding:6px 11px;font-size:12.5px;border-radius:8px}
-.btn[disabled]{opacity:.5;pointer-events:none}
+.btn.green{background:var(--green);color:#fff}
+.btn.danger{background:color-mix(in srgb,var(--red) 11%,transparent);color:var(--red)}
+.btn.danger:hover{background:color-mix(in srgb,var(--red) 18%,transparent)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.ghost:hover{background:var(--fill2)}
+.btn.signout{color:var(--red)}
+.btn.sm{padding:5px 12px;font-size:12.5px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.icon-btn,.theme-btn{width:36px;height:36px;padding:0!important;justify-content:center;border-radius:50%;flex:none}
+.icon-btn svg,.theme-btn svg{width:18px;height:18px}
+.x-close{width:30px;height:30px;border-radius:50%;border:0;background:var(--fill);color:var(--muted);display:grid;place-items:center;flex:none;
+  transition:background .2s,color .2s,transform .18s var(--ease)}
+.x-close:hover{background:var(--fillh);color:var(--text)} .x-close:active{transform:scale(.9)}
+.x-close svg{width:13px;height:13px;stroke-width:2.6}
 
 /* ═══ تسجيل الدخول ═══ */
 #login{position:relative;z-index:1;min-height:100vh;display:grid;place-items:center;padding:24px}
-.login-card{width:100%;max-width:420px;background:rgba(18,26,46,.85);backdrop-filter:blur(14px);
-  border:1px solid var(--line);border-radius:24px;padding:36px 32px;box-shadow:var(--shadow)}
+.login-card{width:100%;max-width:400px;background:var(--glass2);-webkit-backdrop-filter:saturate(180%) blur(40px);backdrop-filter:saturate(180%) blur(40px);
+  border:1px solid var(--gedge);border-radius:28px;padding:34px 30px;box-shadow:var(--sh-lg),inset 0 1px 0 var(--ghi);animation:pop .7s var(--spring) both}
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}
-.logo{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,var(--blue),var(--indigo));
-  display:grid;place-items:center;box-shadow:0 6px 18px rgba(59,130,246,.4)}
-.logo svg{width:26px;height:26px}
-.brand h1{font-size:22px;font-weight:800}
-.brand small{display:block;color:var(--muted);font-size:12.5px;font-weight:500;margin-top:-4px}
+.logo{width:42px;height:42px;border-radius:11px;background:linear-gradient(180deg,#4DA3FF,#0A6CFF);display:grid;place-items:center;flex:none;
+  box-shadow:0 6px 16px rgba(10,108,255,.28),inset 0 1px 0 rgba(255,255,255,.35)}
+.logo svg{width:24px;height:24px}
+.brand h1{font-size:20px;font-weight:700;line-height:1.2}
+.brand small{display:block;color:var(--muted);font-size:12px;font-weight:500;margin-top:1px}
 .login-card p.sub{color:var(--muted);margin:14px 0 22px;font-size:13.5px}
 .or{display:flex;align-items:center;gap:10px;color:var(--dim);font-size:12px;margin:18px 0}
 .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
-.msg{margin-top:14px;padding:11px 14px;border-radius:10px;font-size:13px;display:none}
-.msg.ok{display:block;background:rgba(16,185,129,.12);color:#6ee7b7;border:1px solid rgba(16,185,129,.3)}
-.msg.err{display:block;background:rgba(239,68,68,.1);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
+.msg{margin-top:14px;padding:11px 14px;border-radius:12px;font-size:13px;display:none}
+.msg.ok{display:block;background:color-mix(in srgb,var(--green) 12%,transparent);color:var(--text)}
+.msg.err{display:block;background:color-mix(in srgb,var(--red) 10%,transparent);color:var(--text)}
 
-/* ═══ الهيكل ═══ */
+/* ═══ الهيكل: شريط جانبي زجاجي عائم + شريط أدوات زجاجي ═══ */
 #shell{position:relative;z-index:1;display:none;min-height:100vh}
-aside{position:fixed;top:0;right:0;bottom:0;width:250px;background:var(--side);backdrop-filter:blur(10px);
-  border-left:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;z-index:20}
-aside .brand{padding:0 8px 22px;border-bottom:1px solid var(--line);margin-bottom:14px}
-nav a{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;color:var(--muted);
-  font-weight:600;margin-bottom:3px;transition:.15s;position:relative}
-nav a svg{width:19px;height:19px;flex:none}
-nav a:hover{color:var(--text);background:var(--card)}
-nav a.active{color:var(--text);background:linear-gradient(135deg,rgba(59,130,246,.22),rgba(99,102,241,.16));}
-nav a.active::before{content:"";position:absolute;right:-14px;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--blue)}
-nav .sec{font-size:11px;color:var(--dim);font-weight:700;letter-spacing:.3px;margin:16px 14px 6px}
-.side-foot{margin-top:auto;padding:14px 8px 0;border-top:1px solid var(--line)}
-.me{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--pink));
-  display:grid;place-items:center;font-weight:800;color:#fff;flex:none}
-.me b{display:block;font-size:13px}.me span{display:block;font-size:11.5px;color:var(--muted);direction:ltr;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px}
+aside{position:fixed;top:12px;right:12px;bottom:12px;width:var(--side-w);z-index:20;display:flex;flex-direction:column;padding:16px 10px 10px;
+  background:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(28px);backdrop-filter:saturate(180%) blur(28px);
+  border:1px solid var(--gedge);border-radius:24px;box-shadow:var(--sh),inset 0 1px 0 var(--ghi)}
+aside .brand{padding:2px 10px 14px;margin-bottom:8px;border-bottom:1px solid var(--line)}
+nav{overflow:auto;flex:1;min-height:0;margin-bottom:8px;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav a{display:flex;align-items:center;gap:11px;padding:7px 10px;border-radius:10px;color:var(--text2);font-weight:500;font-size:13.5px;
+  margin-bottom:1px;transition:background .2s,color .2s}
+nav a svg{width:18px;height:18px;flex:none;color:var(--accent);stroke-width:1.8}
+nav a:hover{background:var(--hover);color:var(--text)}
+nav a.active{background:var(--fill);color:var(--text);font-weight:600}
+nav .sec{font-size:11.5px;color:var(--dim);font-weight:600;margin:14px 10px 4px}
+nav .sec:first-child{margin-top:2px}
+.side-foot{margin-top:auto;padding:10px 6px 2px;border-top:1px solid var(--line)}
+.me{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(160deg,#A5A3FF,#5856D6);display:grid;place-items:center;
+  font-weight:600;color:#fff;flex:none;font-size:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.28)}
+.me b{display:block;font-size:13px;font-weight:600}
+.me span{display:block;font-size:11.5px;color:var(--muted);direction:ltr;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px}
 
-main{margin-right:250px;padding:26px 32px 60px;min-height:100vh}
-.topbar{display:flex;align-items:center;gap:14px;margin-bottom:24px}
-.topbar h2{font-size:24px;font-weight:800}
-.topbar .crumb{color:var(--muted);font-size:13px}
+main{margin-right:calc(var(--side-w) + 12px);padding:12px 20px 64px 24px;min-height:100vh}
+.topbar{position:sticky;top:12px;z-index:15;display:flex;align-items:center;gap:10px;margin-bottom:22px;padding:8px 10px;padding-inline-start:16px;
+  background:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(28px);backdrop-filter:saturate(180%) blur(28px);
+  border:1px solid var(--gedge);border-radius:20px;box-shadow:var(--sh-card),inset 0 1px 0 var(--ghi)}
+.topbar h2{font-size:19px;font-weight:700;line-height:1.25}
+.topbar .crumb{color:var(--muted);font-size:12px;margin-top:1px}
 .topbar .grow{flex:1}
-.search{position:relative;width:300px}
-.search input{padding-right:38px;background:var(--card)}
-.search svg{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--dim)}
+.search{position:relative;width:270px}
+.search input{height:36px;padding:0 36px 0 14px;border-radius:999px}
+.search svg{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--dim);pointer-events:none}
 .burger{display:none}
+#btnRefresh.busy svg{animation:spin .9s linear infinite}
 
 /* بطاقات */
 .grid{display:grid;gap:16px}
 .g4{grid-template-columns:repeat(4,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g2{grid-template-columns:repeat(2,1fr)}
 .g21{grid-template-columns:2fr 1fr}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;position:relative;overflow:hidden}
-.card h3{font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.card{background:var(--card);border:1px solid var(--edge);border-radius:var(--r);padding:20px 22px;position:relative;overflow:hidden;box-shadow:var(--sh-card)}
+.card h3{font-size:15px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:8px;line-height:1.4}
 .card .hint{color:var(--muted);font-size:12.5px;margin-bottom:14px}
 .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px}
-.kpi{padding:18px 20px}
-.kpi .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;margin-bottom:12px}
-.kpi .ic svg{width:21px;height:21px}
-.kpi .v{font-size:28px;font-weight:800;line-height:1.1}
-.kpi .l{color:var(--muted);font-size:12.5px;font-weight:600;margin-top:4px}
-.kpi .d{position:absolute;top:18px;left:18px;font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:20px}
-.kpi::after{content:"";position:absolute;inset:auto -40px -60px auto;width:140px;height:140px;border-radius:50%;opacity:.07;background:currentColor}
+.kpi{padding:18px 20px 16px}
+.kpi .kh{display:flex;align-items:center;gap:9px;min-height:28px}
+.kpi .ic{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;flex:none;margin:0;color:#fff;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--c,var(--blue)) 78%,#fff),var(--c,var(--blue)));box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+.kpi .ic svg{width:16px;height:16px;stroke-width:2.2}
+.kpi .kdot{width:8px;height:8px;border-radius:50%;background:var(--c,var(--blue));flex:none;margin:0 4px;
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--c,var(--blue)) 16%,transparent)}
+.kpi .l{color:var(--muted);font-size:13px;font-weight:500;line-height:1.35}
+.kpi .v{font-size:30px;font-weight:650;line-height:1.1;margin-top:14px;color:var(--text)}
+.kpi>.v:first-child{margin-top:4px}
+.kpi>.v+.l{margin-top:6px}
+.kpi .d{position:absolute;top:16px;left:16px}
 .chart-box{position:relative;height:260px}
 .chart-box.sm{height:220px}
 
+/* شريط أرقام موحّد */
+.strip{display:grid;grid-template-columns:repeat(4,1fr);padding:0}
+.strip .si{padding:16px 22px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.strip .si+.si{border-right:1px solid var(--line)}
+.strip .si .l{font-size:12.5px;color:var(--muted);font-weight:500;display:flex;align-items:center;gap:7px}
+.strip .si .l i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.strip .si b{font-size:22px;font-weight:650;line-height:1.25}
+.strip .si .s{font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
 /* شارات */
-.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700;white-space:nowrap}
-.b-trial{background:rgba(245,158,11,.14);color:#fcd34d}
-.b-business{background:rgba(139,92,246,.18);color:#c4b5fd}
-.b-pro{background:rgba(59,130,246,.16);color:#93c5fd}
-.b-expired{background:rgba(239,68,68,.13);color:#fca5a5}
-.b-free{background:rgba(139,152,184,.16);color:var(--text2)}
-.b-ok{background:rgba(16,185,129,.14);color:#6ee7b7}
-.b-warn{background:rgba(245,158,11,.14);color:#fcd34d}
-.b-live{background:rgba(16,185,129,.14);color:#6ee7b7}
-.b-next{background:rgba(99,102,241,.16);color:#a5b4fc}
-.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.badge{--c:var(--gray);display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;
+  background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c);color:color-mix(in srgb,var(--c) 66%,var(--text))}
+.b-trial{--c:var(--orange)} .b-business{--c:var(--violet)} .b-pro{--c:var(--blue)} .b-expired{--c:var(--red)} .b-free{--c:var(--gray)}
+.b-ok{--c:var(--green)} .b-warn{--c:var(--orange)} .b-live{--c:var(--green)} .b-next{--c:var(--indigo)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor}
 
 /* جداول */
-.table-wrap{overflow:auto;border-radius:12px;border:1px solid var(--line)}
-table{width:100%;border-collapse:collapse;font-size:13.5px}
-th{text-align:center;font-size:12px;color:var(--muted);font-weight:700;padding:12px 14px;background:var(--card2);white-space:nowrap;position:sticky;top:0}
-td{padding:13px 16px;border-top:1px solid var(--line);vertical-align:middle;text-align:center}
+.table-wrap,.tbl-wrap{overflow:auto;border-radius:14px;border:1px solid var(--line)}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px}
+th{text-align:center;font-size:12px;color:var(--muted);font-weight:600;padding:11px 13px;background:var(--th);white-space:nowrap;
+  position:sticky;top:0;z-index:1;border-bottom:1px solid var(--line)}
+td{padding:12px 13px;border-top:1px solid var(--line);vertical-align:middle;text-align:center}
+tbody tr:first-child td{border-top:0}
 th:first-child,td:first-child,th.t,td.t{text-align:right}
 td{white-space:nowrap} td.t:not(:first-child){white-space:normal}
 .table-wrap>table{min-width:760px}
 .drawer .table-wrap>table{min-width:0}
-.drawer td,.drawer th{padding:11px 10px}
+.drawer td,.drawer th{padding:10px 10px}
 .who b,.who span{white-space:nowrap}
 td.num,th.num{direction:rtl;unicode-bidi:normal}
 td .who{display:inline-block;text-align:inherit}
 td .badge{margin:0 auto}
-th{padding:13px 16px}
-tr.click{cursor:pointer;transition:.12s}
+tr.click{cursor:pointer}
+tr.click td{transition:background .15s}
 tr.click:hover td{background:var(--rowhover)}
-.who b{display:block;font-weight:700}
+.who b{display:block;font-weight:600}
 .who span{display:block;font-size:12px;color:var(--muted)}
-.empty{text-align:center;color:var(--muted);padding:40px 10px}
+.who span.badge{display:inline-flex;vertical-align:1px;font-size:10.5px;padding:1px 7px;margin-right:4px;color:var(--c);color:color-mix(in srgb,var(--c) 66%,var(--text))}
+.empty{text-align:center;color:var(--muted);padding:36px 10px}
 
 /* فلاتر */
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-.chip{border:1px solid var(--line);background:var(--card);color:var(--muted);padding:7px 14px;border-radius:30px;font-weight:600;font-size:13px}
-.chip:hover{color:var(--text)}
-.chip.on{background:var(--blue2);border-color:var(--blue2);color:#fff}
-.chip .c{opacity:.7;margin-right:4px}
+.chip{border:0;background:var(--fill2);color:var(--text2);padding:7px 14px;border-radius:999px;font-weight:500;font-size:13px;
+  transition:background .2s,color .2s,transform .18s var(--ease)}
+.chip:hover{background:var(--fill);color:var(--text)}
+.chip:active{transform:scale(.96)}
+.chip.on{background:var(--text);color:var(--bg2);font-weight:600}
+.chip .c{margin-right:6px;opacity:.6;font-size:11.5px;font-variant-numeric:tabular-nums}
 
-/* درج التفاصيل */
-.overlay{position:fixed;inset:0;background:rgba(2,6,23,.6);backdrop-filter:blur(3px);z-index:40;opacity:0;pointer-events:none;transition:.2s}
+/* ═══ درج المستخدم: لوح زجاجي عائم ═══ */
+.overlay{position:fixed;inset:0;background:var(--ovl);z-index:40;opacity:0;pointer-events:none;transition:opacity .4s var(--ease)}
 .overlay.on{opacity:1;pointer-events:auto}
-.drawer{position:fixed;top:0;bottom:0;left:0;width:min(560px,100%);background:var(--bg2);border-right:1px solid var(--line);
-  z-index:41;transform:translateX(-102%);transition:transform .28s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;box-shadow:var(--shadow)}
-.drawer.on{transform:none}
-.drawer-head{padding:22px 24px;border-bottom:1px solid var(--line);display:flex;gap:14px;align-items:center}
-.drawer-body{padding:20px 24px;overflow:auto;flex:1}
-.drawer-head .avatar{width:48px;height:48px;font-size:19px}
+.drawer{position:fixed;top:12px;bottom:12px;left:12px;width:min(560px,calc(100% - 24px));z-index:41;display:flex;flex-direction:column;overflow:hidden;
+  background:var(--glass2);-webkit-backdrop-filter:saturate(180%) blur(40px);backdrop-filter:saturate(180%) blur(40px);
+  border:1px solid var(--gedge);border-radius:26px;box-shadow:var(--sh-lg),inset 0 1px 0 var(--ghi);
+  transform:translateX(calc(-100% - 40px));opacity:.6;transition:transform .6s var(--spring),opacity .4s var(--ease)}
+.drawer.on{transform:none;opacity:1}
+.drawer.wide{width:min(980px,calc(100% - 24px))}
+.drawer-head{padding:20px 22px 16px;display:flex;gap:14px;align-items:center}
+.drawer-body{padding:14px 22px 26px;overflow:auto;flex:1}
+.drawer-head .avatar{width:52px;height:52px;font-size:20px}
+.dh-t{font-size:19px;font-weight:700;line-height:1.3}
+.dh-s{color:var(--muted);font-size:12.5px;margin-top:1px}
 .kv{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
-.kv div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px}
-.kv b{display:block;font-size:17px;font-weight:800}
+.kv.k3{grid-template-columns:repeat(3,1fr)} .kv.k4{grid-template-columns:repeat(4,1fr)}
+.kv>div{background:var(--card);border:1px solid var(--edge);border-radius:14px;padding:12px 14px;box-shadow:var(--sh-card)}
+.drawer .kv>div{background:var(--tile)}
+.kv b{display:block;font-size:20px;font-weight:650;line-height:1.3}
 .kv span{font-size:12px;color:var(--muted)}
-.section-t{font-size:13px;font-weight:800;color:var(--muted);margin:20px 0 10px;display:flex;align-items:center;gap:8px}
-.checks li{list-style:none;display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+.kv small,.hl small,.htot small{font-size:.68em;color:var(--muted);font-weight:500}
+.section-t{font-size:13px;font-weight:600;color:var(--muted);margin:22px 4px 10px;display:flex;align-items:center;gap:8px}
+.checks li{list-style:none;display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
 .checks li:last-child{border:0}
-.ci{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:12px;font-weight:800}
-.ci.ok{background:rgba(16,185,129,.18);color:#6ee7b7}.ci.no{background:rgba(239,68,68,.16);color:#fca5a5}.ci.wa{background:rgba(245,158,11,.16);color:#fcd34d}
+.drawer .checks{background:var(--tile);border:1px solid var(--edge);border-radius:14px;padding:2px 14px}
+.ci{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:11.5px;font-weight:700}
+.ci.ok{background:color-mix(in srgb,var(--green) 16%,transparent);color:color-mix(in srgb,var(--green) 70%,var(--text))}
+.ci.no{background:color-mix(in srgb,var(--red) 14%,transparent);color:color-mix(in srgb,var(--red) 75%,var(--text))}
+.ci.wa{background:color-mix(in srgb,var(--orange) 16%,transparent);color:color-mix(in srgb,var(--orange) 70%,var(--text))}
+.drawer .card{background:var(--tile);box-shadow:none}
+
+/* حلقات الصحّة — بروح حلقات النشاط */
+.aring{position:relative;width:64px;height:64px;flex:none}
+.aring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.aring circle,.rings circle{fill:none;stroke-linecap:round}
+.aring circle{stroke-width:7}
+.rings circle{stroke-width:10}
+.aring .trk,.rings .trk{opacity:.16}
+.aring .arc,.rings .arc{stroke-dashoffset:var(--off);animation:ringIn 1.25s var(--ease) .12s both}
+.aring b{position:absolute;inset:0;display:grid;place-items:center;font-size:18px;font-weight:700}
+.hcard{display:flex;align-items:center;gap:24px;background:var(--tile);border:1px solid var(--edge);border-radius:18px;padding:16px 20px}
+.rings{width:128px;height:128px;transform:rotate(-90deg);flex:none}
+.hleg{flex:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 28px}
+.hl{display:flex;flex-direction:column;gap:2px;min-width:0}
+.hl span{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);font-weight:500}
+.hl i{width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}
+.hl b{font-size:22px;font-weight:650;line-height:1.2;color:var(--c);color:color-mix(in srgb,var(--c) 78%,var(--text))}
+.htot{grid-column:1/-1;padding-top:10px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted)}
+.htot b{font-size:17px;color:var(--text);font-weight:700}
 
 /* نماذج */
 .row{display:flex;gap:12px}.row>*{flex:1}
-.seg{display:flex;background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:3px;gap:3px}
-.seg button{flex:1;border:0;background:transparent;color:var(--muted);padding:8px;border-radius:8px;font-weight:700}
-.seg button.on{background:var(--card);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.25)}
-.switch{position:relative;width:44px;height:24px;flex:none}
+.seg{position:relative;display:flex;background:var(--fill2);border-radius:10px;padding:2px;gap:2px}
+.seg>button{position:relative;z-index:1;flex:1;border:0;background:transparent;color:var(--text2);padding:6px 12px;border-radius:8px;font-weight:500;font-size:13px;transition:color .2s}
+.seg>button.on{background:var(--seg-on);box-shadow:var(--seg-sh);color:var(--text);font-weight:600}
+.thumb{position:absolute;top:0;left:0;z-index:0;pointer-events:none;opacity:0;background:var(--seg-on);box-shadow:var(--seg-sh);border-radius:8px}
+.thumb.ready{transition:transform .45s var(--spring),width .45s var(--spring),height .45s var(--spring),opacity .2s}
+.has-thumb>button.on{background:transparent!important;box-shadow:none!important}
+.switch{position:relative;width:46px;height:28px;flex:none;display:inline-block}
 .switch input{display:none}
-.switch span{position:absolute;inset:0;background:var(--track);border-radius:20px;transition:.2s}
-.switch span::after{content:"";position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+.switch span{position:absolute;inset:0;background:var(--track);border-radius:999px;transition:background .25s;cursor:pointer}
+.switch span::after{content:"";position:absolute;top:2px;right:2px;width:24px;height:24px;border-radius:50%;background:#fff;
+  box-shadow:0 2px 5px rgba(0,0,0,.18),0 0 1px rgba(0,0,0,.12);transition:transform .35s var(--spring)}
 .switch input:checked+span{background:var(--green)}
-.switch input:checked+span::after{transform:translateX(-20px)}
+.switch input:checked+span::after{transform:translateX(-18px)}
 .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
-.preview-box{background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(6,182,212,.08));border:1px solid rgba(16,185,129,.3);
-  border-radius:12px;padding:12px 14px;font-weight:700;text-align:center;margin:12px 0}
-.form-actions{display:flex;gap:10px;justify-content:flex-start;margin-top:16px;flex-wrap:wrap}
+.preview-box{background:color-mix(in srgb,var(--green) 10%,transparent);border:1px solid color-mix(in srgb,var(--green) 26%,transparent);
+  border-radius:12px;padding:12px 14px;font-weight:600;text-align:center;margin:12px 0}
+.form-actions{display:flex;gap:10px;justify-content:flex-start;margin-top:16px;flex-wrap:wrap;align-items:center}
 
-/* هاتف معاينة */
-.phone{width:280px;margin:auto;background:#000;border-radius:38px;padding:12px;border:1px solid #2a3657;box-shadow:var(--shadow)}
-.phone .scr{background:linear-gradient(160deg,#1e1b4b,#0f766e);border-radius:28px;height:430px;padding:46px 12px 12px;position:relative}
-.phone .time{position:absolute;top:14px;left:0;right:0;text-align:center;color:#fff;font-weight:700;font-size:13px}
-.notif{background:rgba(255,255,255,.95);color:#0f172a;border-radius:16px;padding:11px 12px;display:flex;gap:10px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
-.notif .ap{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--indigo));display:grid;place-items:center;flex:none}
+/* هاتف معاينة — بشكل iPhone */
+.phone{width:268px;margin:auto;background:#0B0B0C;border-radius:46px;padding:10px;box-shadow:0 0 0 2px #2C2C2E,0 22px 50px rgba(0,0,0,.22)}
+.phone .scr{background:linear-gradient(165deg,#2B5876 0%,#4E4376 52%,#B06AB3 100%);border-radius:37px;height:440px;padding:150px 12px 12px;position:relative;overflow:hidden}
+.phone .scr::before{content:"";position:absolute;top:11px;left:50%;transform:translateX(-50%);width:90px;height:26px;background:#000;border-radius:20px}
+.phone .time{position:absolute;top:52px;left:0;right:0;text-align:center;color:rgba(255,255,255,.94);font-weight:600;font-size:46px;line-height:1}
+.notif{background:rgba(246,246,248,.74);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);color:#1D1D1F;
+  border-radius:20px;padding:11px 12px;display:flex;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);animation:drop .6s var(--spring) both}
+.notif .ap{width:36px;height:36px;border-radius:9px;background:linear-gradient(180deg,#4DA3FF,#0A6CFF);display:grid;place-items:center;flex:none}
 .notif .ap svg{width:20px;height:20px}
-.notif b{display:block;font-size:13px}.notif p{font-size:12.5px;color:#334155;line-height:1.5;word-break:break-word}
-.notif small{font-size:11px;color:#64748b}
+.notif b{display:block;font-size:13px}.notif p{font-size:12.5px;color:#3A3A3C;line-height:1.5;word-break:break-word}
+.notif small{font-size:11px;color:#6E6E73}
 
 /* شريط تقدّم */
-.bar{height:10px;background:var(--bg2);border-radius:10px;overflow:hidden;display:flex}
+.bar{height:8px;background:var(--fill);border-radius:999px;overflow:hidden;display:flex}
 .bar i{display:block;height:100%}
 .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:12.5px;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
-.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
 
 /* إشعارات منبثقة ونوافذ */
-#toasts{position:fixed;bottom:22px;left:22px;z-index:60;display:flex;flex-direction:column;gap:10px}
-.toast{background:var(--card2);border:1px solid var(--line);border-right:4px solid var(--green);padding:12px 16px;border-radius:12px;
-  box-shadow:var(--shadow);min-width:260px;max-width:380px;animation:tin .25s ease}
-.toast.err{border-right-color:var(--red)}
-@keyframes tin{from{transform:translateY(12px);opacity:0}}
-.modal{position:fixed;inset:0;display:none;place-items:center;z-index:55;background:rgba(2,6,23,.65);backdrop-filter:blur(3px);padding:20px}
-.modal.on{display:grid}
-.modal .box{background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:24px;max-width:440px;width:100%;box-shadow:var(--shadow)}
-.modal h4{font-size:17px;margin-bottom:8px}
-.modal p{color:var(--muted);margin-bottom:18px}
+#toasts{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+.toast{pointer-events:auto;background:var(--glass2);-webkit-backdrop-filter:saturate(180%) blur(30px);backdrop-filter:saturate(180%) blur(30px);
+  border:1px solid var(--gedge);color:var(--text);padding:11px 18px;border-radius:18px;box-shadow:var(--sh-lg);font-weight:500;font-size:13.5px;
+  max-width:min(560px,92vw);animation:drop .55s var(--spring) both;transition:opacity .3s,transform .3s}
+.toast.err{border-color:color-mix(in srgb,var(--red) 35%,transparent);color:color-mix(in srgb,var(--red) 80%,var(--text))}
+.toast.out{opacity:0;transform:translateY(-10px) scale(.97)}
+.modal{position:fixed;inset:0;display:none;place-items:center;z-index:55;background:var(--ovl);padding:20px}
+.modal.on{display:grid;animation:fade .25s ease both}
+.modal .box{background:var(--glass2);-webkit-backdrop-filter:saturate(180%) blur(40px);backdrop-filter:saturate(180%) blur(40px);border:1px solid var(--gedge);
+  border-radius:24px;padding:24px;max-width:430px;width:100%;box-shadow:var(--sh-lg),inset 0 1px 0 var(--ghi);animation:pop .45s var(--spring) both}
+.modal h4{font-size:17px;font-weight:700;margin-bottom:6px}
+.modal p{color:var(--muted);margin-bottom:18px;font-size:13.5px}
 
-.banner{display:flex;gap:12px;align-items:flex-start;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35);
-  color:#fde68a;border-radius:14px;padding:14px 16px;margin-bottom:18px;font-size:13.5px}
-.banner.info{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.35);color:#bfdbfe}
-.banner.red{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.35);color:#fecaca}
-.skel{background:linear-gradient(90deg,var(--card) 25%,var(--card2) 50%,var(--card) 75%);background-size:200% 100%;
-  animation:sk 1.2s infinite;border-radius:12px;min-height:110px}
-@keyframes sk{to{background-position:-200% 0}}
-.list-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
-.list-item:last-child{border:0}
+.banner{--bc:var(--orange);display:flex;gap:12px;align-items:flex-start;color:var(--text);border-radius:16px;padding:14px 16px;margin-bottom:18px;font-size:13.5px;
+  background:color-mix(in srgb,var(--bc) 9%,var(--card));border:1px solid color-mix(in srgb,var(--bc) 22%,transparent)}
+.banner>svg{width:20px;height:20px;flex:none;color:var(--bc);margin-top:1px}
+.banner.info{--bc:var(--blue)} .banner.red{--bc:var(--red)} .banner.ok{--bc:var(--green)}
+.spin-i{width:14px;height:14px;border-radius:50%;border:2px solid color-mix(in srgb,currentColor 22%,transparent);border-top-color:currentColor;
+  display:inline-block;animation:spin .8s linear infinite;vertical-align:-2px;margin-left:8px;flex:none}
+.skel{background:linear-gradient(90deg,var(--sk1) 25%,var(--sk2) 50%,var(--sk1) 75%);background-size:200% 100%;
+  animation:sk 1.4s ease-in-out infinite;border-radius:var(--r);min-height:110px}
+.list-item{display:flex;align-items:center;gap:12px;padding:10px 8px;margin:0 -8px;border-radius:12px;border-bottom:1px solid var(--line);transition:background .2s}
+.list-item:last-child{border-bottom:0}
+.list-item[data-u]:hover{background:var(--hover)}
 .list-item .avatar{width:34px;height:34px;font-size:13px}
 .list-item .grow{flex:1;min-width:0}
-.list-item b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-item b{display:block;font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .list-item span{font-size:12px;color:var(--muted)}
 .gauge{position:relative;width:180px;height:180px;margin:6px auto}
 .gauge .c{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
-.gauge .c b{font-size:30px;font-weight:800;display:block;line-height:1}
+.gauge .c b{font-size:30px;font-weight:700;display:block;line-height:1}
 .gauge .c span{font-size:12px;color:var(--muted)}
 .heat{display:grid;grid-template-columns:62px repeat(24,1fr);gap:3px;font-size:10.5px;color:var(--muted);direction:rtl}
-.heat .c{aspect-ratio:1;border-radius:4px;background:var(--card2)}
-.heat .lb{display:flex;align-items:center;font-weight:600}
+.heat .c{aspect-ratio:1;border-radius:4px;background:var(--fill2)}
+.heat .lb{display:flex;align-items:center;font-weight:500}
 .heat .hh{text-align:center}
 .funnel-row{display:grid;grid-template-columns:150px 1fr 120px;align-items:center;gap:12px;padding:8px 0}
-.funnel-row .track{height:30px;background:var(--card2);border-radius:8px;overflow:hidden}
-.funnel-row .fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--indigo),var(--blue));display:flex;align-items:center;padding:0 10px;color:#fff;font-weight:800;font-size:13px;min-width:34px}
+.funnel-row .track{height:28px;background:var(--fill2);border-radius:9px;overflow:hidden}
+.funnel-row .fill{height:100%;border-radius:9px;background:linear-gradient(180deg,#4DA3FF,var(--blue));display:flex;align-items:center;padding:0 10px;
+  color:#fff;font-weight:600;font-size:13px;min-width:34px}
 .funnel-row .pc{font-size:12px;color:var(--muted);text-align:left}
-.coh td{font-weight:700}
-.trend-up{color:var(--green);font-weight:800}.trend-down{color:var(--red);font-weight:800}
-.demo-flag{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:70;background:var(--amber);color:#1c1300;
-  font-weight:800;font-size:12px;padding:5px 14px;border-radius:20px;box-shadow:var(--shadow)}
+.coh td{font-weight:600}
+.trend-up{color:var(--green);font-weight:700}.trend-down{color:var(--red);font-weight:700}
+.demo-flag{position:fixed;bottom:16px;left:16px;z-index:70;background:var(--glass2);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  border:1px solid var(--gedge);color:var(--text);font-weight:600;font-size:12px;padding:6px 14px;border-radius:999px;box-shadow:var(--sh)}
 
 /* ═══ اللوحة الاحترافية ═══ */
-nav{overflow:auto;flex:1;min-height:0;margin-bottom:8px}
-.period{width:auto;flex:none} .period button{padding:6px 12px;font-size:12.5px;flex:none}
+.period{width:auto;flex:none} .period>button{padding:5px 12px;font-size:12.5px;flex:none}
 .kd{margin-top:8px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap} .kd span{color:var(--dim)}
-.dl{font-weight:800;font-size:11.5px;padding:2px 8px;border-radius:20px;background:var(--card2);color:var(--muted)}
-.dl.up{background:rgba(16,185,129,.14);color:#34d399} .dl.down{background:rgba(239,68,68,.13);color:#f87171}
-[data-theme=light] .dl.up{color:#047857} [data-theme=light] .dl.down{color:#b91c1c}
+.dl{font-weight:600;font-size:11.5px;padding:2px 8px;border-radius:999px;background:var(--fill2);color:var(--muted)}
+.dl.up{background:color-mix(in srgb,var(--green) 14%,transparent);color:color-mix(in srgb,var(--green) 72%,var(--text))}
+.dl.down{background:color-mix(in srgb,var(--red) 12%,transparent);color:color-mix(in srgb,var(--red) 75%,var(--text))}
 .alerts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.al{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;color:var(--text);transition:.15s}
-.al:hover{border-color:var(--line2);transform:translateY(-1px)}
-.al b{font-size:22px;font-weight:800;min-width:46px;text-align:center}
+.al{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--edge);border-radius:16px;padding:14px 16px;color:var(--text);
+  box-shadow:var(--sh-card);transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
+.al:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+.al b{font-size:24px;font-weight:650;min-width:46px;text-align:center;color:var(--c,var(--text));color:color-mix(in srgb,var(--c,var(--text)) 80%,var(--text))}
 .al span{font-size:12.5px;color:var(--muted);line-height:1.45}
-.al.zero{opacity:.5}
+.al.zero{opacity:.55} .al.zero b{color:var(--dim)}
 .hb{display:flex;align-items:center;gap:8px;justify-content:center}
-.hb-t{width:64px;height:7px;background:var(--card2);border-radius:6px;overflow:hidden} .hb-t i{display:block;height:100%;border-radius:6px}
-.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);padding:0 20px;overflow:auto;flex:none}
-.tabs button{border:0;background:none;color:var(--muted);font-weight:700;padding:12px 12px;border-bottom:2px solid transparent;white-space:nowrap;font-size:13.5px}
-.tabs button:hover{color:var(--text)} .tabs button.on{color:var(--text);border-bottom-color:var(--blue)}
-.drawer.wide{width:min(980px,100%)}
-.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px} .toolbar input{max-width:300px;background:var(--card)} .toolbar .grow{flex:1}
-th[data-k]{cursor:pointer;user-select:none} th[data-k]:hover{color:var(--text)} th .ar{margin-right:4px;color:var(--blue)}
-.abar{display:grid;grid-template-columns:minmax(150px,210px) 1fr 96px;gap:12px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line)}
-.abar:last-child{border:0} .abar .tr{height:11px;background:var(--card2);border-radius:8px;overflow:hidden} .abar .tr i{display:block;height:100%;border-radius:8px}
-.abar b{font-size:13px} .abar .v{font-size:12.5px;color:var(--muted);text-align:left}
+.hb-t{width:64px;height:6px;background:var(--fill);border-radius:999px;overflow:hidden} .hb-t i{display:block;height:100%;border-radius:999px}
+.tabs{position:relative;display:flex;gap:2px;margin:0 22px 2px;padding:3px;background:var(--fill2);border-radius:12px;overflow:auto;flex:none;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs>button{position:relative;z-index:1;border:0;background:none;color:var(--text2);font-weight:500;padding:7px 14px;border-radius:9px;white-space:nowrap;font-size:13px;transition:color .2s}
+.tabs>button:hover{color:var(--text)} .tabs>button.on{color:var(--text);font-weight:600;background:var(--seg-on);box-shadow:var(--seg-sh)}
+.tabs .thumb{border-radius:9px}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.toolbar input{max-width:320px;height:36px;padding-block:0;border-radius:999px} .toolbar .grow{flex:1}
+th[data-k]{cursor:pointer;user-select:none;transition:color .15s} th[data-k]:hover{color:var(--text)} th .ar{margin-right:4px;color:var(--accent)}
+.abar{display:grid;grid-template-columns:minmax(104px,1.15fr) minmax(56px,2fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.abar:last-child{border:0} .abar .tr{height:8px;background:var(--fill2);border-radius:999px;overflow:hidden} .abar .tr i{display:block;height:100%;border-radius:999px}
+.abar b{font-size:13px;font-weight:500} .abar .v{font-size:12.5px;color:var(--muted);text-align:left;white-space:nowrap;min-width:64px}
 .ring{border-radius:50%;display:grid;place-items:center;flex:none}
 .ring>div{border-radius:50%;background:var(--bg2);display:grid;place-items:center;text-align:center}
-.note{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.note{background:var(--tile);border:1px solid var(--edge);border-radius:14px;padding:12px 14px;margin-bottom:10px}
 .note p{white-space:pre-wrap;font-size:13.5px;word-break:break-word} .note small{color:var(--muted);font-size:11.5px}
 .soon{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.pill{display:inline-block;padding:1px 8px;border-radius:20px;background:var(--card2);color:var(--muted);font-size:11px;font-weight:700}
-.chip .c{margin-right:6px;opacity:.75;font-size:11.5px}
-@media (max-width:1200px){.alerts{grid-template-columns:repeat(2,1fr)}.soon{grid-template-columns:1fr 1fr}}
-@media (max-width:900px){.period{display:none}}
-@media (max-width:560px){.alerts{grid-template-columns:1fr}.abar{grid-template-columns:110px 1fr 74px}.soon{grid-template-columns:1fr}.drawer .kv{grid-template-columns:1fr 1fr!important}}
+.soon .sc-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;margin-bottom:12px;color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.soon .sc-ic svg{width:18px;height:18px}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--fill);color:var(--muted);font-size:11px;font-weight:600}
 
-@media (max-width:1200px){.g4{grid-template-columns:repeat(2,1fr)}.g21{grid-template-columns:1fr}}
+/* ═══ الحركة ═══ */
+@keyframes rise{from{opacity:0;transform:translateY(12px)}}
+@keyframes fillw{from{width:0}}
+@keyframes pop{from{opacity:0;transform:scale(.94)}}
+@keyframes fade{from{opacity:0}}
+@keyframes drop{from{opacity:0;transform:translateY(-14px) scale(.96)}}
+@keyframes sk{to{background-position:-200% 0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes ringIn{from{stroke-dashoffset:var(--c0)}}
+#view.anim>*{animation:rise .65s var(--ease) both}
+#view.anim>*:nth-child(2){animation-delay:.06s} #view.anim>*:nth-child(3){animation-delay:.12s} #view.anim>*:nth-child(4){animation-delay:.18s}
+#view.anim>*:nth-child(5){animation-delay:.24s} #view.anim>*:nth-child(6){animation-delay:.3s} #view.anim>*:nth-child(n+7){animation-delay:.36s}
+#view.anim .grid>*,#view.anim .alerts>*{animation:rise .65s var(--ease) both}
+#view.anim .grid>*:nth-child(2),#view.anim .alerts>*:nth-child(2){animation-delay:.05s}
+#view.anim .grid>*:nth-child(3),#view.anim .alerts>*:nth-child(3){animation-delay:.1s}
+#view.anim .grid>*:nth-child(4),#view.anim .alerts>*:nth-child(4){animation-delay:.15s}
+#view.anim .alerts>*:nth-child(n+5){animation-delay:.2s}
+#view.anim .abar .tr i,#view.anim .hb-t i,#view.anim .bar i,#view.anim .funnel-row .fill{animation:fillw 1.1s var(--ease) .15s both}
+.drawer-body>*{animation:rise .5s var(--ease) both}
+.drawer-body>*:nth-child(2){animation-delay:.04s} .drawer-body>*:nth-child(3){animation-delay:.08s} .drawer-body>*:nth-child(n+4){animation-delay:.12s}
+.drawer-body .abar .tr i,.drawer-body .bar i{animation:fillw 1s var(--ease) .15s both}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
+
+@media (max-width:1200px){.g4{grid-template-columns:repeat(2,1fr)}.g21{grid-template-columns:1fr}.alerts{grid-template-columns:repeat(2,1fr)}.soon{grid-template-columns:1fr 1fr}
+  .strip{grid-template-columns:repeat(2,1fr)} .strip .si:nth-child(3){border-right:0} .strip .si:nth-child(n+3){border-top:1px solid var(--line)}}
 @media (max-width:900px){
-  aside{transform:translateX(100%);transition:.25s}
+  aside{transform:translateX(calc(100% + 24px));transition:transform .45s var(--spring)}
   aside.on{transform:none}
-  main{margin-right:0;padding:18px 16px 50px}
+  main{margin-right:0;padding:8px 10px 50px}
   .burger{display:inline-flex}
-  .search{width:auto;flex:1}
+  .search{width:auto;flex:1;min-width:0}
   .g3,.g2{grid-template-columns:1fr}
-  .topbar h2{font-size:20px}
+  .topbar{top:8px;padding-inline-start:8px} .topbar h2{font-size:17px} .topbar .crumb{display:none}
+  .period{display:none}
+  .drawer,.drawer.wide{top:8px;bottom:8px;left:8px;width:calc(100% - 16px)}
+  .kv.k3,.kv.k4{grid-template-columns:repeat(2,1fr)}
 }
-@media (max-width:560px){.g4{grid-template-columns:1fr 1fr}.kpi .v{font-size:22px}}
+@media (max-width:560px){.g4{grid-template-columns:1fr 1fr}.kpi .v{font-size:24px}.alerts{grid-template-columns:1fr}.abar{grid-template-columns:96px 1fr auto}
+  .soon{grid-template-columns:1fr}.drawer .kv{grid-template-columns:1fr 1fr!important}.hcard{flex-direction:column;align-items:stretch}.rings{margin:auto}
+  .strip{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -324,7 +443,7 @@ th[data-k]{cursor:pointer;user-select:none} th[data-k]:hover{color:var(--text)} 
 <!-- ═══ تسجيل الدخول ═══ -->
 <section id="login">
   <div class="login-card">
-    <button class="btn ghost theme-btn" id="btnTheme2" style="float:left;margin:-14px -10px 0 0"></button>
+    <button class="btn theme-btn" id="btnTheme2" style="float:left;margin:-12px -8px 0 0" aria-label="المظهر"></button>
     <div class="brand">
       <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"/><path d="M22 5h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"/></svg></div>
       <div><h1>الدفتر</h1><small>لوحة التحكم</small></div>
@@ -338,7 +457,7 @@ th[data-k]{cursor:pointer;user-select:none} th[data-k]:hover{color:var(--text)} 
       <input id="lPass" type="password" dir="ltr" autocomplete="current-password">
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px">
-      <button class="btn primary" id="btnMagic" style="justify-content:center">✉️ أرسل رابط الدخول إلى بريدي</button>
+      <button class="btn primary" id="btnMagic" style="justify-content:center">أرسل رابط الدخول إلى بريدي</button>
       <button class="btn" id="btnPw" style="justify-content:center">الدخول بكلمة المرور</button>
     </div>
     <div class="or">أو</div>
@@ -360,19 +479,19 @@ th[data-k]{cursor:pointer;user-select:none} th[data-k]:hover{color:var(--text)} 
     <nav id="nav"></nav>
     <div class="side-foot">
       <div class="me"><div class="avatar" id="meAv">م</div><div style="min-width:0"><b id="meName">المشرف</b><span id="meMail"></span></div></div>
-      <button class="btn ghost sm" id="btnOut" style="width:100%;justify-content:center">تسجيل الخروج</button>
+      <button class="btn ghost sm signout" id="btnOut" style="width:100%;justify-content:center">تسجيل الخروج</button>
     </div>
   </aside>
   <main>
     <div class="topbar">
-      <button class="btn sm burger" id="burger">☰</button>
-      <div><h2 id="title">الرئيسية</h2><div class="crumb" id="crumb"></div></div>
+      <button class="btn icon-btn burger" id="burger" aria-label="القائمة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <div style="min-width:0"><h2 id="title">الرئيسية</h2><div class="crumb" id="crumb"></div></div>
       <div class="grow"></div>
-      <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input id="gSearch" placeholder="ابحث عن مستخدم: اسم، متجر، بريد، رقم…"></div>
       <div class="seg period" id="period" title="الفترة الزمنيّة للتحليلات"><button data-d="7">7 أيام</button><button data-d="30">30 يوماً</button><button data-d="90">90 يوماً</button></div>
-      <button class="btn sm theme-btn" id="btnTheme"></button>
-      <button class="btn sm" id="btnRefresh" title="تحديث">⟳ تحديث</button>
+      <button class="btn theme-btn" id="btnTheme" aria-label="المظهر"></button>
+      <button class="btn icon-btn" id="btnRefresh" title="تحديث" aria-label="تحديث"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12a8.5 8.5 0 1 1-2.5-6"/><path d="M20.5 3.5V9H15"/></svg></button>
     </div>
     <div id="view"></div>
   </main>
@@ -420,7 +539,8 @@ const ERR = {
 function errText(e){ const m = e?.message || String(e); for (const k in ERR) if (m.includes(k)) return ERR[k];
   if (/function .* does not exist|Could not find the function/i.test(m)) return 'دالّة غير موجودة في القاعدة — شغّل ملف SQL الخاصّ باللوحة';
   return m; }
-function toast(t, err){ const el=document.createElement('div'); el.className='toast'+(err?' err':''); el.textContent=t; $('#toasts').appendChild(el); setTimeout(()=>el.remove(), err?6500:3800); }
+function toast(t, err){ const el=document.createElement('div'); el.className='toast'+(err?' err':''); el.textContent=t; $('#toasts').appendChild(el);
+  setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(), 350); }, err?6500:3800); }
 function confirmBox(title, text, okLabel='تأكيد', danger=false){
   return new Promise(res=>{ $('#modalBox').innerHTML=`<h4>${esc(title)}</h4><p>${text}</p><div class="form-actions"><button class="btn ${danger?'danger':'primary'}" id="mOk">${esc(okLabel)}</button><button class="btn ghost" id="mNo">إلغاء</button></div>`;
     $('#modal').classList.add('on'); $('#mOk').onclick=()=>{$('#modal').classList.remove('on');res(true)}; $('#mNo').onclick=()=>{$('#modal').classList.remove('on');res(false)}; });
@@ -478,25 +598,33 @@ const STATUS = {
 const statusBadge = s => { const [t,c]=STATUS[s]||STATUS.free; return `<span class="badge ${c}"><i class="dot"></i>${t}</span>`; };
 
 /* ═══ الرسوم ═══ */
-Chart.defaults.font.family = 'Cairo'; Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Arabic", "Segoe UI", system-ui, "Noto Sans Arabic", Tahoma, sans-serif'; Chart.defaults.plugins.legend.labels.usePointStyle = true;
 Chart.defaults.plugins.tooltip.rtl = true; Chart.defaults.plugins.tooltip.padding = 10;
 Chart.defaults.plugins.tooltip.borderWidth = 1;
 const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 function chartTheme(){
-  Chart.defaults.color = cssVar('--muted');
-  Chart.defaults.borderColor = cssVar('--line');
-  Chart.defaults.plugins.tooltip.backgroundColor = cssVar('--bg2');
-  Chart.defaults.plugins.tooltip.titleColor = cssVar('--text');
-  Chart.defaults.plugins.tooltip.bodyColor = cssVar('--text');
-  Chart.defaults.plugins.tooltip.borderColor = cssVar('--line');
+  const D = Chart.defaults, dark = document.documentElement.dataset.theme === 'dark';
+  D.color = cssVar('--muted'); D.borderColor = cssVar('--line'); D.font.size = 11.5;
+  Object.assign(D.plugins.tooltip, {backgroundColor: dark ? 'rgba(44,44,46,.96)' : 'rgba(255,255,255,.97)', titleColor: cssVar('--text'), bodyColor: cssVar('--text2'),
+    borderColor: dark ? 'rgba(255,255,255,.1)' : 'rgba(0,0,0,.08)', borderWidth: 1, cornerRadius: 12, padding: 10, caretSize: 6, boxPadding: 4, usePointStyle: true,
+    titleFont: {weight: '600', size: 12.5}, bodyFont: {size: 12.5}});
+  Object.assign(D.plugins.legend.labels, {usePointStyle: true, pointStyle: 'circle', boxWidth: 7, boxHeight: 7, padding: 16});
+  if (D.elements) { Object.assign(D.elements.line, {borderWidth: 2.25, tension: .38}); Object.assign(D.elements.point, {radius: 0, hoverRadius: 5, hoverBorderWidth: 2});
+    D.elements.bar.borderRadius = 6; Object.assign(D.elements.arc, {borderRadius: 6, borderWidth: 0}); }
+  if (D.datasets && D.datasets.doughnut) D.datasets.doughnut.spacing = 2;
+  if (D.scale) { D.scale.border.display = false; D.scale.ticks.padding = 8; D.scale.grid.color = cssVar('--line'); }
+  if (D.animation) { D.animation.duration = 900; D.animation.easing = 'easeOutQuart'; }
 }
 /* ═══ الوضع الليلي/النهاري ═══ */
 function getTheme(){ try { const t = localStorage.getItem('daftar-admin-theme'); if (t) return t; } catch(e){}
   return matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; }
+const SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></svg>';
+const MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.3A8.5 8.5 0 0 1 9.7 3.5a8.5 8.5 0 1 0 10.8 10.8z"/></svg>';
 function applyTheme(t){ document.documentElement.dataset.theme = t; chartTheme();
-  $$('.theme-btn').forEach(b => { b.textContent = t === 'light' ? '🌙' : '☀️'; b.title = t === 'light' ? 'الوضع الليلي' : 'الوضع النهاري'; }); }
+  $$('.theme-btn').forEach(b => { b.innerHTML = t === 'light' ? MOON : SUN; b.title = t === 'light' ? 'الوضع الليلي' : 'الوضع النهاري'; }); }
 function toggleTheme(){ const t = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
   try { localStorage.setItem('daftar-admin-theme', t); } catch(e){}
+  const h = document.documentElement; h.classList.add('theming'); clearTimeout(toggleTheme._t); toggleTheme._t = setTimeout(() => h.classList.remove('theming'), 520);
   applyTheme(t); if ($('#shell').style.display === 'block') route(); }
 let charts = [];
 function chart(id, cfg){ const el = document.getElementById(id); if(!el) return; const c = new Chart(el, cfg); charts.push(c); return c; }
@@ -516,9 +644,13 @@ async function route(){
   $('#title').textContent = v.t; $('#crumb').textContent = '';
   charts.forEach(c => c.destroy()); charts = [];
   $('#side').classList.remove('on');
-  $('#view').innerHTML = `<div class="grid g4">${'<div class="skel"></div>'.repeat(4)}</div><div class="skel" style="margin-top:16px;min-height:300px"></div>`;
+  const vw = $('#view'); clearTimeout(route._t); vw.classList.add('anim'); $('#btnRefresh').classList.add('busy');
+  vw.innerHTML = `<div class="grid g4">${'<div class="skel"></div>'.repeat(4)}</div><div class="skel" style="margin-top:16px;min-height:300px"></div>`;
   try { await RENDER[v.id](); }
-  catch(e){ console.error(e); $('#view').innerHTML = `<div class="banner red">⚠️ <div><b>تعذّر التحميل</b><br>${esc(errText(e))}</div></div>`; }
+  catch(e){ console.error(e); vw.innerHTML = `<div class="banner red">${ico('warn')}<div><b>تعذّر التحميل</b><br>${esc(errText(e))}</div></div>`; }
+  $('#btnRefresh').classList.remove('busy');
+  countUp(vw); syncAllThumbs();
+  route._t = setTimeout(() => vw.classList.remove('anim'), 1400);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -533,16 +665,16 @@ RENDER.home = async () => {
   const dbPct = Math.round(100 * (k.db_bytes||0) / (500*1024*1024));
   $('#view').innerHTML = `
   <div class="grid g4">
-    ${kpi(n0(k.users),'إجمالي المستخدمين','users','#3b82f6', `<span class="d b-ok badge">+${n0(k.new_7d)} هذا الأسبوع</span>`)}
-    ${kpi(n0(k.merchants),'التجّار','store','#8b5cf6', `<span class="d badge b-next">${n0(k.active_merchants_7d)} نشط</span>`)}
-    ${kpi(n0(k.paid),'مشتركون يدفعون','star','#10b981', `<span class="d badge b-trial">${n0(k.trial)} تجربة${k.gift?` · ${n0(k.gift)} منحة`:''}</span>`)}
-    ${kpi(usd(k.mrr_usd),'الدخل الشهري المتكرر','money','#f59e0b', `<span class="d badge b-ok">${usd(k.revenue_month)} هذا الشهر</span>`)}
+    ${kpi(n0(k.users),'إجمالي المستخدمين','users','#0A84FF', `<span class="d b-ok badge">+${n0(k.new_7d)} هذا الأسبوع</span>`)}
+    ${kpi(n0(k.merchants),'التجّار','store','#AF52DE', `<span class="d badge b-next">${n0(k.active_merchants_7d)} نشط</span>`)}
+    ${kpi(n0(k.paid),'مشتركون يدفعون','star','#34C759', `<span class="d badge b-trial">${n0(k.trial)} تجربة${k.gift?` · ${n0(k.gift)} منحة`:''}</span>`)}
+    ${kpi(usd(k.mrr_usd),'الدخل الشهري المتكرر','money','#FF9F0A', `<span class="d badge b-ok">${usd(k.revenue_month)} هذا الشهر</span>`)}
   </div>
   <div class="grid g4" style="margin-top:16px">
-    ${kpi(n0(k.clients),'زبائن لهم حساب في التطبيق','person','#06b6d4')}
-    ${kpi(n0(k.customers),'زبائن مسجّلون في الدفاتر','users','#ec4899')}
-    ${kpi(n0(k.transactions),'العمليّات الكلّيّة','tx','#6366f1', `<span class="d badge b-pro">+${n0(k.transactions_7d)} أسبوعياً</span>`)}
-    ${kpi(dbPct+'%','من سعة القاعدة (500 ميغا)','db', dbPct>70?'#ef4444':'#10b981', `<span class="d badge ${dbPct>70?'b-expired':'b-ok'}"><span class="num">${bytes(k.db_bytes)}</span></span>`)}
+    ${kpi(n0(k.clients),'زبائن لهم حساب في التطبيق','person','#32ADE6')}
+    ${kpi(n0(k.customers),'زبائن مسجّلون في الدفاتر','users','#FF2D55')}
+    ${kpi(n0(k.transactions),'العمليّات الكلّيّة','tx','#5E5CE6', `<span class="d badge b-pro">+${n0(k.transactions_7d)} أسبوعياً</span>`)}
+    ${kpi(dbPct+'%','من سعة القاعدة (500 ميغا)','db', dbPct>70?'#FF3B30':'#34C759', `<span class="d badge ${dbPct>70?'b-expired':'b-ok'}"><span class="num">${bytes(k.db_bytes)}</span></span>`)}
   </div>
   <div class="grid g21" style="margin-top:16px">
     <div class="card"><div class="card-head"><div><h3>التسجيلات — آخر 30 يوماً</h3><div class="hint">تجّار وزبائن جدد يومياً</div></div></div><div class="chart-box"><canvas id="cSign"></canvas></div></div>
@@ -553,25 +685,25 @@ RENDER.home = async () => {
     <div class="card"><h3>الإيرادات — آخر 6 أشهر</h3><div class="hint">من سجل الاشتراكات الفعلي</div><div class="chart-box sm"><canvas id="cRev"></canvas></div></div>
   </div>
   <div class="grid g2" style="margin-top:16px">
-    <div class="card"><h3>⏳ تنتهي خلال 7 أيام</h3><div class="hint">راسلهم قبل أن يتحوّل حسابهم للقراءة فقط</div><div id="lEnd"></div></div>
-    <div class="card"><h3>🆕 آخر من سجّل</h3><div class="hint">انقر لفتح التفاصيل</div><div id="lRecent"></div></div>
+    <div class="card"><h3>تنتهي خلال 7 أيام</h3><div class="hint">راسلهم قبل أن يتحوّل حسابهم للقراءة فقط</div><div id="lEnd"></div></div>
+    <div class="card"><h3>آخر من سجّل</h3><div class="hint">انقر لفتح التفاصيل</div><div id="lRecent"></div></div>
   </div>`;
 
   const s = d.signups_30d || [];
   chart('cSign', {type:'bar', data:{labels:s.map(x=>shortDay(x.d)), datasets:[
-    {label:'تجّار', data:s.map(x=>x.merchants), backgroundColor:'#8b5cf6', borderRadius:6, stack:'a'},
-    {label:'زبائن', data:s.map(x=>x.clients), backgroundColor:'#06b6d4', borderRadius:6, stack:'a'}]},
+    {label:'تجّار', data:s.map(x=>x.merchants), backgroundColor:'#AF52DE', borderRadius:6, stack:'a'},
+    {label:'زبائن', data:s.map(x=>x.clients), backgroundColor:'#32ADE6', borderRadius:6, stack:'a'}]},
     options:{maintainAspectRatio:false, scales:{x:{stacked:true,grid:{display:false}}, y:{stacked:true,beginAtZero:true,ticks:{precision:0}}}}});
   const pd = d.plan_dist || {}; const keys = ['business','pro','trial','expired','free'];
   chart('cPlan', {type:'doughnut', data:{labels:keys.map(x=>STATUS[x][0]), datasets:[{data:keys.map(x=>pd[x]||0),
-    backgroundColor:['#8b5cf6','#3b82f6','#f59e0b','#ef4444','#475569'], borderWidth:0, hoverOffset:8}]},
+    backgroundColor:['#AF52DE','#0A84FF','#FF9F0A','#FF3B30','#AEAEB2'], borderWidth:0, hoverOffset:8}]},
     options:{maintainAspectRatio:false, cutout:'68%', plugins:{legend:{position:'bottom'}}}});
   const t = d.tx_30d || [];
-  chart('cTx', {type:'line', data:{labels:t.map(x=>shortDay(x.d)), datasets:[{label:'عمليّات', data:t.map(x=>x.n), borderColor:'#6366f1',
-    backgroundColor:c=>grad(c.chart.ctx,'rgba(99,102,241,.35)','rgba(99,102,241,0)'), fill:true, tension:.35, pointRadius:0, borderWidth:2.5}]},
+  chart('cTx', {type:'line', data:{labels:t.map(x=>shortDay(x.d)), datasets:[{label:'عمليّات', data:t.map(x=>x.n), borderColor:'#5E5CE6',
+    backgroundColor:c=>grad(c.chart.ctx,'rgba(94,92,230,.35)','rgba(94,92,230,0)'), fill:true, tension:.35, pointRadius:0, borderWidth:2.5}]},
     options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true,ticks:{precision:0}}}}});
   const r = d.revenue_6m || [];
-  chart('cRev', {type:'bar', data:{labels:r.map(x=>x.m), datasets:[{label:'$', data:r.map(x=>x.usd), backgroundColor:c=>grad(c.chart.ctx,'#10b981','#0d9488'), borderRadius:8}]},
+  chart('cRev', {type:'bar', data:{labels:r.map(x=>x.m), datasets:[{label:'$', data:r.map(x=>x.usd), backgroundColor:c=>grad(c.chart.ctx,'#34C759','#30B0C7'), borderRadius:8}]},
     options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true}}}});
 
   const li = u => `<div class="list-item click" data-u="${u.id}" style="cursor:pointer"><div class="avatar">${esc(initial(u.store_name||u.name))}</div><div class="grow"><b>${esc(u.store_name||u.name||'بلا اسم')}</b><span>${esc(u.name||'')}</span></div>`;
@@ -593,27 +725,27 @@ RENDER.ana = async () => {
   const ah = Number(a.activation_hours || 0);
   const actTxt = !a.activation_hours ? '—' : ah < 1 ? Math.round(ah*60)+' دقيقة' : ah < 48 ? Math.round(ah)+' ساعة' : Math.round(ah/24)+' يوم';
   const cu = a.customers || {};
-  const kpi = (v,l,c,sub='') => `<div class="card kpi" style="color:${c}"><div class="v num" style="color:var(--text)">${v}</div><div class="l">${l}</div>${sub?`<div style="font-size:11.5px;color:var(--dim);margin-top:4px">${sub}</div>`:''}</div>`;
+  const kpi = (v,l,c,sub='') => K2(v,l,c,sub);
   const f = a.funnel || []; const top = f[0]?.n || 1;
   // heatmap
   const H = {}; let hmax = 1; (a.heatmap||[]).forEach(([d,h,n]) => { H[d+'_'+h] = n; hmax = Math.max(hmax, n); });
   const heat = `<div class="heat"><div></div>${Array.from({length:24},(_,h)=>`<div class="hh">${h%3===0?h:''}</div>`).join('')}
     ${[6,0,1,2,3,4,5].map(d => `<div class="lb">${DAYS[d]}</div>${Array.from({length:24},(_,h)=>{ const n = H[d+'_'+h]||0;
-      return `<div class="c" title="${DAYS[d]} ${h}:00 — ${n} عمليّة" style="${n?`background:rgba(59,130,246,${(.15+.85*n/hmax).toFixed(2)})`:''}"></div>`; }).join('')}`).join('')}</div>`;
+      return `<div class="c" title="${DAYS[d]} ${h}:00 — ${n} عمليّة" style="${n?`background:rgba(10,132,255,${(.15+.85*n/hmax).toFixed(2)})`:''}"></div>`; }).join('')}`).join('')}</div>`;
   // cohorts
   const coh = (a.cohorts||[]).map(c => `<tr><td>${fdate(c.week)}</td><td class="num">${n0(c.size)}</td>${c.w.map((v,i) => {
       if (i > c.weeks_elapsed) return '<td style="color:var(--dim)">—</td>';
-      const p = pct(v, c.size); return `<td style="background:rgba(16,185,129,${(p/100*.55+.04).toFixed(2)})"><span class="num">${p}%</span><div style="font-size:11px;color:var(--muted);font-weight:500">${v}</div></td>`; }).join('')}</tr>`).join('');
+      const p = pct(v, c.size); return `<td style="background:rgba(52,199,89,${(p/100*.55+.04).toFixed(2)})"><span class="num">${p}%</span><div style="font-size:11px;color:var(--muted);font-weight:500">${v}</div></td>`; }).join('')}</tr>`).join('');
   const lead = (a.leaders||[]).map((u,i) => { const d = u.tx_7d - u.tx_prev_7d;
     return `<tr class="click" data-u="${u.id}"><td><div class="who" style="display:flex;gap:10px;align-items:center"><span style="color:var(--dim);font-weight:800;width:18px">${i+1}</span><div><b>${esc(u.store_name||u.name||'—')}</b><span>${esc(u.store_name?u.name:'')}${u.paid?' · يدفع':''}</span></div></div></td>
       <td class="num">${n0(u.customers)}</td><td class="num"><b>${n0(u.tx_30d)}</b></td><td class="num">${n0(u.tx_7d)} <span class="${d>=0?'trend-up':'trend-down'}">${d>0?'▲':d<0?'▼':'•'}${d?Math.abs(d):''}</span></td>
       <td><div class="bar" style="width:110px;margin:auto"><i style="width:${Math.round(100*u.active_days_30/30)}%;background:var(--green)"></i></div><span style="font-size:11.5px;color:var(--muted)">${u.active_days_30} يوم من 30</span></td><td>${ago(u.last_tx)}</td></tr>`; }).join('');
   $('#view').innerHTML = `
   <div class="grid g4">
-    ${kpi(n0(a.dau),'تجّار عملوا اليوم','#3b82f6')}
-    ${kpi(n0(a.wau),'نشطون هذا الأسبوع','#8b5cf6', `${n0(a.tx_per_active_7d)} عمليّة لكلّ تاجر نشط`)}
-    ${kpi(n0(a.mau),'نشطون هذا الشهر','#06b6d4', `الالتصاق اليومي ${stick}% (يومي ÷ شهري)`)}
-    ${kpi(actTxt,'من التسجيل إلى أول عمليّة','#f59e0b','الوسيط بين التجّار')}
+    ${kpi(n0(a.dau),'تجّار عملوا اليوم','#0A84FF')}
+    ${kpi(n0(a.wau),'نشطون هذا الأسبوع','#AF52DE', `${n0(a.tx_per_active_7d)} عمليّة لكلّ تاجر نشط`)}
+    ${kpi(n0(a.mau),'نشطون هذا الشهر','#32ADE6', `الالتصاق اليومي ${stick}% (يومي ÷ شهري)`)}
+    ${kpi(actTxt,'من التسجيل إلى أول عمليّة','#FF9F0A','الوسيط بين التجّار')}
   </div>
   <div class="grid g21" style="margin-top:16px">
     <div class="card"><h3>قمع التفعيل</h3><div class="hint">من سجّل كتاجر حتى صار يعتمد على التطبيق — أين يتوقّف الناس؟</div>
@@ -627,30 +759,30 @@ RENDER.ana = async () => {
     <div class="card"><h3>النشاط اليومي — 30 يوماً</h3><div class="hint">عدد التجّار الذين عملوا كلّ يوم، وعدد العمليّات</div><div class="chart-box"><canvas id="cAct"></canvas></div></div>
     <div class="card"><h3>ديون ودفعات</h3><div class="hint">آخر 30 يوماً — هل يُسجَّل السداد أيضاً؟</div><div class="chart-box"><canvas id="cMix"></canvas></div></div>
   </div>
-  <div class="card" style="margin-top:16px"><h3>🕐 أوقات الذروة</h3><div class="hint">متى يعمل التجّار؟ — أفضل وقتٍ لإرسال رسالة أو نشر تحديث</div>${heat}</div>
-  <div class="card" style="margin-top:16px;padding:0"><div style="padding:18px 20px 6px"><h3>🔁 الاحتفاظ الأسبوعي</h3><div class="hint">من سجّل في أسبوعٍ ما: كم منهم عمل في أسبوع تسجيله، والأسابيع التي تلته — أهمّ مقياس لأيّ تطبيق</div></div>
+  <div class="card" style="margin-top:16px"><h3>أوقات الذروة</h3><div class="hint">متى يعمل التجّار؟ — أفضل وقتٍ لإرسال رسالة أو نشر تحديث</div>${heat}</div>
+  <div class="card" style="margin-top:16px;padding:0"><div style="padding:18px 20px 6px"><h3>الاحتفاظ الأسبوعي</h3><div class="hint">من سجّل في أسبوعٍ ما: كم منهم عمل في أسبوع تسجيله، والأسابيع التي تلته — أهمّ مقياس لأيّ تطبيق</div></div>
     <div class="table-wrap coh" style="border:0;border-top:1px solid var(--line)"><table><thead><tr><th>أسبوع التسجيل</th><th>التجّار</th><th>أسبوعه</th><th>+1</th><th>+2</th><th>+3</th><th>+4</th></tr></thead>
     <tbody>${coh || '<tr><td colspan="7" class="empty">لا بيانات بعد</td></tr>'}</tbody></table></div></div>
   <div class="grid g21" style="margin-top:16px">
-    <div class="card" style="padding:0"><div style="padding:18px 20px 6px"><h3>🏆 الأكثر نشاطاً</h3><div class="hint">آخر 30 يوماً · السهم مقارنةً بالأسبوع السابق</div></div>
+    <div class="card" style="padding:0"><div style="padding:18px 20px 6px"><h3>الأكثر نشاطاً</h3><div class="hint">آخر 30 يوماً · السهم مقارنةً بالأسبوع السابق</div></div>
       <div class="table-wrap" style="border:0;border-top:1px solid var(--line)"><table><thead><tr><th>التاجر</th><th>الزبائن</th><th>عمليّات 30 يوماً</th><th>هذا الأسبوع</th><th>الانتظام</th><th>آخر عمليّة</th></tr></thead>
       <tbody>${lead || '<tr><td colspan="6" class="empty">—</td></tr>'}</tbody></table></div></div>
-    <div class="card"><h3>⚠️ في خطر الترك</h3><div class="hint">عملوا كثيراً ثم توقّفوا هذا الأسبوع — راسلهم الآن</div>
-      ${(a.at_risk||[]).map(u => `<div class="list-item" data-u="${u.id}" style="cursor:pointer"><div class="avatar" style="background:linear-gradient(135deg,#ef4444,#f59e0b)">${esc(initial(u.store_name||u.name))}</div>
+    <div class="card"><h3>في خطر الترك</h3><div class="hint">عملوا كثيراً ثم توقّفوا هذا الأسبوع — راسلهم الآن</div>
+      ${(a.at_risk||[]).map(u => `<div class="list-item" data-u="${u.id}" style="cursor:pointer"><div class="avatar" style="background:linear-gradient(160deg,#FF9F0A,#FF453A)">${esc(initial(u.store_name||u.name))}</div>
         <div class="grow"><b>${esc(u.store_name||u.name||'—')}</b><span>${n0(u.tx)} عمليّة · ${n0(u.customers)} زبون</span></div><span style="font-size:12px;color:var(--muted)">آخر عمل ${ago(u.last_tx)}</span></div>`).join('') || '<div class="empty">لا أحد — كل التجّار النشطين ما زالوا يعملون 👌</div>'}</div>
   </div>`;
 
   const s = a.active_30d || [];
   chart('cAct', {data:{labels:s.map(x=>shortDay(x.d)), datasets:[
-    {type:'line', label:'تجّار نشطون', data:s.map(x=>x.n), borderColor:'#8b5cf6', backgroundColor:'#8b5cf6', tension:.35, pointRadius:2, borderWidth:2.5, yAxisID:'y'},
-    {type:'bar', label:'عمليّات', data:s.map(x=>x.tx), backgroundColor:'rgba(59,130,246,.28)', borderRadius:5, yAxisID:'y1'}]},
+    {type:'line', label:'تجّار نشطون', data:s.map(x=>x.n), borderColor:'#AF52DE', backgroundColor:'#AF52DE', tension:.35, pointRadius:2, borderWidth:2.5, yAxisID:'y'},
+    {type:'bar', label:'عمليّات', data:s.map(x=>x.tx), backgroundColor:'rgba(10,132,255,.28)', borderRadius:5, yAxisID:'y1'}]},
     options:{maintainAspectRatio:false, scales:{x:{grid:{display:false}}, y:{beginAtZero:true,ticks:{precision:0},position:'right',title:{display:true,text:'تجّار'}},
       y1:{beginAtZero:true,position:'left',grid:{display:false},title:{display:true,text:'عمليّات'}}}}});
   const mx = a.mix_30d || {};
-  chart('cMix', {type:'doughnut', data:{labels:['ديون','دفعات'], datasets:[{data:[mx.debt||0, mx.payment||0], backgroundColor:['#ef4444','#10b981'], borderWidth:0}]},
+  chart('cMix', {type:'doughnut', data:{labels:['ديون','دفعات'], datasets:[{data:[mx.debt||0, mx.payment||0], backgroundColor:['#FF3B30','#34C759'], borderWidth:0}]},
     options:{maintainAspectRatio:false, cutout:'64%', plugins:{legend:{position:'bottom'}}}});
   chart('cLink', {type:'bar', data:{labels:['كل الزبائن','لهم رقم','مرتبطون'], datasets:[{data:[cu.total||0, cu.phone||0, cu.linked||0],
-    backgroundColor:['#475569','#3b82f6','#10b981'], borderRadius:8}]}, options:{maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false}}, scales:{y:{grid:{display:false}}}}});
+    backgroundColor:['#AEAEB2','#0A84FF','#34C759'], borderRadius:8}]}, options:{maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false}}, scales:{y:{grid:{display:false}}}}});
   $$('[data-u]').forEach(el => el.onclick = () => openUser(el.dataset.u));
 };
 
@@ -673,7 +805,7 @@ RENDER.users = async () => {
   $('#crumb').textContent = `${n0(USERS.length)} مستخدم${uSearch?` · بحث: «${uSearch}»`:''}`;
   $('#uBody').innerHTML = USERS.length ? USERS.map(u => `
     <tr class="click" data-u="${u.id}">
-      <td><div class="who" style="display:flex;gap:10px;align-items:center"><div class="avatar" style="width:34px;height:34px;font-size:13px;${u.is_merchant?'':'background:linear-gradient(135deg,#0891b2,#0d9488)'}">${esc(initial(u.store_name||u.name))}</div>
+      <td><div class="who" style="display:flex;gap:10px;align-items:center"><div class="avatar" style="width:34px;height:34px;font-size:13px;${u.is_merchant?'':'background:linear-gradient(160deg,#64D2FF,#30B0C7)'}">${esc(initial(u.store_name||u.name))}</div>
         <div><b>${esc(u.store_name||u.name||'بلا اسم')}${u.is_admin?' <span class="badge b-next">مشرف</span>':''}</b><span>${esc(u.store_name?u.name:'')} ${u.is_merchant?'· تاجر':''}${u.is_client&&!u.is_merchant?'زبون':''}</span></div></div></td>
       <td class="t"><div class="who"><b class="num" style="font-weight:600;font-size:12.5px">${esc(u.email||'—')}</b><span class="num">${esc(u.phone||'')}</span></div></td>
       <td>${statusBadge(u.status)}${(u.plan_expires_at||u.trial_ends_at)&&u.status!=='free'?`<div style="font-size:11.5px;color:var(--muted);margin-top:3px">${ago(u.plan_expires_at||u.trial_ends_at)}</div>`:''}</td>
@@ -710,7 +842,7 @@ async function openUser(id){
       <div style="flex:1;min-width:0"><h3 style="font-size:18px;font-weight:800">${esc(p.store_name||p.name||'بلا اسم')}</h3>
         <div style="color:var(--muted);font-size:12.5px">${esc(p.name||'')} ${p.is_merchant?'· تاجر':''} ${p.is_client?'· زبون':''}</div>
         <div style="margin-top:6px">${statusBadge(status)} ${p.plan_expires_at?`<span style="font-size:12px;color:var(--muted)">ينتهي ${fdate(p.plan_expires_at)}</span>`:''}</div></div>
-      <button class="btn ghost sm" id="dClose">✕</button>
+      <button class="x-close" id="dClose" aria-label="إغلاق">${ico('x')}</button>
     </div>
     <div class="drawer-body">
       <div class="kv">
@@ -720,7 +852,7 @@ async function openUser(id){
         <div><b class="num">${debtText}</b><span>إجمالي له عند الناس${st.dollar_mode?' · بالدولرة':''}</span></div>
       </div>
 
-      <div class="section-t">🩺 فحص الحساب</div>
+      <div class="section-t">فحص الحساب</div>
       <ul class="checks">
         ${chk(h.balance_ok !== false, h.balance_ok===false?'الأرصدة <b>لا</b> تطابق مجموع العمليّات — يحتاج مراجعة':'الأرصدة تطابق مجموع العمليّات')}
         ${chk((h.device_count||0)>0, (h.device_count||0)>0?`${h.device_count} جهاز مسجّل للإشعارات`:'لا جهاز مسجّل — لن تصله إشعارات')}
@@ -731,7 +863,7 @@ async function openUser(id){
         ${chk(true, `آخر عمليّة: ${ago(h.last_transaction)}`)}
       </ul>
 
-      <div class="section-t">⚡ إجراءات</div>
+      <div class="section-t">إجراءات</div>
       <div class="card" style="padding:16px">
         <label class="f">تفعيل اشتراك</label>
         <div class="seg" id="gPlan"><button data-v="pro">Pro</button><button data-v="business" class="on">Business</button></div>
@@ -754,12 +886,12 @@ async function openUser(id){
         <div class="form-actions"><button class="btn" id="mGo">إرسال</button></div>
       </div>
 
-      <div class="section-t">🧾 سجل الاشتراكات</div>
+      <div class="section-t">سجل الاشتراكات</div>
       ${subs.length?`<div class="table-wrap"><table><thead><tr><th>الخطّة</th><th>المبلغ</th><th>من</th><th>إلى</th><th>الحالة</th><th></th></tr></thead><tbody>
         ${subs.map((s,i)=>`<tr><td>${esc(s.plan)}</td><td class="num"><b>${usd(s.amount_usd)}</b></td><td>${fdate(s.started_at)}</td><td>${fdate(s.expires_at)}</td><td>${s.status==='active'?'<span class="badge b-ok">فعّال</span>':'<span class="badge b-free">'+esc(['cancelled','canceled'].includes(s.status)?'ملغى':s.status==='refunded'?'مُسترَد':s.status==='expired'?'منتهٍ':s.status)+'</span>'}</td><td>${s.id?`<button class="btn ghost sm" data-sub="${i}">تعديل</button>`:''}</td></tr>`).join('')}
       </tbody></table></div>`:'<div class="empty" style="padding:16px">لا اشتراكات مدفوعة بعد</div>'}
 
-      <div class="section-t">🪪 معلومات</div>
+      <div class="section-t">معلومات</div>
       <ul class="checks">
         <li>البريد: <b class="num" style="margin-right:auto">${esc(email||'—')}</b>${email?'<button class="btn ghost sm" id="cpMail">نسخ</button>':''}</li>
         <li>آخر دخول: <b style="margin-right:auto">${p.last_sign_in_at?ago(p.last_sign_in_at):'—'}</b></li>
@@ -831,10 +963,10 @@ RENDER.money = async () => {
   const kpi = (v,l,c) => `<div class="card kpi" style="color:${c}"><div class="v num" style="color:var(--text)">${v}</div><div class="l">${l}</div></div>`;
   $('#view').innerHTML = `
     <div class="grid g4">
-      ${kpi(usd(k.mrr_usd),'الدخل الشهري المتكرر (MRR)','#f59e0b')}
-      ${kpi(usd(k.revenue_month),'إيرادات هذا الشهر','#10b981')}
-      ${kpi(usd(k.revenue_total),'الإيرادات الكلّيّة','#3b82f6')}
-      ${kpi(n0(k.paid)+' <span style="font-size:15px;color:var(--muted)">· '+n0(k.gift||0)+' منحة · '+n0(k.trial)+' تجربة</span>','مشتركون يدفعون','#8b5cf6')}
+      ${kpi(usd(k.mrr_usd),'الدخل الشهري المتكرر (MRR)','#FF9F0A')}
+      ${kpi(usd(k.revenue_month),'إيرادات هذا الشهر','#34C759')}
+      ${kpi(usd(k.revenue_total),'الإيرادات الكلّيّة','#0A84FF')}
+      ${kpi(n0(k.paid)+' <span style="font-size:15px;color:var(--muted)">· '+n0(k.gift||0)+' منحة · '+n0(k.trial)+' تجربة</span>','مشتركون يدفعون','#AF52DE')}
     </div>
     <div class="grid g21" style="margin-top:16px">
       <div class="card"><h3>الإيرادات الشهريّة</h3><div class="hint">مجموع ما سُجّل في كل شهر</div><div class="chart-box"><canvas id="cRev2"></canvas></div></div>
@@ -848,10 +980,10 @@ RENDER.money = async () => {
         || '<tr><td colspan="7" class="empty">لا اشتراكات بعد</td></tr>'}
       </tbody></table></div></div>`;
   const r = d.revenue_6m || [];
-  chart('cRev2', {type:'bar', data:{labels:r.map(x=>x.m), datasets:[{label:'$', data:r.map(x=>x.usd), backgroundColor:c=>grad(c.chart.ctx,'#f59e0b','#d97706'), borderRadius:8}]},
+  chart('cRev2', {type:'bar', data:{labels:r.map(x=>x.m), datasets:[{label:'$', data:r.map(x=>x.usd), backgroundColor:c=>grad(c.chart.ctx,'#FF9F0A','#FF9500'), borderRadius:8}]},
     options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true}}}});
   const pd = d.plan_dist || {};
-  chart('cPaid', {type:'doughnut', data:{labels:['Business','Pro','شهر مجاني'], datasets:[{data:[pd.business||0,pd.pro||0,pd.trial||0], backgroundColor:['#8b5cf6','#3b82f6','#f59e0b'], borderWidth:0}]},
+  chart('cPaid', {type:'doughnut', data:{labels:['Business','Pro','شهر مجاني'], datasets:[{data:[pd.business||0,pd.pro||0,pd.trial||0], backgroundColor:['#AF52DE','#0A84FF','#FF9F0A'], borderWidth:0}]},
     options:{maintainAspectRatio:false, cutout:'66%', plugins:{legend:{position:'bottom'}}}});
   $$('[data-u]').forEach(el => el.onclick = () => openUser(el.dataset.u));
 };
@@ -896,7 +1028,7 @@ RENDER.msg = async () => {
   </div>
   <div class="card" style="margin-top:18px"><h3>آخر الرسائل</h3>
     <div class="hint">«📲 للجوالات فقط» يرسل الإشعار الفوري لنفس من استلم الرسالة، <b>دون تكرارها في الجرس</b>.</div>
-    <div id="bHist" style="margin-top:12px"><div class="hint">⏳ …</div></div>
+    <div id="bHist" style="margin-top:12px"><div class="hint"><span class="spin-i"></span></div></div>
   </div>`;
   const loadHist = async () => {
     let list;
@@ -936,17 +1068,17 @@ RENDER.msg = async () => {
     const t = $('#bT').value.trim(), b = $('#bB').value.trim();
     if (!t || !b) return toast('العنوان والنصّ مطلوبان', true);
     if (!await confirmBox('إرسال الرسالة', `إلى «${esc(SEG.find(x=>x[0]===seg)[1])}»${counts[seg]!=null?` — ${n0(counts[seg])} مستخدم`:''}.<br>لا يمكن سحبها بعد الإرسال.`, 'إرسال')) return;
-    $('#bGo').disabled = true; $('#bRes').innerHTML = '<div class="banner info" style="margin-top:14px">⏳ جارٍ الإرسال…</div>';
+    $('#bGo').disabled = true; $('#bRes').innerHTML = '<div class="banner info" style="margin-top:14px"><span class="spin-i"></span>جارٍ الإرسال…</div>';
     try {
       const r = await rpc('admin_broadcast', {p_segment:seg, p_title:t, p_body:b, p_user:null});
       let line = `✅ حُفظت لـ ${n0(r.count)} مستخدم في مركز الإشعارات.`;
       if ($('#bPush').checked && r.count) {
-        $('#bRes').innerHTML = `<div class="banner info" style="margin-top:14px">⏳ حُفظت · جارٍ الإرسال إلى الجوالات…</div>`;
+        $('#bRes').innerHTML = `<div class="banner info" style="margin-top:14px"><span class="spin-i"></span>حُفظت · جارٍ الإرسال إلى الجوالات…</div>`;
         const p = await pushTo(r.user_ids||[], t, b);
         line += p.blocked ? `<br>⚠️ الإشعار الفوري متوقّف: دالّة send-notification تحتاج التحديث الذي يسمح للمشرف (انظر دليل اللوحة).`
                           : `<br>📲 وصلت إلى جوالات ${n0(p.sent)} مستخدم${p.failed?` · تعذّر ${n0(p.failed)} (بلا جهاز مسجّل غالباً)`:''}.`;
       }
-      $('#bRes').innerHTML = `<div class="banner info" style="margin-top:14px;color:#a7f3d0;border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.08)"><div>${line}</div></div>`;
+      $('#bRes').innerHTML = `<div class="banner ok" style="margin-top:14px">${ico('check')}<div>${line}</div></div>`;
       $('#bT').value=''; $('#bB').value=''; sync(); loadHist();
     } catch(e){ $('#bRes').innerHTML = `<div class="banner red" style="margin-top:14px">${esc(errText(e))}</div>`; }
     $('#bGo').disabled = false;
@@ -966,8 +1098,8 @@ RENDER.rel = async () => {
       <div class="card-head"><div><h3>الإصدار المنشور</h3><div class="hint">ما يراه المستخدمون في شريط التحديث</div></div>${r.is_mandatory?'<span class="badge b-expired">إلزامي</span>':'<span class="badge b-ok">اختياري</span>'}</div>
       <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:14px"><div style="font-size:40px;font-weight:800" class="num">${esc(r.latest_version||'—')}</div><div style="color:var(--muted)">البناء <b class="num">#${n0(r.latest_build_number)}</b> · ${ago(r.updated_at)}</div></div>
       <label class="f">نسبة من حدّث (${n0(tot)} جهاز)</label>
-      <div class="bar"><i style="width:${pc(up)}%;background:var(--green)"></i><i style="width:${pc(old)}%;background:var(--amber)"></i><i style="width:${pc(unk)}%;background:#475569"></i></div>
-      <div class="legend"><span><i style="background:var(--green)"></i>محدّث ${n0(up)} (${Math.round(pc(up))}%)</span><span><i style="background:var(--amber)"></i>قديم ${n0(old)}</span><span><i style="background:#475569"></i>غير معروف ${n0(unk)}</span></div>
+      <div class="bar"><i style="width:${pc(up)}%;background:var(--green)"></i><i style="width:${pc(old)}%;background:var(--amber)"></i><i style="width:${pc(unk)}%;background:#AEAEB2"></i></div>
+      <div class="legend"><span><i style="background:var(--green)"></i>محدّث ${n0(up)} (${Math.round(pc(up))}%)</span><span><i style="background:var(--amber)"></i>قديم ${n0(old)}</span><span><i style="background:#AEAEB2"></i>غير معروف ${n0(unk)}</span></div>
       <div class="section-t">ما الجديد</div>
       <div style="white-space:pre-wrap;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--text2)">${esc(r.changelog||'—')}</div>
       <div style="margin-top:10px;font-size:12px;color:var(--muted);direction:ltr;text-align:right;word-break:break-all">${esc(r.download_url||'')}</div>
@@ -988,7 +1120,7 @@ RENDER.rel = async () => {
   $('#rGo').onclick = async () => {
     const b = +$('#rB').value, v = $('#rV').value.trim(), u = $('#rU').value.trim(), c = $('#rC').value.trim(), m = $('#rM').checked;
     if (!v) return toast('اكتب رقم النسخة', true);
-    if (!await confirmBox('إعلان الإصدار', `النسخة <b class="num">${esc(v)}</b> — البناء <b class="num">#${b}</b>${m?' — <b style="color:#fca5a5">إلزامي</b>':''}.<br>سيظهر شريط التحديث لكل من لديه بناء أقدم. هل رفعت الملف على GitHub؟`, 'نعم، أعلن')) return;
+    if (!await confirmBox('إعلان الإصدار', `النسخة <b class="num">${esc(v)}</b> — البناء <b class="num">#${b}</b>${m?' — <b style="color:var(--red)">إلزامي</b>':''}.<br>سيظهر شريط التحديث لكل من لديه بناء أقدم. هل رفعت الملف على GitHub؟`, 'نعم، أعلن')) return;
     try { await rpc('admin_set_release', {p_build:b, p_version:v, p_url:u, p_mandatory:m, p_changelog:c}); toast('🚀 أُعلن الإصدار'); RENDER.rel(); } catch(e){ toast(errText(e), true); }
   };
 };
@@ -1004,35 +1136,35 @@ RENDER.cfg = async () => {
   const pr = v('prices') || {}, pf = v('plan_features') || {}, an = v('announcement') || {}, mt = v('maintenance') || {}, ct = v('contact') || {};
   const upd = k => c?.[k]?.updated_at ? `<span style="font-size:11.5px;color:var(--dim)">عُدّل ${ago(c[k].updated_at)}</span>` : '';
   $('#view').innerHTML = `
-  <div class="banner info">💡 <div>الإعدادات المعلّمة «يسري فوراً» تعمل الآن من القاعدة. والبقية محفوظة وجاهزة، ويبدأ التطبيق بقراءتها من النسخة 1.2 — فتتحكّم بها بعدها بلا أي تحديث جديد.</div></div>
+  <div class="banner info">${ico('info')}<div>الإعدادات المعلّمة «يسري فوراً» تعمل الآن من القاعدة. والبقية محفوظة وجاهزة، ويبدأ التطبيق بقراءتها من النسخة 1.2 — فتتحكّم بها بعدها بلا أي تحديث جديد.</div></div>
   <div class="grid g2">
-    <div class="card"><div class="card-head"><div><h3>🎁 التجربة المجانية</h3><div class="hint">ما يحصل عليه كل حساب جديد</div></div>${live}</div>
+    <div class="card"><div class="card-head"><div><h3>التجربة المجانية</h3><div class="hint">ما يحصل عليه كل حساب جديد</div></div>${live}</div>
       <div class="row"><div><label class="f">المدّة (أيام)</label><input id="kDays" type="number" min="0" max="365" class="num" value="${esc(v('trial_days')??30)}"></div>
         <div><label class="f">بأيّ خطّة؟</label><select id="kPlan">${['business','pro','free'].map(x=>`<option value="${x}" ${v('trial_plan')===x?'selected':''}>${x==='free'?'مجاني (ميزات أساسيّة)':x==='pro'?'Pro':'Business — كل الميزات'}</option>`).join('')}</select></div></div>
       <div class="form-actions"><button class="btn primary" id="sTrial">حفظ</button>${upd('trial_days')}</div></div>
 
-    <div class="card"><div class="card-head"><div><h3>💵 الأسعار</h3><div class="hint">بالدولار — تظهر في شاشة الخطط</div></div>${next}</div>
+    <div class="card"><div class="card-head"><div><h3>الأسعار</h3><div class="hint">بالدولار — تظهر في شاشة الخطط</div></div>${next}</div>
       <div class="row"><div><label class="f">Pro شهري</label><input id="p1" type="number" class="num" value="${pr.pro?.monthly??5}"></div><div><label class="f">Pro سنوي</label><input id="p2" type="number" class="num" value="${pr.pro?.yearly??50}"></div></div>
       <div class="row" style="margin-top:10px"><div><label class="f">Business شهري</label><input id="p3" type="number" class="num" value="${pr.business?.monthly??10}"></div><div><label class="f">Business سنوي</label><input id="p4" type="number" class="num" value="${pr.business?.yearly??100}"></div></div>
       <div class="form-actions"><button class="btn primary" id="sPrice">حفظ</button>${upd('prices')}</div></div>
 
-    <div class="card"><div class="card-head"><div><h3>🔐 الميزات حسب الخطّة</h3><div class="hint">أدنى خطّة تفتح كل ميزة</div></div>${next}</div>
+    <div class="card"><div class="card-head"><div><h3>الميزات حسب الخطّة</h3><div class="hint">أدنى خطّة تفتح كل ميزة</div></div>${next}</div>
       <div class="table-wrap"><table><tbody>${FEATURES.map(([k,t])=>`<tr><td style="font-weight:600">${t}</td><td style="width:150px"><select data-pf="${k}">${['free','pro','business'].map(x=>`<option value="${x}" ${pf[k]===x?'selected':''}>${x==='free'?'مجاني':x==='pro'?'Pro':'Business'}</option>`).join('')}</select></td></tr>`).join('')}</tbody></table></div>
       <div class="form-actions"><button class="btn primary" id="sPf">حفظ</button>${upd('plan_features')}</div></div>
 
-    <div class="card"><div class="card-head"><div><h3>📢 شريط إعلان داخل التطبيق</h3><div class="hint">سطر ملوّن أعلى الشاشة الرئيسيّة</div></div>${next}</div>
+    <div class="card"><div class="card-head"><div><h3>شريط إعلان داخل التطبيق</h3><div class="hint">سطر ملوّن أعلى الشاشة الرئيسيّة</div></div>${next}</div>
       <div class="toggle-row"><b>مفعّل</b><label class="switch"><input type="checkbox" id="aOn" ${an.enabled?'checked':''}><span></span></label></div>
       <label class="f">النصّ</label><input id="aTxt" maxlength="140" value="${esc(an.text||'')}" placeholder="مثلاً: عرض نهاية الشهر — خصم 20% على Business">
       <div class="row" style="margin-top:10px"><div><label class="f">النوع</label><select id="aLvl">${[['info','معلومة'],['success','بشرى'],['warning','تنبيه']].map(([x,t])=>`<option value="${x}" ${an.level===x?'selected':''}>${t}</option>`).join('')}</select></div>
         <div><label class="f">لمن؟</label><select id="aAud">${[['all','الجميع'],['merchants','التجّار'],['clients','الزبائن']].map(([x,t])=>`<option value="${x}" ${an.audience===x?'selected':''}>${t}</option>`).join('')}</select></div></div>
       <div class="form-actions"><button class="btn primary" id="sAn">حفظ</button>${upd('announcement')}</div></div>
 
-    <div class="card"><div class="card-head"><div><h3>🛠️ وضع الصيانة</h3><div class="hint">رسالة تمنع الاستخدام مؤقتاً — للطوارئ فقط</div></div>${next}</div>
+    <div class="card"><div class="card-head"><div><h3>وضع الصيانة</h3><div class="hint">رسالة تمنع الاستخدام مؤقتاً — للطوارئ فقط</div></div>${next}</div>
       <div class="toggle-row"><b>مفعّل</b><label class="switch"><input type="checkbox" id="mOn" ${mt.enabled?'checked':''}><span></span></label></div>
       <label class="f">الرسالة</label><textarea id="mTxt" maxlength="300" placeholder="نعمل على تحسين الخدمة، نعود خلال ساعة.">${esc(mt.message||'')}</textarea>
       <div class="form-actions"><button class="btn primary" id="sMt">حفظ</button>${upd('maintenance')}</div></div>
 
-    <div class="card"><div class="card-head"><div><h3>☎️ قنوات التواصل</h3><div class="hint">زرّ الدعم داخل التطبيق</div></div>${next}</div>
+    <div class="card"><div class="card-head"><div><h3>قنوات التواصل</h3><div class="hint">زرّ الدعم داخل التطبيق</div></div>${next}</div>
       <label class="f">واتساب الدعم (أرقام فقط مع رمز الدولة)</label><input id="cW" dir="ltr" class="num" value="${esc(ct.whatsapp||'')}" placeholder="9639xxxxxxxx">
       <div style="height:10px"></div><label class="f">تلغرام</label><input id="cT" dir="ltr" value="${esc(ct.telegram||'')}">
       <div style="height:10px"></div><label class="f">الموقع</label><input id="cS" dir="ltr" value="${esc(ct.website||'')}">
@@ -1057,16 +1189,16 @@ RENDER.cfg = async () => {
 RENDER.health = async () => {
   const h = await rpc('admin_system_health');
   const pct = Math.min(100, 100 * h.db_bytes / h.db_limit);
-  const col = pct > 80 ? '#ef4444' : pct > 60 ? '#f59e0b' : '#10b981';
+  const col = pct > 80 ? '#FF3B30' : pct > 60 ? '#FF9F0A' : '#34C759';
   const builds = h.builds || {}; const bk = Object.keys(builds).sort();
   $('#view').innerHTML = `
-  ${h.balance_mismatch_merchants>0?`<div class="banner red">⚠️ <div><b>${n0(h.balance_mismatch_merchants)} تاجر أرصدته لا تطابق عمليّاته.</b> افتح «المستخدمون» وانظر «فحص الحساب» لكلّ منهم.</div></div>`:''}
+  ${h.balance_mismatch_merchants>0?`<div class="banner red">${ico('warn')}<div><b>${n0(h.balance_mismatch_merchants)} تاجر أرصدته لا تطابق عمليّاته.</b> افتح «المستخدمون» وانظر «فحص الحساب» لكلّ منهم.</div></div>`:''}
   <div class="grid g3">
-    <div class="card" style="text-align:center"><h3 style="justify-content:center">💾 سعة القاعدة</h3><div class="hint">الخطّة المجانيّة: 500 ميغا ثم تصير للقراءة فقط</div>
+    <div class="card" style="text-align:center"><h3 style="justify-content:center">سعة القاعدة</h3><div class="hint">الخطّة المجانيّة: 500 ميغا ثم تصير للقراءة فقط</div>
       <div class="gauge"><canvas id="cG"></canvas><div class="c"><div><b class="num" style="color:${col}">${pct.toFixed(1)}%</b><span><span class="num">${bytes(h.db_bytes)}</span> من <span class="num">500 MB</span></span></div></div></div>
       ${pct>60?'<div class="banner" style="margin:10px 0 0">حان وقت التفكير بالخطّة المدفوعة</div>':'<span class="badge b-ok">مساحة كافية</span>'}</div>
-    <div class="card"><h3>📱 الأجهزة والنسخ</h3><div class="hint">آخر بناء منشور: <b class="num">#${n0(h.latest_build)}</b></div><div class="chart-box sm"><canvas id="cB"></canvas></div></div>
-    <div class="card"><h3>📊 مؤشّرات</h3><div class="hint">لمحة سريعة</div><ul class="checks">
+    <div class="card"><h3>الأجهزة والنسخ</h3><div class="hint">آخر بناء منشور: <b class="num">#${n0(h.latest_build)}</b></div><div class="chart-box sm"><canvas id="cB"></canvas></div></div>
+    <div class="card"><h3>مؤشّرات</h3><div class="hint">لمحة سريعة</div><ul class="checks">
       <li>حسابات الدخول <b class="num" style="margin-right:auto">${n0(h.auth_users)}</b></li>
       <li>أجهزة مسجّلة <b class="num" style="margin-right:auto">${n0(h.devices)}</b></li>
       <li>نشطة هذا الأسبوع <b class="num" style="margin-right:auto">${n0(h.devices_active_7d)}</b></li>
@@ -1083,7 +1215,7 @@ RENDER.health = async () => {
   chart('cG', {type:'doughnut', data:{datasets:[{data:[pct,100-pct], backgroundColor:[col,cssVar('--card2')], borderWidth:0}]},
     options:{maintainAspectRatio:false, cutout:'78%', rotation:-90, circumference:360, plugins:{tooltip:{enabled:false}}}});
   chart('cB', {type:'bar', data:{labels:bk.map(x=>x==='?'?'غير معروف':'#'+x), datasets:[{data:bk.map(x=>builds[x]),
-    backgroundColor:bk.map(x=>x==='?'?'#475569':(+x>=(h.latest_build||0)?'#10b981':'#f59e0b')), borderRadius:8}]},
+    backgroundColor:bk.map(x=>x==='?'?'#AEAEB2':(+x>=(h.latest_build||0)?'#34C759':'#FF9F0A')), borderRadius:8}]},
     options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true,ticks:{precision:0}}}}});
 };
 
@@ -1330,11 +1462,17 @@ const MOCK_PRO = (() => {
    الصفحة القديمة — فلا تنكسر اللوحة لحظةً واحدة. */
 const LEGACY = { home: RENDER.home, users: RENDER.users, money: RENDER.money, openUser: openUser };
 const missingFn = e => /function .* does not exist|Could not find the function/i.test(e?.message || String(e));
-const sqlBanner = () => `<div class="banner info">🧩 <div><b>هذا القسم يحتاج ملف SQL جديداً.</b><br>شغّل <b>لوحة_احترافية_المرحلة١.sql</b> في Supabase ← SQL Editor، ثم اضغط «تحديث».</div></div>`;
+const sqlBanner = () => `<div class="banner info">${ico('info')}<div><b>هذا القسم يحتاج ملف SQL جديداً.</b><br>شغّل <b>لوحة_احترافية_المرحلة١.sql</b> في Supabase ← SQL Editor، ثم اضغط «تحديث».</div></div>`;
 
 I.clock = '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>';
 I.heart = '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>';
 I.down  = '<path d="M12 4v11M7 11l5 5 5-5"/><path d="M4 20h16"/>';
+I.x     = '<path d="M6 6l12 12M18 6 6 18"/>';
+I.info  = '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.6v.2"/>';
+I.warn  = '<path d="M12 3.5 2.8 19.5h18.4z"/><path d="M12 10v4"/><path d="M12 16.8v.2"/>';
+I.check = '<circle cx="12" cy="12" r="9"/><path d="m8 12.3 2.7 2.7L16.2 9.5"/>';
+I.phone = '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/>';
+I.compass = '<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>';
 
 /* ═══ الفترة الزمنيّة (٧ / ٣٠ / ٩٠ يوماً) ═══ */
 let PERIOD = (() => { try { const v = +localStorage.getItem('daftar-admin-period'); return [7,30,90].includes(v) ? v : 30; } catch(e){ return 30; } })();
@@ -1343,9 +1481,9 @@ function setPeriod(d){ PERIOD = d; try { localStorage.setItem('daftar-admin-peri
 $$('#period button').forEach(b => b.onclick = () => setPeriod(+b.dataset.d)); paintPeriod();
 
 /* ═══ أدوات مشتركة ═══ */
-const SEGS = { champion:['أبطال','#10b981'], healthy:['بخير','#3b82f6'], attention:['يحتاج انتباهاً','#f59e0b'], dormant:['خامد','#ef4444'], never:['لم يبدأ','#64748b'] };
-const segBadge = s => s && SEGS[s] ? `<span class="badge" style="background:${SEGS[s][1]}22;color:${SEGS[s][1]}">${SEGS[s][0]}</span>` : '';
-const hcol = v => v >= 75 ? '#10b981' : v >= 50 ? '#3b82f6' : v >= 25 ? '#f59e0b' : '#ef4444';
+const SEGS = { champion:['أبطال','#34C759'], healthy:['بخير','#0A84FF'], attention:['يحتاج انتباهاً','#FF9F0A'], dormant:['خامد','#FF3B30'], never:['لم يبدأ','#8E8E93'] };
+const segBadge = s => s && SEGS[s] ? `<span class="badge" style="--c:${SEGS[s][1]}">${SEGS[s][0]}</span>` : '';
+const hcol = v => v >= 75 ? '#34C759' : v >= 50 ? '#0A84FF' : v >= 25 ? '#FF9F0A' : '#FF3B30';
 const hbar = v => v == null ? '<span style="color:var(--dim)">—</span>' : `<div class="hb"><div class="hb-t"><i style="width:${v}%;background:${hcol(v)}"></i></div><b class="num">${v}</b></div>`;
 const pc = (x, y) => y ? Math.round(100 * x / y) : 0;
 const daysTxt = d => d >= 3 && d <= 10 ? `${d} أيام` : `${d} يوماً`;
@@ -1365,9 +1503,10 @@ function csvDownload(name, header, rows){
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
 }
-const K = (v, l, ic, col, dl = '', sub = '') => `<div class="card kpi" style="color:${col}"><div class="ic" style="background:${col}22">${ico(ic, col)}</div>
-  <div class="v num" style="color:var(--text)">${v}</div><div class="l">${l}</div>${dl || sub ? `<div class="kd">${dl}${sub ? ` <span>${sub}</span>` : ''}</div>` : ''}</div>`;
-const K2 = (v, l, col, sub = '') => `<div class="card kpi" style="color:${col}"><div class="v num" style="color:var(--text)">${v}</div><div class="l">${l}</div>${sub ? `<div class="kd"><span>${sub}</span></div>` : ''}</div>`;
+const K = (v, l, ic, col, dl = '', sub = '') => `<div class="card kpi" style="--c:${col}"><div class="kh"><span class="ic">${ico(ic)}</span><span class="l">${l}</span></div>
+  <div class="v num">${v}</div>${dl || sub ? `<div class="kd">${dl}${sub ? ` <span>${sub}</span>` : ''}</div>` : ''}</div>`;
+const K2 = (v, l, col, sub = '') => `<div class="card kpi" style="--c:${col}"><div class="kh"><i class="kdot"></i><span class="l">${l}</span></div><div class="v num">${v}</div>${sub ? `<div class="kd"><span>${sub}</span></div>` : ''}</div>`;
+const SI = (v, l, col, sub = '') => `<div class="si" style="--c:${col}"><span class="l"><i></i>${l}</span><b class="num">${v}</b>${sub ? `<span class="s">${sub}</span>` : ''}</div>`;
 const abar = (label, n, base, col, note = '') => { const p = pc(n, base);
   return `<div class="abar"><b>${label}${note ? ` <span class="pill">${note}</span>` : ''}</b><div class="tr"><i style="width:${Math.max(p, n ? 2 : 0)}%;background:${col}"></i></div><div class="v"><b class="num" style="color:var(--text)">${p}%</b> · <span class="num">${n0(n)}</span></div></div>`; };
 const userLi = (u, right) => `<div class="list-item" data-u="${u.id}" style="cursor:pointer"><div class="avatar">${esc(initial(u.store_name || u.name))}</div>
@@ -1409,51 +1548,51 @@ RENDER.home = async () => {
   $('#crumb').textContent = `آخر ${daysTxt(o.days)} مقارنةً بالفترة نفسها قبلها · ${fdt(new Date())}`;
   const dbPct = Math.round(100 * (t.db_bytes || 0) / (500 * 1024 * 1024));
   const ALERTS = [
-    [al.trials_ending_7d, 'تنتهي تجربتهم خلال 7 أيام', '#f59e0b', '#users?f=expiring'],
-    [al.never_started, 'تجّار سجّلوا ولم يبدؤوا', '#64748b', '#users?f=never'],
-    [al.at_risk, 'في خطر الترك — توقّفوا هذا الأسبوع', '#ef4444', '#hs'],
-    [al.open_disputes, 'اعتراضات بلا ردّ من التاجر', '#ec4899', '#cli'],
-    [al.renewals_due_7d, 'اشتراكات مدفوعة تتجدّد خلال أسبوع', '#8b5cf6', '#money'],
-    [al.no_device, 'بلا جهاز مسجّل — لا تصلهم إشعارات', '#06b6d4', '#users?f=nodevice'],
-    [al.outdated_devices, `أجهزة على نسخة قديمة (من ${n0(al.devices)})`, '#3b82f6', '#rel'],
-    [dbPct + '%', 'من سعة القاعدة المجانيّة', dbPct > 70 ? '#ef4444' : '#10b981', '#health'],
+    [al.trials_ending_7d, 'تنتهي تجربتهم خلال 7 أيام', '#FF9F0A', '#users?f=expiring'],
+    [al.never_started, 'تجّار سجّلوا ولم يبدؤوا', '#8E8E93', '#users?f=never'],
+    [al.at_risk, 'في خطر الترك — توقّفوا هذا الأسبوع', '#FF3B30', '#hs'],
+    [al.open_disputes, 'اعتراضات بلا ردّ من التاجر', '#FF2D55', '#cli'],
+    [al.renewals_due_7d, 'اشتراكات مدفوعة تتجدّد خلال أسبوع', '#AF52DE', '#money'],
+    [al.no_device, 'بلا جهاز مسجّل — لا تصلهم إشعارات', '#32ADE6', '#users?f=nodevice'],
+    [al.outdated_devices, `أجهزة على نسخة قديمة (من ${n0(al.devices)})`, '#0A84FF', '#rel'],
+    [dbPct + '%', 'من سعة القاعدة المجانيّة', dbPct > 70 ? '#FF3B30' : '#34C759', '#health'],
   ];
   $('#view').innerHTML = `
   <div class="grid g4">
-    ${K(n0(c.new_users), 'مستخدمون جدد', 'users', '#3b82f6', delta(c.new_users, p.new_users), `${n0(c.new_merchants)} تاجر`)}
-    ${K(n0(c.active_merchants), 'تجّار نشطون', 'store', '#8b5cf6', delta(c.active_merchants, p.active_merchants), 'سجّلوا عمليّة واحدة على الأقل')}
-    ${K(n0(c.transactions), 'عمليّات مسجّلة', 'tx', '#6366f1', delta(c.transactions, p.transactions), `${n0(c.debts)} دين · ${n0(c.payments)} دفعة`)}
-    ${K(usd(c.revenue), 'إيرادات الفترة', 'money', '#10b981', delta(c.revenue, p.revenue), `${n0(c.new_paid)} اشتراك مدفوع جديد`)}
+    ${K(n0(c.new_users), 'مستخدمون جدد', 'users', '#0A84FF', delta(c.new_users, p.new_users), `${n0(c.new_merchants)} تاجر`)}
+    ${K(n0(c.active_merchants), 'تجّار نشطون', 'store', '#AF52DE', delta(c.active_merchants, p.active_merchants), 'سجّلوا عمليّة واحدة على الأقل')}
+    ${K(n0(c.transactions), 'عمليّات مسجّلة', 'tx', '#5E5CE6', delta(c.transactions, p.transactions), `${n0(c.debts)} دين · ${n0(c.payments)} دفعة`)}
+    ${K(usd(c.revenue), 'إيرادات الفترة', 'money', '#34C759', delta(c.revenue, p.revenue), `${n0(c.new_paid)} اشتراك مدفوع جديد`)}
   </div>
-  <div class="grid g4" style="margin-top:16px">
-    ${K2(n0(t.users), 'إجمالي المستخدمين', '#3b82f6', `${n0(t.merchants)} تاجر · ${n0(t.clients)} زبون`)}
-    ${K2(n0(t.paying), 'مشتركون يدفعون', '#10b981', `${n0(t.trial)} في الشهر المجاني`)}
-    ${K2(usd(t.mrr_usd), 'الدخل الشهري المتكرر', '#f59e0b', `سنوياً ${usd((t.mrr_usd || 0) * 12)}`)}
-    ${K2(pc(t.linked, t.customers) + '%', 'زبائن مرتبطون بالتطبيق', '#06b6d4', `${n0(t.linked)} من ${n0(t.customers)}`)}
+  <div class="card strip" style="margin-top:16px">
+    ${SI(n0(t.users), 'إجمالي المستخدمين', '#0A84FF', `${n0(t.merchants)} تاجر · ${n0(t.clients)} زبون`)}
+    ${SI(n0(t.paying), 'مشتركون يدفعون', '#34C759', `${n0(t.trial)} في الشهر المجاني`)}
+    ${SI(usd(t.mrr_usd), 'الدخل الشهري المتكرر', '#FF9F0A', `سنوياً ${usd((t.mrr_usd || 0) * 12)}`)}
+    ${SI(pc(t.linked, t.customers) + '%', 'زبائن مرتبطون بالتطبيق', '#32ADE6', `${n0(t.linked)} من ${n0(t.customers)}`)}
   </div>
-  <div class="section-t" style="margin-top:22px">🔔 يحتاج انتباهك</div>
-  <div class="alerts">${ALERTS.map(([n, l, col, href]) => `<a class="al ${!n || n === '0%' ? 'zero' : ''}" href="${href}"><b class="num" style="color:${col}">${typeof n === 'string' ? n : n0(n)}</b><span>${l}</span></a>`).join('')}</div>
+  <div class="section-t" style="margin-top:22px">يحتاج انتباهك</div>
+  <div class="alerts">${ALERTS.map(([n, l, col, href]) => `<a class="al ${!n || n === '0%' ? 'zero' : ''}" href="${href}" style="--c:${col}"><b class="num">${typeof n === 'string' ? n : n0(n)}</b><span>${l}</span></a>`).join('')}</div>
   <div class="grid g21" style="margin-top:16px">
     <div class="card"><h3>النشاط اليومي</h3><div class="hint">تجّار نشطون (الخط) وعمليّات (الأعمدة) — آخر ${daysTxt(o.days)}</div><div class="chart-box"><canvas id="oAct"></canvas></div></div>
     <div class="card"><h3>توزيع الخطط</h3><div class="hint">الحالة الفعليّة الآن</div><div class="chart-box"><canvas id="oPlan"></canvas></div></div>
   </div>
   <div class="grid g21" style="margin-top:16px">
     <div class="card"><h3>التسجيلات</h3><div class="hint">تجّار وزبائن جدد يومياً</div><div class="chart-box sm"><canvas id="oSign"></canvas></div></div>
-    <div class="card"><h3>🆕 آخر من سجّل</h3><div class="hint">انقر لفتح ملفّه الكامل</div><div id="oRecent"></div></div>
+    <div class="card"><h3>آخر من سجّل</h3><div class="hint">انقر لفتح ملفّه الكامل</div><div id="oRecent"></div></div>
   </div>`;
   const s = o.series || [];
   chart('oAct', {data:{labels:s.map(x => shortDay(x.d)), datasets:[
-    {type:'line', label:'تجّار نشطون', data:s.map(x => x.active), borderColor:'#8b5cf6', backgroundColor:'#8b5cf6', tension:.35, pointRadius:s.length > 40 ? 0 : 2, borderWidth:2.5, yAxisID:'y'},
-    {type:'bar', label:'عمليّات', data:s.map(x => x.tx), backgroundColor:'rgba(59,130,246,.28)', borderRadius:4, yAxisID:'y1'}]},
+    {type:'line', label:'تجّار نشطون', data:s.map(x => x.active), borderColor:'#AF52DE', backgroundColor:'#AF52DE', tension:.35, pointRadius:s.length > 40 ? 0 : 2, borderWidth:2.5, yAxisID:'y'},
+    {type:'bar', label:'عمليّات', data:s.map(x => x.tx), backgroundColor:'rgba(10,132,255,.28)', borderRadius:4, yAxisID:'y1'}]},
     options:{maintainAspectRatio:false, interaction:{mode:'index', intersect:false}, scales:{x:{grid:{display:false}},
       y:{beginAtZero:true, ticks:{precision:0}, position:'right'}, y1:{beginAtZero:true, position:'left', grid:{display:false}}}}});
   chart('oSign', {type:'bar', data:{labels:s.map(x => shortDay(x.d)), datasets:[
-    {label:'تجّار', data:s.map(x => x.merchants), backgroundColor:'#8b5cf6', borderRadius:4, stack:'a'},
-    {label:'زبائن', data:s.map(x => x.clients), backgroundColor:'#06b6d4', borderRadius:4, stack:'a'}]},
+    {label:'تجّار', data:s.map(x => x.merchants), backgroundColor:'#AF52DE', borderRadius:4, stack:'a'},
+    {label:'زبائن', data:s.map(x => x.clients), backgroundColor:'#32ADE6', borderRadius:4, stack:'a'}]},
     options:{maintainAspectRatio:false, scales:{x:{stacked:true, grid:{display:false}}, y:{stacked:true, beginAtZero:true, ticks:{precision:0}}}}});
   const pd = d.plan_dist || {}, keys = ['business','pro','trial','expired','free'];
   chart('oPlan', {type:'doughnut', data:{labels:keys.map(x => STATUS[x][0]), datasets:[{data:keys.map(x => pd[x] || 0),
-    backgroundColor:['#8b5cf6','#3b82f6','#f59e0b','#ef4444','#475569'], borderWidth:0, hoverOffset:8}]},
+    backgroundColor:['#AF52DE','#0A84FF','#FF9F0A','#FF3B30','#AEAEB2'], borderWidth:0, hoverOffset:8}]},
     options:{maintainAspectRatio:false, cutout:'68%', plugins:{legend:{position:'bottom'}}}});
   $('#oRecent').innerHTML = (d.recent || []).slice(0, 6).map(u => userLi(u, `<div style="text-align:left">${u.is_merchant ? '<span class="badge b-business">تاجر</span>' : '<span class="badge b-free">زبون</span>'}<span style="display:block;margin-top:4px;font-size:12px;color:var(--muted)">${ago(u.created_at)}</span></div>`)).join('') || '<div class="empty">—</div>';
   wireUsers($('#view'));
@@ -1470,47 +1609,47 @@ RENDER.eng = async () => {
   const fqTot = Object.values(fq).reduce((a, b) => a + b, 0), lsTot = Object.values(ls).reduce((a, b) => a + b, 0);
   $('#view').innerHTML = `
   <div class="grid g4">
-    ${K2(n0(last.dau), 'تجّار عملوا اليوم', '#3b82f6')}
-    ${K2(n0(last.wau), 'نشطون آخر 7 أيام', '#8b5cf6')}
-    ${K2(n0(last.mau), 'نشطون آخر 30 يوماً', '#06b6d4')}
-    ${K2(pc(last.dau, last.mau) + '%', 'الالتصاق (يومي ÷ شهري)', '#10b981', 'فوق 20% ممتاز لتطبيقات الأعمال')}
+    ${K2(n0(last.dau), 'تجّار عملوا اليوم', '#0A84FF')}
+    ${K2(n0(last.wau), 'نشطون آخر 7 أيام', '#AF52DE')}
+    ${K2(n0(last.mau), 'نشطون آخر 30 يوماً', '#32ADE6')}
+    ${K2(pc(last.dau, last.mau) + '%', 'الالتصاق (يومي ÷ شهري)', '#34C759', 'فوق 20% ممتاز لتطبيقات الأعمال')}
   </div>
   <div class="grid g21" style="margin-top:16px">
     <div class="card"><h3>النشطون يومياً وأسبوعياً وشهرياً</h3><div class="hint">كلّ نقطة: كم تاجراً عمل في ذلك اليوم، وفي الأيام 7 و30 قبله</div><div class="chart-box"><canvas id="eAU"></canvas></div></div>
     <div class="card"><h3>كم يوماً يعمل التاجر؟</h3><div class="hint">أيام العمل في آخر 30 يوماً</div>
-      ${abar('شبه يومي (21+ يوماً)', fq.daily || 0, fqTot, '#10b981')}${abar('منتظم (11–20)', fq.high || 0, fqTot, '#3b82f6')}
-      ${abar('متوسّط (4–10)', fq.mid || 0, fqTot, '#8b5cf6')}${abar('قليل (1–3)', fq.light || 0, fqTot, '#f59e0b')}${abar('لم يعمل', fq.none || 0, fqTot, '#64748b')}</div>
+      ${abar('شبه يومي (21+ يوماً)', fq.daily || 0, fqTot, '#34C759')}${abar('منتظم (11–20)', fq.high || 0, fqTot, '#0A84FF')}
+      ${abar('متوسّط (4–10)', fq.mid || 0, fqTot, '#AF52DE')}${abar('قليل (1–3)', fq.light || 0, fqTot, '#FF9F0A')}${abar('لم يعمل', fq.none || 0, fqTot, '#8E8E93')}</div>
   </div>
   <div class="grid g21" style="margin-top:16px">
     <div class="card"><h3>نسبة الالتصاق عبر الزمن</h3><div class="hint">النشطون اليوم ÷ النشطون في آخر 30 يوماً — هل صار التطبيق عادةً يوميّة؟</div><div class="chart-box sm"><canvas id="eStick"></canvas></div></div>
     <div class="card"><h3>آخر فتحٍ للتطبيق</h3><div class="hint">كل المستخدمين — تجّار وزبائن</div>
-      ${abar('اليوم', ls.today || 0, lsTot, '#10b981')}${abar('هذا الأسبوع', ls.week || 0, lsTot, '#3b82f6')}
-      ${abar('هذا الشهر', ls.month || 0, lsTot, '#f59e0b')}${abar('أقدم من شهر', ls.older || 0, lsTot, '#ef4444')}${abar('لا جهاز مسجّل', ls.never || 0, lsTot, '#64748b')}</div>
+      ${abar('اليوم', ls.today || 0, lsTot, '#34C759')}${abar('هذا الأسبوع', ls.week || 0, lsTot, '#0A84FF')}
+      ${abar('هذا الشهر', ls.month || 0, lsTot, '#FF9F0A')}${abar('أقدم من شهر', ls.older || 0, lsTot, '#FF3B30')}${abar('لا جهاز مسجّل', ls.never || 0, lsTot, '#8E8E93')}</div>
   </div>
   <div class="grid g2" style="margin-top:16px">
     <div class="card"><h3>أيّام الأسبوع</h3><div class="hint">توزيع العمليّات</div><div class="chart-box sm"><canvas id="eDow"></canvas></div></div>
     <div class="card"><h3>ساعات اليوم</h3><div class="hint">بتوقيت دمشق — أفضل وقتٍ لرسالة أو إعلان</div><div class="chart-box sm"><canvas id="eHour"></canvas></div></div>
   </div>
   <div class="card" style="margin-top:16px"><h3>آخر 12 أسبوعاً</h3><div class="hint">عمليّات أسبوعيّة وتجّار نشطون</div><div class="chart-box sm"><canvas id="eWk"></canvas></div></div>
-  <div class="banner info" style="margin-top:16px">⏱️ <div>الوقت الدقيق الذي يقضيه كل مستخدم داخل التطبيق (بالدقائق يومياً) يبدأ مع الإصدار القادم — صفحة <a href="#time"><b>وقت الاستخدام</b></a>.</div></div>`;
+  <div class="banner info" style="margin-top:16px">${ico('clock')}<div>الوقت الدقيق الذي يقضيه كل مستخدم داخل التطبيق (بالدقائق يومياً) يبدأ مع الإصدار القادم — صفحة <a href="#time"><b>وقت الاستخدام</b></a>.</div></div>`;
   chart('eAU', {type:'line', data:{labels:s.map(x => shortDay(x.d)), datasets:[
-    {label:'شهري', data:s.map(x => x.mau), borderColor:'#06b6d4', backgroundColor:c => grad(c.chart.ctx, 'rgba(6,182,212,.18)', 'rgba(6,182,212,0)'), fill:true, tension:.3, pointRadius:0, borderWidth:2},
-    {label:'أسبوعي', data:s.map(x => x.wau), borderColor:'#8b5cf6', tension:.3, pointRadius:0, borderWidth:2},
-    {label:'يومي', data:s.map(x => x.dau), borderColor:'#3b82f6', tension:.3, pointRadius:0, borderWidth:2}]},
+    {label:'شهري', data:s.map(x => x.mau), borderColor:'#32ADE6', backgroundColor:c => grad(c.chart.ctx, 'rgba(50,173,230,.18)', 'rgba(50,173,230,0)'), fill:true, tension:.3, pointRadius:0, borderWidth:2},
+    {label:'أسبوعي', data:s.map(x => x.wau), borderColor:'#AF52DE', tension:.3, pointRadius:0, borderWidth:2},
+    {label:'يومي', data:s.map(x => x.dau), borderColor:'#0A84FF', tension:.3, pointRadius:0, borderWidth:2}]},
     options:{maintainAspectRatio:false, interaction:{mode:'index', intersect:false}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, ticks:{precision:0}}}}});
-  chart('eStick', {type:'line', data:{labels:s.map(x => shortDay(x.d)), datasets:[{label:'%', data:s.map(x => pc(x.dau, x.mau)), borderColor:'#10b981',
-    backgroundColor:c => grad(c.chart.ctx, 'rgba(16,185,129,.25)', 'rgba(16,185,129,0)'), fill:true, tension:.35, pointRadius:0, borderWidth:2.2}]},
+  chart('eStick', {type:'line', data:{labels:s.map(x => shortDay(x.d)), datasets:[{label:'%', data:s.map(x => pc(x.dau, x.mau)), borderColor:'#34C759',
+    backgroundColor:c => grad(c.chart.ctx, 'rgba(52,199,89,.25)', 'rgba(52,199,89,0)'), fill:true, tension:.35, pointRadius:0, borderWidth:2.2}]},
     options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, max:100, ticks:{callback:v => v + '%'}}}}});
   const wd = e.weekday || [];
-  chart('eDow', {type:'bar', data:{labels:wd.map(x => DAYS[x.dow]), datasets:[{data:wd.map(x => x.n), backgroundColor:wd.map(x => x.dow === 5 ? '#64748b' : '#6366f1'), borderRadius:6}]},
+  chart('eDow', {type:'bar', data:{labels:wd.map(x => DAYS[x.dow]), datasets:[{data:wd.map(x => x.n), backgroundColor:wd.map(x => x.dow === 5 ? '#8E8E93' : '#5E5CE6'), borderRadius:6}]},
     options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, ticks:{precision:0}}}}});
   const hr = e.hours || [], hmax = Math.max(1, ...hr.map(x => x.n));
-  chart('eHour', {type:'bar', data:{labels:hr.map(x => x.h), datasets:[{data:hr.map(x => x.n), backgroundColor:hr.map(x => `rgba(59,130,246,${(.25 + .75 * x.n / hmax).toFixed(2)})`), borderRadius:4}]},
+  chart('eHour', {type:'bar', data:{labels:hr.map(x => x.h), datasets:[{data:hr.map(x => x.n), backgroundColor:hr.map(x => `rgba(10,132,255,${(.25 + .75 * x.n / hmax).toFixed(2)})`), borderRadius:4}]},
     options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, ticks:{precision:0}}}}});
   const wk = e.weekly || [];
   chart('eWk', {data:{labels:wk.map(x => shortDay(x.w)), datasets:[
-    {type:'bar', label:'عمليّات', data:wk.map(x => x.tx), backgroundColor:'rgba(99,102,241,.35)', borderRadius:6, yAxisID:'y1'},
-    {type:'line', label:'تجّار نشطون', data:wk.map(x => x.active), borderColor:'#f59e0b', backgroundColor:'#f59e0b', tension:.3, borderWidth:2.5, yAxisID:'y'}]},
+    {type:'bar', label:'عمليّات', data:wk.map(x => x.tx), backgroundColor:'rgba(94,92,230,.35)', borderRadius:6, yAxisID:'y1'},
+    {type:'line', label:'تجّار نشطون', data:wk.map(x => x.active), borderColor:'#FF9F0A', backgroundColor:'#FF9F0A', tension:.3, borderWidth:2.5, yAxisID:'y'}]},
     options:{maintainAspectRatio:false, interaction:{mode:'index', intersect:false}, scales:{x:{grid:{display:false}},
       y:{beginAtZero:true, ticks:{precision:0}, position:'right'}, y1:{beginAtZero:true, position:'left', grid:{display:false}}}}});
 };
@@ -1518,11 +1657,11 @@ RENDER.eng = async () => {
 /* ═══════════════════════════════════════════════════════════════════
    ⭐ استخدام الميزات
    ═══════════════════════════════════════════════════════════════════ */
-const FEAT_M = {active30:['عملوا خلال 30 يوماً','#10b981'], dollar:['يستخدمون الدولرة','#f59e0b'], linked:['لهم زبون مرتبط بالتطبيق','#06b6d4'],
-  note:['عبارة خاصة على الكشف','#8b5cf6'], logo:['شعار على الكشف','#6366f1'], backup:['أخذوا نسخة احتياطيّة','#3b82f6'],
-  replies:['ردّوا على اعتراض زبون','#ec4899'], multidev:['أكثر من جهاز','#14b8a6'], quiet:['فعّلوا ساعات الهدوء','#a78bfa'], notif_off:['أوقفوا الإشعارات','#ef4444']};
-const FEAT_C = {verified:['وثّقوا رقمهم','#10b981'], linked:['مرتبطون بمتجر واحد على الأقل','#06b6d4'], disputed:['اعترضوا على عمليّة','#ec4899'],
-  quiet:['فعّلوا ساعات الهدوء','#a78bfa'], notif_off:['أوقفوا الإشعارات','#ef4444']};
+const FEAT_M = {active30:['عملوا خلال 30 يوماً','#34C759'], dollar:['يستخدمون الدولرة','#FF9F0A'], linked:['لهم زبون مرتبط بالتطبيق','#32ADE6'],
+  note:['عبارة خاصة على الكشف','#AF52DE'], logo:['شعار على الكشف','#5E5CE6'], backup:['أخذوا نسخة احتياطيّة','#0A84FF'],
+  replies:['ردّوا على اعتراض زبون','#FF2D55'], multidev:['أكثر من جهاز','#00C7BE'], quiet:['فعّلوا ساعات الهدوء','#BF5AF2'], notif_off:['أوقفوا الإشعارات','#FF3B30']};
+const FEAT_C = {verified:['وثّقوا رقمهم','#34C759'], linked:['مرتبطون بمتجر واحد على الأقل','#32ADE6'], disputed:['اعترضوا على عمليّة','#FF2D55'],
+  quiet:['فعّلوا ساعات الهدوء','#BF5AF2'], notif_off:['أوقفوا الإشعارات','#FF3B30']};
 RENDER.feat = async () => {
   let a; try { a = await rpc('admin_adoption'); }
   catch(err){ if (missingFn(err)) { $('#view').innerHTML = sqlBanner(); return; } throw err; }
@@ -1534,11 +1673,11 @@ RENDER.feat = async () => {
     ? `<b>أكبر فرصة الآن:</b> ${100 - linkedPct}% من التجّار لا زبون مرتبطاً لهم بالتطبيق — أي أن زبائنهم لا يرون ديونهم ولا تصلهم إشعارات. رابط الكشف بلا تطبيق (في التقرير) يحلّ هذا.`
     : `<b>جيّد:</b> ${linkedPct}% من التجّار لهم زبائن يرون ديونهم في التطبيق.`;
   $('#view').innerHTML = `
-  <div class="banner info">💡 <div>${insight}</div></div>
+  <div class="banner info">${ico('info')}<div>${insight}</div></div>
   <div class="grid g2">
-    <div class="card"><h3>🏪 ميزات التجّار</h3><div class="hint">النسبة من كل التجّار (${n0(a.merchants)})</div>
+    <div class="card"><h3>ميزات التجّار</h3><div class="hint">النسبة من كل التجّار (${n0(a.merchants)})</div>
       ${Object.entries(FEAT_M).map(([k, [l, col]]) => abar(l, mf[k] || 0, a.merchants, col, k === 'notif_off' ? 'سلبي' : '')).join('')}</div>
-    <div class="card"><h3>👤 ميزات الزبائن</h3><div class="hint">النسبة من كل الزبائن الذين لهم حساب (${n0(a.clients)})</div>
+    <div class="card"><h3>ميزات الزبائن</h3><div class="hint">النسبة من كل الزبائن الذين لهم حساب (${n0(a.clients)})</div>
       ${Object.entries(FEAT_C).map(([k, [l, col]]) => abar(l, cf[k] || 0, a.clients, col, k === 'notif_off' ? 'سلبي' : '')).join('')}
       <div class="hint" style="margin-top:14px">ما لا يُقاس بعد: فتح كشف PDF، تصدير Excel، والوقت في كل شاشة — يبدأ قياسه مع الإصدار القادم.</div></div>
   </div>`;
@@ -1554,33 +1693,33 @@ RENDER.cli = async () => {
   $('#crumb').textContent = 'الزبائن الذين نزّلوا التطبيق ليروا ديونهم';
   $('#view').innerHTML = `
   <div class="grid g4">
-    ${K2(n0(c.clients), 'زبائن لهم حساب', '#06b6d4', `${n0(c.dual)} منهم صاروا تجّاراً أيضاً`)}
-    ${K2(pc(c.verified, c.clients) + '%', 'وثّقوا رقمهم', '#10b981', `${n0(c.verified)} زبون`)}
-    ${K2(pc(c.linked, c.clients) + '%', 'مرتبطون بمتجر', '#3b82f6', `متوسّط ${c.avg_stores} متجر لكلّ زبون`)}
-    ${K2(pc(nt.read, nt.total) + '%', 'قرؤوا إشعاراتهم (30 يوماً)', '#8b5cf6', `${n0(nt.read)} من ${n0(nt.total)}`)}
+    ${K2(n0(c.clients), 'زبائن لهم حساب', '#32ADE6', `${n0(c.dual)} منهم صاروا تجّاراً أيضاً`)}
+    ${K2(pc(c.verified, c.clients) + '%', 'وثّقوا رقمهم', '#34C759', `${n0(c.verified)} زبون`)}
+    ${K2(pc(c.linked, c.clients) + '%', 'مرتبطون بمتجر', '#0A84FF', `متوسّط ${c.avg_stores} متجر لكلّ زبون`)}
+    ${K2(pc(nt.read, nt.total) + '%', 'قرؤوا إشعاراتهم (30 يوماً)', '#AF52DE', `${n0(nt.read)} من ${n0(nt.total)}`)}
   </div>
   <div class="grid g21" style="margin-top:16px">
     <div class="card"><h3>رحلة الزبون</h3><div class="hint">من الحساب إلى رؤية الديون</div>
       ${[['لهم حساب', c.clients], ['وثّقوا رقمهم', c.verified], ['مرتبطون بمتجر', c.linked]].map(([l, n], i, arr) => `<div class="funnel-row"><b style="font-size:13.5px">${l}</b>
         <div class="track"><div class="fill" style="width:${Math.max(4, pc(n, c.clients))}%">${n0(n)}</div></div>
         <div class="pc">${pc(n, c.clients)}%${i ? ` · <b style="color:var(--text)">${pc(n, arr[i - 1][1])}%</b> من السابق` : ''}</div></div>`).join('')}
-      <div class="section-t">⚖️ الاعتراضات</div>
+      <div class="section-t">الاعتراضات</div>
       <ul class="checks"><li>اعتراضات الزبائن على عمليّات <b class="num" style="margin-right:auto">${n0(ds.total)}</b></li>
         <li>ردّ عليها التاجر <b style="margin-right:auto"><span class="num">${n0(ds.replied)}</span> (${pc(ds.replied, ds.total)}%)</b></li></ul></div>
     <div class="card"><h3>كم متجراً يتابع الزبون؟</h3><div class="hint">بين الزبائن المرتبطين</div><div class="chart-box sm"><canvas id="cStores"></canvas></div></div>
   </div>
   <div class="grid g21" style="margin-top:16px">
-    <div class="card" style="padding:0"><div style="padding:18px 20px 6px"><h3>🏆 المتاجر الأكثر ربطاً</h3><div class="hint">من يجلب زبائنه إلى التطبيق — سفراؤك</div></div>
+    <div class="card" style="padding:0"><div style="padding:18px 20px 6px"><h3>المتاجر الأكثر ربطاً</h3><div class="hint">من يجلب زبائنه إلى التطبيق — سفراؤك</div></div>
       <div class="table-wrap" style="border:0;border-top:1px solid var(--line)"><table><thead><tr><th>المتجر</th><th>زبائن مرتبطون</th><th>من أصل</th><th>النسبة</th></tr></thead><tbody>
       ${(c.top_stores || []).map(s => `<tr class="click" data-u="${s.id}"><td><b>${esc(s.store_name || '—')}</b></td><td class="num"><b>${n0(s.clients)}</b></td><td class="num">${n0(s.customers)}</td><td class="num">${pc(s.clients, s.customers)}%</td></tr>`).join('') || '<tr><td colspan="4" class="empty">لا روابط بعد</td></tr>'}
       </tbody></table></div></div>
     <div class="card"><h3>زبائن جدد أسبوعياً</h3><div class="hint">آخر 12 أسبوعاً</div><div class="chart-box sm"><canvas id="cSign"></canvas></div></div>
   </div>`;
   const sk = ['1','2','3','4+'];
-  chart('cStores', {type:'bar', data:{labels:sk.map(k => k + (k === '1' ? ' متجر' : ' متاجر')), datasets:[{data:sk.map(k => sd[k] || 0), backgroundColor:['#06b6d4','#3b82f6','#6366f1','#8b5cf6'], borderRadius:8}]},
+  chart('cStores', {type:'bar', data:{labels:sk.map(k => k + (k === '1' ? ' متجر' : ' متاجر')), datasets:[{data:sk.map(k => sd[k] || 0), backgroundColor:['#32ADE6','#0A84FF','#5E5CE6','#AF52DE'], borderRadius:8}]},
     options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, ticks:{precision:0}}}}});
   const sg = c.signups_90d || [];
-  chart('cSign', {type:'bar', data:{labels:sg.map(x => shortDay(x.w)), datasets:[{data:sg.map(x => x.n), backgroundColor:'#06b6d4', borderRadius:6}]},
+  chart('cSign', {type:'bar', data:{labels:sg.map(x => shortDay(x.w)), datasets:[{data:sg.map(x => x.n), backgroundColor:'#32ADE6', borderRadius:6}]},
     options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, ticks:{precision:0}}}}});
   wireUsers($('#view'));
 };
@@ -1593,24 +1732,24 @@ RENDER.time = async () => {
   try { u = await rpc('admin_usage_time', {p_days: PERIOD}); } catch(e){ if (!missingFn(e)) throw e; }
   if (u && typeof RENDER_TIME_LIVE === 'function') return RENDER_TIME_LIVE(u);
   $('#crumb').textContent = 'يبدأ مع الإصدار القادم من التطبيق';
-  const card = (ic, t, d) => `<div class="card"><h3>${ic} ${t}</h3><div class="hint" style="margin:0">${d}</div></div>`;
+  const card = (ic, t, d) => `<div class="card"><div class="sc-ic">${ico(ic)}</div><h3>${t}</h3><div class="hint" style="margin:0">${d}</div></div>`;
   $('#view').innerHTML = `
-  <div class="banner info">⏱️ <div><b>هذه الصفحة جاهزة، وتنتظر البيانات.</b> لا يوجد اليوم في القاعدة ما يقيس الوقت داخل التطبيق — فقط «آخر فتح». الإصدار القادم يُضيف عدّاداً خفيفاً يسجّل مدّة كل جلسة والشاشات التي زارها، فتمتلئ هذه الصفحة تلقائياً.</div></div>
+  <div class="banner info">${ico('clock')}<div><b>هذه الصفحة جاهزة، وتنتظر البيانات.</b> لا يوجد اليوم في القاعدة ما يقيس الوقت داخل التطبيق — فقط «آخر فتح». الإصدار القادم يُضيف عدّاداً خفيفاً يسجّل مدّة كل جلسة والشاشات التي زارها، فتمتلئ هذه الصفحة تلقائياً.</div></div>
   <div class="section-t">ما ستراه هنا</div>
   <div class="soon">
-    ${card('⏳', 'دقائق الاستخدام يومياً', 'لكل تاجر وكل زبون، بدقّة الدقيقة — ومتوسّطها عبر الجميع.')}
-    ${card('📱', 'الجلسات', 'كم مرّة يُفتح التطبيق يومياً، وكم تدوم الجلسة.')}
-    ${card('🧭', 'الوقت في كل شاشة', 'أين يقضي الناس وقتهم: الزبائن، الكشف، الإحصاءات…')}
-    ${card('🕐', 'ساعات الاستخدام', 'متى يفتح التاجر تطبيقه فعلاً، لا متى يسجّل فقط.')}
-    ${card('🏆', 'الأكثر تفاعلاً', 'ترتيب المستخدمين بالوقت — مع ملفّ كلٍّ منهم.')}
-    ${card('👤', 'في ملفّ كل مستخدم', 'رسم دقائقه اليوميّة في تبويب «النشاط».')}
+    ${card('clock', 'دقائق الاستخدام يومياً', 'لكل تاجر وكل زبون، بدقّة الدقيقة — ومتوسّطها عبر الجميع.')}
+    ${card('phone', 'الجلسات', 'كم مرّة يُفتح التطبيق يومياً، وكم تدوم الجلسة.')}
+    ${card('compass', 'الوقت في كل شاشة', 'أين يقضي الناس وقتهم: الزبائن، الكشف، الإحصاءات…')}
+    ${card('chart', 'ساعات الاستخدام', 'متى يفتح التاجر تطبيقه فعلاً، لا متى يسجّل فقط.')}
+    ${card('star', 'الأكثر تفاعلاً', 'ترتيب المستخدمين بالوقت — مع ملفّ كلٍّ منهم.')}
+    ${card('person', 'في ملفّ كل مستخدم', 'رسم دقائقه اليوميّة في تبويب «النشاط».')}
   </div>
   <div class="grid g2" style="margin-top:16px">
-    <div class="card"><h3>✅ ما يلزم لتعمل</h3><ul class="checks">
+    <div class="card"><h3>ما يلزم لتعمل</h3><ul class="checks">
       <li><span class="ci wa">١</span>ملف SQL المرحلة ٢ (جدول الجلسات بصلاحيّات صارمة)</li>
       <li><span class="ci wa">٢</span>إصدار التطبيق القادم مع عدّاد الجلسات</li>
       <li><span class="ci wa">٣</span>سطر في سياسة الخصوصية يذكر قياس وقت الاستخدام</li></ul></div>
-    <div class="card"><h3>🔒 الخصوصيّة</h3><ul class="checks">
+    <div class="card"><h3>الخصوصيّة</h3><ul class="checks">
       <li><span class="ci ok">✓</span>يُسجَّل وقت الجلسة واسم الشاشة فقط — لا مبالغ ولا أسماء زبائن</li>
       <li><span class="ci ok">✓</span>يوقفه المستخدم من إعداد «تحسين التطبيق» الموجود</li>
       <li><span class="ci ok">✓</span>التفاصيل الخام تُحذف بعد 90 يوماً، ويبقى الملخّص اليومي</li></ul></div>
@@ -1660,14 +1799,14 @@ function drawUsers(){
   <div class="toolbar">
     <input id="upQ" placeholder="بحث داخل القائمة: اسم، متجر، بريد، رقم…" value="${esc(uSearch || '')}">
     <div class="grow"></div>
-    <button class="btn sm" id="upMsg">✉️ راسل هذه القائمة</button>
+    <button class="btn sm" id="upMsg">${ico('msg')} راسل هذه القائمة</button>
     <button class="btn sm" id="upCsv">${ico('down')} تصدير CSV</button>
   </div>
   <div class="card" style="padding:0"><div class="table-wrap" style="border:0"><table>
     <thead><tr>${th('name', 'المستخدم')}<th class="t">التواصل</th>${th('status', 'الحالة')}${th('health', 'الصحّة')}${th('customers', 'الزبائن')}${th('tx_30d', 'عمليّات 30 يوماً')}${th('active_days_30', 'أيام العمل')}${th('last', 'آخر نشاط')}${th('ltv', 'دفع إجمالاً')}${th('created_at', 'انضمّ')}</tr></thead>
     <tbody>${rows.slice(0, 500).map(u => `
       <tr class="click" data-u="${u.id}">
-        <td><div class="who" style="display:flex;gap:10px;align-items:center"><div class="avatar" style="width:34px;height:34px;font-size:13px;${u.is_merchant ? '' : 'background:linear-gradient(135deg,#0891b2,#0d9488)'}">${esc(initial(u.store_name || u.name))}</div>
+        <td><div class="who" style="display:flex;gap:10px;align-items:center"><div class="avatar" style="width:34px;height:34px;font-size:13px;${u.is_merchant ? '' : 'background:linear-gradient(160deg,#64D2FF,#30B0C7)'}">${esc(initial(u.store_name || u.name))}</div>
           <div><b>${esc(u.store_name || u.name || 'بلا اسم')}${u.is_admin ? ' <span class="badge b-next">مشرف</span>' : ''}</b><span>${esc(u.store_name ? (u.name || '') : '')} ${u.is_merchant ? '· تاجر' : 'زبون'}${u.is_client && u.is_merchant ? ' + زبون' : ''}</span></div></div></td>
         <td class="t"><div class="who"><b class="num" style="font-weight:600;font-size:12.5px">${esc(u.email || '—')}</b><span class="num">${esc(u.phone || '')}${u.phone_verified ? ' ✓' : ''}</span></div></td>
         <td>${statusBadge(u.status)}</td>
@@ -1705,7 +1844,7 @@ RENDER.hs = async () => {
     dormant:'اسأل ماذا حدث — وعرض تمديد', never:'ساعدهم يضيفون أوّل زبون'};
   const seg = k => { const list = by(k).sort((a, b) => (b.health || 0) - (a.health || 0));
     return `<div class="card"><div class="card-head"><div><h3>${segBadge(k)} <span class="num">${n0(list.length)}</span></h3><div class="hint" style="margin:0">${SEG_ACT[k]}</div></div>
-      ${list.length ? `<button class="btn sm" data-seg="${k}">✉️ راسلهم</button>` : ''}</div>
+      ${list.length ? `<button class="btn sm" data-seg="${k}">${ico('msg')} راسلهم</button>` : ''}</div>
       ${list.slice(0, 6).map(u => userLi(u, `<div style="text-align:left">${hbar(u.health)}<span style="display:block;font-size:11.5px;color:var(--muted);margin-top:3px">${ago(lastAct(u))}</span></div>`)).join('') || '<div class="empty" style="padding:16px">لا أحد</div>'}
       ${list.length > 6 ? `<a class="hint" href="#users?f=${k}" style="display:block;margin:8px 0 0">عرض الكلّ (${n0(list.length)}) ←</a>` : ''}</div>`; };
   $('#view').innerHTML = `
@@ -1737,19 +1876,19 @@ RENDER.money = async () => {
   $('#crumb').textContent = 'من سجل الاشتراكات الفعلي · المِنَح المجانيّة لا تُحسب دخلاً';
   $('#view').innerHTML = `
   <div class="grid g4">
-    ${K2(usd(rv.mrr), 'الدخل الشهري المتكرر (MRR)', '#f59e0b', `سنوياً (ARR) ${usd(rv.arr)}`)}
-    ${K2(n0(rv.paying), 'مشتركون يدفعون الآن', '#10b981', `متوسّط ${usd(rv.arpu)} شهرياً لكلّ مشترك`)}
-    ${K2(pc(cv.converted, cv.ended) + '%', 'تحويل التجربة إلى دفع', '#3b82f6', `${n0(cv.converted)} من ${n0(cv.ended)} انتهت تجربتهم (90 يوماً)`)}
-    ${K2(usd(rv.ltv_avg), 'متوسّط ما يدفعه المشترك إجمالاً', '#8b5cf6', `الإيرادات الكلّيّة ${usd(rv.revenue_total)}`)}
+    ${K2(usd(rv.mrr), 'الدخل الشهري المتكرر (MRR)', '#FF9F0A', `سنوياً (ARR) ${usd(rv.arr)}`)}
+    ${K2(n0(rv.paying), 'مشتركون يدفعون الآن', '#34C759', `متوسّط ${usd(rv.arpu)} شهرياً لكلّ مشترك`)}
+    ${K2(pc(cv.converted, cv.ended) + '%', 'تحويل التجربة إلى دفع', '#0A84FF', `${n0(cv.converted)} من ${n0(cv.ended)} انتهت تجربتهم (90 يوماً)`)}
+    ${K2(usd(rv.ltv_avg), 'متوسّط ما يدفعه المشترك إجمالاً', '#AF52DE', `الإيرادات الكلّيّة ${usd(rv.revenue_total)}`)}
   </div>
   <div class="grid g21" style="margin-top:16px">
     <div class="card"><h3>الإيرادات الشهريّة — 12 شهراً</h3><div class="hint">المبالغ (أعمدة) وعدد الاشتراكات (خطّ)</div><div class="chart-box"><canvas id="mRev"></canvas></div></div>
     <div class="card"><h3>حسب الخطّة</h3><div class="hint">آخر 12 شهراً</div><div class="chart-box"><canvas id="mPlan"></canvas></div></div>
   </div>
   <div class="grid g2" style="margin-top:16px">
-    <div class="card"><h3>🔄 تتجدّد خلال 30 يوماً</h3><div class="hint">ذكّرهم قبل الانتهاء</div>
+    <div class="card"><h3>تتجدّد خلال 30 يوماً</h3><div class="hint">ذكّرهم قبل الانتهاء</div>
       ${(rv.renewals_30d || []).map(r => userLi(r, `<div style="text-align:left">${statusBadge(r.plan)}<span style="display:block;font-size:12px;color:var(--muted);margin-top:3px">${ago(r.expires_at)} · ${usd(r.amount_usd)}</span></div>`)).join('') || '<div class="empty" style="padding:16px">لا تجديدات قريبة</div>'}</div>
-    <div class="card"><h3>📉 انتهى اشتراكهم آخر 30 يوماً</h3><div class="hint">ولم يجدّدوا — أهمّ من تتواصل معه</div>
+    <div class="card"><h3>انتهى اشتراكهم آخر 30 يوماً</h3><div class="hint">ولم يجدّدوا — أهمّ من تتواصل معه</div>
       ${(rv.churn_30d || []).map(r => userLi(r, `<span style="font-size:12px;color:var(--muted)">${ago(r.expired_at)}</span>`)).join('') || '<div class="empty" style="padding:16px">لا أحد 🎉</div>'}</div>
   </div>
   <div class="card" style="margin-top:16px;padding:0"><div style="padding:18px 20px 6px;display:flex;align-items:center;gap:10px"><div style="flex:1"><h3>سجل الاشتراكات</h3><div class="hint">كل تفعيل — انقر الصفّ لفتح المستخدم</div></div>
@@ -1762,12 +1901,12 @@ RENDER.money = async () => {
     </tbody></table></div></div>`;
   const m = rv.monthly_12 || [];
   chart('mRev', {data:{labels:m.map(x => x.m), datasets:[
-    {type:'bar', label:'$', data:m.map(x => x.usd), backgroundColor:c => grad(c.chart.ctx, '#f59e0b', '#d97706'), borderRadius:8, yAxisID:'y'},
-    {type:'line', label:'اشتراكات', data:m.map(x => x.n), borderColor:'#8b5cf6', backgroundColor:'#8b5cf6', tension:.3, borderWidth:2, yAxisID:'y1'}]},
+    {type:'bar', label:'$', data:m.map(x => x.usd), backgroundColor:c => grad(c.chart.ctx, '#FF9F0A', '#FF9500'), borderRadius:8, yAxisID:'y'},
+    {type:'line', label:'اشتراكات', data:m.map(x => x.n), borderColor:'#AF52DE', backgroundColor:'#AF52DE', tension:.3, borderWidth:2, yAxisID:'y1'}]},
     options:{maintainAspectRatio:false, interaction:{mode:'index', intersect:false}, scales:{x:{grid:{display:false}},
       y:{beginAtZero:true, position:'right'}, y1:{beginAtZero:true, position:'left', grid:{display:false}, ticks:{precision:0}}}}});
   const pk = Object.keys(bp);
-  chart('mPlan', {type:'doughnut', data:{labels:pk.map(k => STATUS[k] ? STATUS[k][0] : k), datasets:[{data:pk.map(k => bp[k].usd), backgroundColor:pk.map(k => k === 'business' ? '#8b5cf6' : '#3b82f6'), borderWidth:0}]},
+  chart('mPlan', {type:'doughnut', data:{labels:pk.map(k => STATUS[k] ? STATUS[k][0] : k), datasets:[{data:pk.map(k => bp[k].usd), backgroundColor:pk.map(k => k === 'business' ? '#AF52DE' : '#0A84FF'), borderWidth:0}]},
     options:{maintainAspectRatio:false, cutout:'64%', plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{label:c => ` ${usd(c.raw)} · ${bp[pk[c.dataIndex]].n} اشتراك`}}}}});
   $('#mCsv').onclick = () => csvDownload(`daftar-subscriptions-${new Date().toISOString().slice(0, 10)}.csv`,
     ['المستخدم','المتجر','الخطة','المبلغ $','من','إلى','الحالة','سُجّل'],
@@ -1789,12 +1928,12 @@ openUser = async function(id, tab = 'ov'){
   const p = U360.profile || {};
   dr.innerHTML = `
     <div class="drawer-head">
-      <div class="avatar" style="${p.is_merchant ? '' : 'background:linear-gradient(135deg,#0891b2,#0d9488)'}">${esc(initial(p.store_name || p.name))}</div>
-      <div style="flex:1;min-width:0"><h3 style="font-size:18px;font-weight:800">${esc(p.store_name || p.name || 'بلا اسم')}</h3>
-        <div style="color:var(--muted);font-size:12.5px">${esc(p.name || '')} ${p.is_merchant ? '· تاجر' : ''} ${p.is_client ? '· زبون' : ''} ${p.is_admin ? '· مشرف' : ''}</div>
-        <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">${statusBadge(p.status)}${p.is_merchant ? segBadgeFor(U360) : ''}</div></div>
-      ${p.is_merchant ? `<div class="ring" style="width:76px;height:76px;background:conic-gradient(${hcol(U360.merchant.health)} ${U360.merchant.health}%, var(--card2) 0)"><div style="width:60px;height:60px"><b style="font-size:20px" class="num">${U360.merchant.health}</b></div></div>` : ''}
-      <button class="btn ghost sm" id="dClose">✕</button>
+      <div class="avatar" style="${p.is_merchant ? '' : 'background:linear-gradient(160deg,#64D2FF,#30B0C7)'}">${esc(initial(p.store_name || p.name))}</div>
+      <div style="flex:1;min-width:0"><h3 class="dh-t">${esc(p.store_name || p.name || 'بلا اسم')}</h3>
+        <div class="dh-s">${esc(p.name || '')} ${p.is_merchant ? '· تاجر' : ''} ${p.is_client ? '· زبون' : ''} ${p.is_admin ? '· مشرف' : ''}</div>
+        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">${statusBadge(p.status)}${p.is_merchant ? segBadgeFor(U360) : ''}</div></div>
+      ${p.is_merchant ? hring(U360.merchant.health) : ''}
+      <button class="x-close" id="dClose" aria-label="إغلاق">${ico('x')}</button>
     </div>
     <div class="tabs" id="uTabs">${U_TABS.map(([k, t]) => `<button data-t="${k}" class="${k === tab ? 'on' : ''}">${t}${k === 'notes' && (U360.notes || []).length ? ` <span class="pill">${U360.notes.length}</span>` : ''}</button>`).join('')}</div>
     <div class="drawer-body" id="uBody"></div>`;
@@ -1802,6 +1941,12 @@ openUser = async function(id, tab = 'ov'){
   $$('#uTabs button').forEach(b => b.onclick = () => { $$('#uTabs button').forEach(x => x.classList.toggle('on', x === b)); drawTab(id, b.dataset.t); });
   drawTab(id, tab);
 };
+function hring(v){ v = Math.max(0, Math.min(100, +v || 0)); const r = 26, C = 2 * Math.PI * r, col = hcol(v);
+  return `<div class="aring" title="درجة الصحّة ${v} من 100"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="${r}" class="trk" style="stroke:${col}"/>`
+    + `<circle cx="32" cy="32" r="${r}" class="arc" style="stroke:${col};stroke-dasharray:${C.toFixed(2)};--c0:${C.toFixed(2)};--off:${(C * (1 - v / 100)).toFixed(2)}${v ? '' : ';opacity:0'}"/></svg><b class="num">${v}</b></div>`; }
+function rings(parts){ const R = [56, 44, 32, 20];
+  return `<svg class="rings" viewBox="0 0 132 132">${parts.map((p, i) => { const r = R[i], C = 2 * Math.PI * r, f = Math.max(0, Math.min(1, (+p.v || 0) / p.max));
+    return `<circle cx="66" cy="66" r="${r}" class="trk" style="stroke:${p.col}"/><circle cx="66" cy="66" r="${r}" class="arc" style="stroke:${p.col};stroke-dasharray:${C.toFixed(2)};--c0:${C.toFixed(2)};--off:${(C * (1 - f)).toFixed(2)}${f ? '' : ';opacity:0'}"/>`; }).join('')}</svg>`; }
 function segBadgeFor(x){ const m = x.merchant || {}; if (!m.tx_total) return segBadge('never');
   const h = m.health; return segBadge(h >= 75 ? 'champion' : h >= 50 ? 'healthy' : h >= 25 ? 'attention' : 'dormant'); }
 function drawTab(id, t){
@@ -1809,22 +1954,22 @@ function drawTab(id, t){
   if (u360Chart) { u360Chart.destroy(); u360Chart = null; }
   const li = (l, v) => `<li>${l}<b style="margin-right:auto">${v}</b></li>`;
   if (t === 'ov') {
-    const owedLocal = Object.entries(m.owed_local || {}).filter(([, v]) => v > 0).map(([k, v]) => `${n0(Math.round(v))} ${esc(k)}`).join(' · ');
     const hp = m.health_parts || {};
+    const HP = [['recency', 'حداثة آخر عمليّة', 40, '#FF2D55'], ['frequency', 'الانتظام', 30, '#34C759'], ['depth', 'عمق الدفتر', 20, '#0A84FF'], ['reach', 'الوصول للزبائن', 10, '#AF52DE']];
     b.innerHTML = `
-      ${p.is_merchant ? `<div class="kv" style="grid-template-columns:repeat(4,1fr)">
+      ${p.is_merchant ? `<div class="kv k3">
         <div><b class="num">${n0(m.customers)}</b><span>زبون في دفتره</span></div>
-        <div><b class="num">${n0(m.linked)}</b><span>مرتبطون بالتطبيق</span></div>
-        <div><b class="num">${n0(m.tx_total)}</b><span>عمليّة (${n0(m.tx_30d)} آخر 30 يوماً)</span></div>
-        <div><b class="num">${n0(m.active_days_30)}<span style="font-size:13px;color:var(--muted)">/30</span></b><span>أيام عمل</span></div>
         <div><b class="num">${n0(m.debtors)}</b><span>زبون عليه دين</span></div>
         <div><b class="num">${usd(m.owed_usd)}</b><span>له عند الناس بالدولار</span></div>
-        <div style="grid-column:span 2"><b class="num" style="font-size:15px">${owedLocal || '—'}</b><span>له عند الناس بالعملة المحليّة</span></div></div>
-      <div class="section-t">❤️ درجة الصحّة ${m.health}/100</div>
-      ${abar('حداثة آخر عمليّة', hp.recency || 0, 40, '#10b981', `${hp.recency || 0}/40`)}${abar('الانتظام', hp.frequency || 0, 30, '#3b82f6', `${hp.frequency || 0}/30`)}
-      ${abar('عمق الدفتر', hp.depth || 0, 20, '#8b5cf6', `${hp.depth || 0}/20`)}${abar('الوصول للزبائن', hp.reach || 0, 10, '#06b6d4', `${hp.reach || 0}/10`)}` : ''}
-      ${p.is_client ? `<div class="section-t">👤 بصفته زبوناً</div><div class="kv"><div><b class="num">${n0((c.stores || []).length)}</b><span>متجر يتابع ديونه فيه</span></div><div><b class="num">${n0(c.disputes)}</b><span>اعتراض أرسله</span></div></div>` : ''}
-      <div class="section-t">🪪 معلومات</div>
+        <div><b class="num">${n0(m.tx_total)}</b><span>عمليّة · ${n0(m.tx_30d)} خلال 30 يوماً</span></div>
+        <div><b class="num">${n0(m.active_days_30)}<small>/30</small></b><span>أيام العمل</span></div>
+        <div><b class="num">${n0(m.linked)}</b><span>زبون مرتبط بالتطبيق</span></div></div>
+      <div class="section-t">درجة الصحّة</div>
+      <div class="hcard">${rings(HP.map(([k, , max, col]) => ({v: hp[k] || 0, max, col})))}
+        <div class="hleg">${HP.map(([k, l, max, col]) => `<div class="hl" style="--c:${col}"><span><i></i>${l}</span><b class="num">${hp[k] || 0}<small>/${max}</small></b></div>`).join('')}
+          <div class="htot"><span>المجموع</span><span><b class="num">${m.health}</b><small> / 100</small></span></div></div></div>` : ''}
+      ${p.is_client ? `<div class="section-t">بصفته زبوناً</div><div class="kv"><div><b class="num">${n0((c.stores || []).length)}</b><span>متجر يتابع ديونه فيه</span></div><div><b class="num">${n0(c.disputes)}</b><span>اعتراض أرسله</span></div></div>` : ''}
+      <div class="section-t">معلومات</div>
       <ul class="checks">
         ${li('البريد', `<span class="num">${esc(p.email || '—')}</span>`)}
         ${li('الهاتف', `<span class="num">${esc(p.phone || '—')}</span> ${p.phone_verified ? '<span class="badge b-ok">موثّق</span>' : '<span class="badge b-free">غير موثّق</span>'}`)}
@@ -1839,15 +1984,15 @@ function drawTab(id, t){
   if (t === 'act') {
     const d = m.daily_90 || [];
     b.innerHTML = `
-      ${p.is_merchant ? `<div class="kv" style="grid-template-columns:repeat(4,1fr)">
+      ${p.is_merchant ? `<div class="kv k4">
         <div><b class="num">${n0(m.debts)}</b><span>دين</span></div><div><b class="num">${n0(m.payments)}</b><span>دفعة</span></div>
         <div><b>${m.first_tx ? fdate(m.first_tx) : '—'}</b><span>أوّل عمليّة</span></div><div><b>${ago(m.last_tx)}</b><span>آخر عمليّة</span></div></div>
       <div class="card"><h3>العمليّات اليوميّة — 90 يوماً</h3><div class="chart-box sm"><canvas id="u360c"></canvas></div></div>
       <ul class="checks" style="margin-top:12px">${li('اعتراضات زبائنه', n0(m.disputes))}${li('ردّ عليها', n0(m.replies))}
         ${li('نسخ احتياطيّة', `${n0((m.backups || {}).count)} · ${bytes((m.backups || {}).bytes)}${(m.backups || {}).last ? ' · آخرها ' + ago(m.backups.last) : ''}`)}</ul>` : ''}
-      ${p.is_client ? `<div class="section-t">🏪 المتاجر التي يتابعها</div>${(c.stores || []).map(s => userLi({id: s.merchant_id, store_name: s.store_name}, `<span style="font-size:12px;color:var(--muted)">منذ ${fdate(s.linked_at)}</span>`)).join('') || '<div class="empty" style="padding:16px">غير مرتبط بأي متجر</div>'}` : ''}
-      <div class="banner info" style="margin-top:14px">⏱️ <div>دقائق الاستخدام اليوميّة لهذا المستخدم تظهر هنا مع الإصدار القادم.</div></div>`;
-    if (p.is_merchant) u360Chart = new Chart($('#u360c'), {type:'bar', data:{labels:d.map(x => shortDay(x.d)), datasets:[{data:d.map(x => x.n), backgroundColor:'#6366f1', borderRadius:3}]},
+      ${p.is_client ? `<div class="section-t">المتاجر التي يتابعها</div>${(c.stores || []).map(s => userLi({id: s.merchant_id, store_name: s.store_name}, `<span style="font-size:12px;color:var(--muted)">منذ ${fdate(s.linked_at)}</span>`)).join('') || '<div class="empty" style="padding:16px">غير مرتبط بأي متجر</div>'}` : ''}
+      <div class="banner info" style="margin-top:14px">${ico('clock')}<div>دقائق الاستخدام اليوميّة لهذا المستخدم تظهر هنا مع الإصدار القادم.</div></div>`;
+    if (p.is_merchant) u360Chart = new Chart($('#u360c'), {type:'bar', data:{labels:d.map(x => shortDay(x.d)), datasets:[{data:d.map(x => x.n), backgroundColor:'#5E5CE6', borderRadius:3}]},
       options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}, ticks:{maxTicksLimit:10}}, y:{beginAtZero:true, ticks:{precision:0}}}}});
     wireUsers(b);
   }
@@ -1855,7 +2000,7 @@ function drawTab(id, t){
     const subs = x.subscriptions || [];
     b.innerHTML = `<ul class="checks">${li('الحالة الآن', statusBadge(p.status))}${li('الخطّة', esc(p.plan))}${li('تنتهي', p.plan_expires_at ? `${fdate(p.plan_expires_at)} (${ago(p.plan_expires_at)})` : '—')}${li('نهاية التجربة', fdate(p.trial_ends_at))}
       ${li('دفع إجمالاً', usd(subs.filter(s => !['cancelled','canceled','refunded'].includes(s.status)).reduce((a, s) => a + (+s.amount_usd || 0), 0)))}</ul>
-      <div class="section-t">🧾 سجل الاشتراكات</div>
+      <div class="section-t">سجل الاشتراكات</div>
       ${subs.length ? `<div class="table-wrap"><table><thead><tr><th>الخطّة</th><th>المبلغ</th><th>من</th><th>إلى</th><th>الحالة</th><th></th></tr></thead><tbody>
         ${subs.map((s, i) => `<tr><td>${esc(s.plan)}</td><td class="num"><b>${usd(s.amount_usd)}</b></td><td>${fdate(s.started_at)}</td><td>${fdate(s.expires_at)}</td>
           <td>${s.status === 'active' ? '<span class="badge b-ok">فعّال</span>' : '<span class="badge b-free">' + esc(s.status) + '</span>'}</td><td><button class="btn ghost sm" data-sub="${i}">تعديل</button></td></tr>`).join('')}
@@ -1864,11 +2009,11 @@ function drawTab(id, t){
   }
   if (t === 'dev') {
     const n = x.notifications || {}, dv = x.devices || [];
-    b.innerHTML = `<div class="section-t">📱 الأجهزة</div>
+    b.innerHTML = `<div class="section-t">الأجهزة</div>
       ${dv.length ? `<div class="table-wrap"><table><thead><tr><th>النظام</th><th>النسخة</th><th>آخر فتح</th><th>أوّل ظهور</th></tr></thead><tbody>
         ${dv.map(d => `<tr><td>${esc(d.platform || '—')}</td><td class="num">#${esc(d.app_build ?? '?')}</td><td>${ago(d.last_seen)}</td><td>${fdate(d.first_seen)}</td></tr>`).join('')}</tbody></table></div>`
-        : '<div class="banner">⚠️ <div>لا جهاز مسجّل — لن تصله إشعارات فوريّة.</div></div>'}
-      <div class="section-t">🔔 الإشعارات</div>
+        : `<div class="banner">${ico('warn')}<div>لا جهاز مسجّل — لن تصله إشعارات فوريّة.</div></div>`}
+      <div class="section-t">الإشعارات</div>
       <div class="kv"><div><b class="num">${n0(n.total)}</b><span>إشعار وصله</span></div><div><b class="num">${n0(n.unread)}</b><span>غير مقروء (${pc(n.unread, n.total)}%)</span></div></div>
       <ul class="checks">${Object.entries(n.by_type || {}).map(([k, v]) => li({debt:'ديون', payment:'دفعات', comment:'تعليقات', general:'عامّة'}[k] || esc(k), n0(v))).join('')}
         ${li('آخر إشعار', ago(n.last_at))}</ul>`;
@@ -1892,6 +2037,7 @@ function drawTab(id, t){
       ${a.map(r => { const [tt, cl] = ACT[r.action] || [r.action, 'b-free']; return `<tr><td>${fdt(r.created_at)}</td><td><span class="badge ${cl}">${esc(tt)}</span></td><td class="t" style="white-space:normal">${actDetails(r)}</td><td style="color:var(--muted)">${esc(r.actor_name || '')}</td></tr>`; }).join('')}
       </tbody></table></div>` : '<div class="empty">لا أفعال إداريّة على هذا الحساب</div>';
   }
+  countUp(b);
 }
 function drawActions(id, p, b){
   b.innerHTML = `
@@ -1954,6 +2100,39 @@ Object.assign(ACT, {add_note:['ملاحظة','b-next'], delete_note:['حذف م�
 document.addEventListener('keydown', e => {
   if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) { e.preventDefault(); $('#gSearch').focus(); }
 });
+
+/* ═══ لمسات الحركة: مؤشّر منزلق للأزرار المقسّمة، وعدّاد للأرقام ═══ */
+function countUp(root){
+  if (!root || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  $$('.kpi .v.num, .al b.num, .kv b.num, .si b.num', root).forEach(el => {
+    if (el.children.length || el.dataset.counted) return;
+    const m = /^(\D*?)(\d[\d,]*(?:\.\d+)?)(\D*)$/.exec(el.textContent.trim()); if (!m) return;
+    const target = parseFloat(m[2].replace(/,/g, '')); if (!isFinite(target) || target <= 0) return;
+    el.dataset.counted = 1;
+    const dec = (m[2].split('.')[1] || '').length, grp = m[2].includes(','), t0 = performance.now(), dur = 900, done = m[1] + m[2] + m[3];
+    const fmt = x => m[1] + (grp || x >= 1000 ? x.toLocaleString('en-US', {minimumFractionDigits: dec, maximumFractionDigits: dec}) : x.toFixed(dec)) + m[3];
+    const step = now => { const k = Math.min(1, (now - t0) / dur);
+      el.textContent = k < 1 ? fmt(target * (1 - Math.pow(1 - k, 3))) : done; if (k < 1) requestAnimationFrame(step); };
+    el.textContent = fmt(0); requestAnimationFrame(step);
+  });
+}
+function syncThumb(el){
+  let th = el.querySelector(':scope > .thumb');
+  if (!th) { th = document.createElement('i'); th.className = 'thumb'; el.prepend(th); el.classList.add('has-thumb'); }
+  const on = el.querySelector(':scope > button.on');
+  if (!on || !on.offsetWidth) { th.style.opacity = 0; return; }
+  Object.assign(th.style, {width: on.offsetWidth + 'px', height: on.offsetHeight + 'px', transform: `translate(${on.offsetLeft}px,${on.offsetTop}px)`, opacity: 1});
+  if (!th.classList.contains('ready')) requestAnimationFrame(() => requestAnimationFrame(() => th.classList.add('ready')));
+}
+function syncAllThumbs(){ $$('.seg, .tabs').forEach(syncThumb); }
+const THQ = new Set(); let thRaf = 0;
+function queueThumb(el){ THQ.add(el); if (!thRaf) thRaf = requestAnimationFrame(() => { thRaf = 0; [...THQ].forEach(e => e.isConnected && syncThumb(e)); THQ.clear(); }); }
+new MutationObserver(ms => { for (const m of ms) {
+  if (m.type === 'attributes') { const p = m.target.parentElement; if (m.target.tagName === 'BUTTON' && p && p.matches('.seg, .tabs')) queueThumb(p); continue; }
+  for (const n of m.addedNodes) { if (n.nodeType !== 1 || n.classList.contains('thumb')) continue;
+    if (n.matches('.seg, .tabs')) queueThumb(n); n.querySelectorAll('.seg, .tabs').forEach(queueThumb); }
+} }).observe(document.body, {subtree: true, childList: true, attributes: true, attributeFilter: ['class']});
+addEventListener('resize', syncAllThumbs);
 
 if (DEMO) { $('#login').style.display='none'; }
 boot();
